@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/default.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
+</head>
+<body>
+    <div class="page-container">
+        <div class="content-box">
+            <h1>Account</h1><br>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>username</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>01</td>
+                        <td>Admin User</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                        <td><a href="#">Edit</a></td>
+                    </tr>
+                    <tr>
+                        <td>02</td>
+                        <td>Guest</td>
+                        <td><span class="badge badge-warning">Pending</span></td>
+                        <td><a href="#">Edit</a></td>
+                    </tr>
+                </tbody>
+            </table>
+            <br><button class="btn btn-secondary">Add New Account</button><br>
+
+
+            <br><h1>Access Role</h1>
+            <div class="grid">
+                <div class="form-group">
+                    <label>Minimum Access Card level</label>
+                    <select>
+                        <option>Open</option>
+                        <option>Any level</option>
+                        <option>Level 1</option>
+                        <option>Level 2</option>
+                        <option>Level 3</option>
+                        <option>Level 4</option>
+                        <option>Level 5</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Zone Parameter</label>
+                    <textarea placeholder="A01,B02,Z99" rows="1"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Blacklist Role Parameter</label>
+                    <textarea placeholder="Designer,Guess" rows="1"></textarea>
+                </div>
+            </div>
+            <br><button class="btn btn-primary">Apply Settings</button><br>
+
+            <br><h1>Configuration</h1>
+            <div>
+                <h3>maintenance</h3>
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+                    <div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="text-muted" style="font-size: 0.9rem; margin-left: 5px;">Enable maintenance mode</span>
+                    </div>
+                    <div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="text-muted" style="font-size: 0.9rem; margin-left: 5px;">Unlock Access in maintenance mode</span>
+                    </div>
+                    <div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="text-muted" style="font-size: 0.9rem; margin-left: 5px;">Save Access History</span>
+                    </div>
+                </div>
+                <h3>maintenance</h3>
+            </div>
+            <br><button class="btn btn-primary">Apply Settings</button><br>
+
+            <br><h1>Additional Settings</h1>
+            <h3>Themes</h3>
+            <div class="grid">
+                <button class="btn btn-secondary">Change Or ManageThemes</button>
+                <button class="btn btn-secondary">Upload Themes</button>
+            </div>
+            <div class="grid">
+                <button class="btn btn-secondary">Change Or Manage VoicePack</button>
+                <button class="btn btn-secondary">Upload VoicePack</button>
+            </div>
+            <h3>maintenance</h3>
+            <br><button class="btn btn-primary">Apply Settings</button><br>
+            <br><h1>Accessibility</h1>
+            <h3>Audio</h3>
+            <div class="grid">
+                <div class="form-group">
+                            <label>Audio Guidance</label>
+                            <select>
+                                <option>Disable</option>
+                                <option>System only</option>
+                                <option>Feedback only</option>
+                                <option>All Audio</option>
+                            </select>
+                        </div>
+                <div class="form-group">
+                            <label>Audio Level</label>
+                            <select>
+                                <option>low</option>
+                                <option>medium</option>
+                                <option>full</option>
+                            </select>
+                        </div>
+                </div>
+            <button class="btn btn-primary">Apply Settings</button><br>
+
+            <br><h1>System Action</h1><br>
+            <div class="component-row">
+                <button class="btn btn-secondary">Apply All Configuration</button>
+                <button class="btn btn-danger">Save All Configuration</button>
+                <button class="btn btn-danger">Reboot Devices</button>
+                <button class="btn" disabled>Turn Off Devices</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

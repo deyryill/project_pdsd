@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+    <script src="{{ url_for('static', filename='res/core.js') }}"></script>
+</head>
+<body>
+    <div class="header">
+        <a href="home.html" style="color:white; text-decoration:none;">&larr; Back</a>
+        <h1>System Administration</h1>
+        <div>{{ username }} [ADMIN]</div>
+    </div>
+    <div class="content">
+        <div class="card">
+            <h3>System Configuration</h3>
+            <textarea id="sys-config" style="width:100%; height:200px; font-family:monospace;">{{ config | tojson(indent=4) }}</textarea>
+            <button onclick="saveSysConfig()">Save Global Config</button>
+        </div>
+        <div class="card" style="margin-top:20px;">
+            <h3>User Management</h3>
+            <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="user-search" placeholder="Search usernames..." onkeyup="filterUsers()" style="flex-grow: 1;">
+                <select id="level-filter" onchange="filterUsers()">
+                    <option value="">All Levels</option>
+                    <option value="0">Level 0 (Guest)</option>
+                    <option value="1">Level 1 (User)</option>
+                    <option value="2">Level 2 (Admin)</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px; display: flex; gap: 10px;">
+                <button onclick="batchDelete()" class="btn-del" style="background-color: #d9534f;">Delete Selected</button>
+                <button onclick="batchSetLevel(0)">Set Guest (0)</button>
+                <button onclick="batchSetLevel(1)">Set User (1)</button>
+                <button onclick="batchSetLevel(2)">Set Admin (2)</button>
+            </div>
+            <table style="width:100%; text-align: left; border-collapse: collapse;" id="user-table">
+                <thead>
+                    <tr style="border-bottom: 1px solid #ccc;">
+                        <th style="width: 30px;"><input type="checkbox" id="master-select" onclick="toggleAll(this)"></th>
+                        <th>Username</th>
+                        <th>Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u, data in users_list.items() %}
+                    <tr class="user-row">
+                        <td><input type="checkbox" class="user-checkbox" value="{{ u }}"></td>
+                        <td class="user-name">{{ u }}</td>
+                        <td class="user-level">{{ data.level }}</td>
+                        <td>
+                            <a href="user_settings.html?edit_user={{ u }}" class="btn-link" style="padding: 2px 8px; font-size: 12px;">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card" style="margin-top:20px;">
+            <h3>Theme Management</h3>
+            <input type="file" id="theme-upload" accept=".css">
+            <button onclick="uploadTheme()">Upload New Theme</button>
+            <hr>
+            <ul id="theme-list">
+                {% for t in themes %}
+                <li>
+                    {{ t }}
+                    {% if t != 'default' %}
+                    <button onclick="deleteTheme('{{ t }}')" class="btn-del">Delete</button>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <script>
+        function toggleAll(master) {
+            document.querySelectorAll('.user-checkbox').forEach(cb => {
+                if(cb.parentElement.parentElement.style.display !== 'none') {
+                    cb.checked = master.checked;
+                }
+            });
+        }
+        function getSelectedUsers() {
+            return Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
+        }
+        function batchDelete() {
+            const users = getSelectedUsers();
+            if(users.length === 0) return alert('No users selected');
+            if(confirm('Delete ' + users.length + ' users?')) {
+                fetch('/API/admin/batch_delete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({users: users})
+                }).then(() => location.reload());
+            }
+        }
+        function batchSetLevel(lvl) {
+            const users = getSelectedUsers();
+            if(users.length === 0) return alert('No users selected');
+            fetch('/API/admin/batch_level', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({users: users, level: lvl})
+            }).then(() => location.reload());
+        }
+        function filterUsers() {
+            const query = document.getElementById('user-search').value.toLowerCase();
+            const level = document.getElementById('level-filter').value;
+            const rows = document.querySelectorAll('.user-row');
+            rows.forEach(row => {
+                const name = row.querySelector('.user-name').textContent.toLowerCase();
+                const userLevel = row.querySelector('.user-level').textContent;
+                const matchesSearch = name.includes(query);
+                const matchesLevel = level === "" || userLevel === level;
+                row.style.display = (matchesSearch && matchesLevel) ? "" : "none";
+                if(row.style.display === 'none') row.querySelector('.user-checkbox').checked = false;
+            });
+        }
+        function saveSysConfig() {
+            try {
+                const config = JSON.parse(document.getElementById('sys-config').value);
+                fetch('/API/admin/save_config', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(config)
+                }).then(() => alert('System Updated'));
+            } catch(e) { alert('Invalid JSON format'); }
+        }
+        function uploadTheme() {
+            const file = document.getElementById('theme-upload').files[0];
+            const formData = new FormData();
+            formData.append('theme_file', file);
+            fetch('/API/admin/upload_theme', {method: 'POST', body: formData})
+            .then(() => location.reload());
+        }
+        function deleteTheme(name) {
+            if(confirm('Delete theme ' + name + '?')) {
+                fetch('/API/admin/delete_theme', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({theme: name})
+                }).then(() => location.reload());
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+:root{
+--p-bg-app: #c0c0c0;
+--p-bg-surface-1: #e0e0e0;
+--p-bg-surface-2: #d4d0c8;
+--p-bg-surface-3: #b4b4b4;
+--p-bg-input: #ffffff;
+--p-bg-overlay: rgba(0,0,0,0.6);
+
+--p-border-subtle: #808080;
+--p-border-main: #000000;
+--p-border-strong: #000000;
+
+--p-text-main: #000000;
+--p-text-muted: #333333;
+--p-text-disabled: #7a7a7a;
+--p-text-inverse: #ffffff;
+
+--p-primary-main: #000080;         /* classic blue */
+--p-primary-hover: #0000a0;
+--p-primary-active: #000060;
+--p-primary-subtle: rgba(0,0,128,0.08);
+
+--p-secondary-main: #f0f0f0;
+--p-secondary-hover: #e8e8e8;
+--p-secondary-active: #dcdcdc;
+--p-secondary-subtle: rgba(0,0,0,0.04);
+
+--p-status-error-main: #ff0000;
+--p-status-error-bg: rgba(255,0,0,0.08);
+--p-status-success-main: #008000;
+--p-status-success-bg: rgba(0,128,0,0.08);
+--p-status-warning-main: #ffcc00;
+--p-status-warning-bg: rgba(255,204,0,0.08);
+--p-status-info-main: #0000ff;
+--p-status-info-bg: rgba(0,0,255,0.08);
+
+--p-effect-shadow: rgba(0,0,0,0.4);
+--p-effect-glow: rgba(0,0,0,0.0);
+--p-effect-highlight: rgba(255,255,255,0.6);
+
+--p-ui-selection: rgba(0,0,128,0.12);
+--p-ui-focus-ring: rgba(0,0,128,0.9);
+
+/* gradient tokens (use with background-image) */
+--grad-surface: linear-gradient(180deg,#e0e0e0 0%,#d4d0c8 100%);
+--grad-titlebar: linear-gradient(180deg,#000080 0%,#000060 100%);
+--grad-button: linear-gradient(180deg,#ffffff 0%,#dcdcdc 100%);
+
+--p-extra-1: #000080;
+--p-extra-2: #808080;
+--p-extra-3: #d4d0c8;
+--p-extra-4: #ffffff;
+--p-extra-5: #000000;
+--p-extra-6: #c0c0c0;
+--p-extra-7: #404040;
+--p-extra-8: #b4b4b4;
+}

@@ -1,0 +1,7 @@
+[security]
+block_common_usernames=root,system
+
+[server]
+port=5000
+debug_mode=false
+

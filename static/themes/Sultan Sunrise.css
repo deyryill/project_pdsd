@@ -1,0 +1,52 @@
+:root {
+    --p-bg-app: #0f0f0f;
+    --p-bg-surface-1: #1a1a1a;
+    --p-bg-surface-2: #242424;
+    --p-bg-surface-3: #2a2a2a;
+    --p-bg-input: #050505;
+    --p-bg-overlay: rgba(0,0,0,0.85);
+
+    --p-border-subtle: #3a3a3a;
+    --p-border-main: #4a4a4a;
+    --p-border-strong: #7a7a7a;
+
+    --p-text-main: #f0f0f0;
+    --p-text-muted: #a0a0a0;
+    --p-text-disabled: #555555;
+    --p-text-inverse: #121212;
+
+    --p-primary-main: #d4af37;
+    --p-primary-hover: #b4942d;
+    --p-primary-active: #947a25;
+    --p-primary-subtle: rgba(212, 175, 55, 0.1);
+
+    --p-secondary-main: #e0e0e0;
+    --p-secondary-hover: #c0c0c0;
+    --p-secondary-active: #a0a0a0;
+    --p-secondary-subtle: rgba(224, 224, 224, 0.1);
+
+    --p-status-error-main: #d32f2f;
+    --p-status-error-bg: rgba(211, 47, 47, 0.1);
+    --p-status-success-main: #388e3c;
+    --p-status-success-bg: rgba(56, 142, 60, 0.1);
+    --p-status-warning-main: #fbc02d;
+    --p-status-warning-bg: rgba(251, 192, 45, 0.1);
+    --p-status-info-main: #1976d2;
+    --p-status-info-bg: rgba(25, 118, 210, 0.1);
+
+    --p-effect-shadow: rgba(0, 0, 0, 0.6);
+    --p-effect-glow: rgba(212, 175, 55, 0.4);
+    --p-effect-highlight: rgba(255, 255, 255, 0.03);
+
+    --p-ui-selection: rgba(212, 175, 55, 0.25);
+    --p-ui-focus-ring: rgba(212, 175, 55, 0.6);
+
+    --p-extra-1: #d4af37;
+    --p-extra-2: #f4c430;
+    --p-extra-3: #ffd700;
+    --p-extra-4: #daa520;
+    --p-extra-5: #b8860b;
+    --p-extra-6: #cd853f;
+    --p-extra-7: #8b4513;
+    --p-extra-8: #a0522d;
+}

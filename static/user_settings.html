@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Settings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+</head>
+<body>
+    <div class="header">
+        <a href="home.html" style="color:white; text-decoration:none;">&larr; Back</a>
+        <h1>Account Settings</h1>
+        <div>{{ username }}</div>
+    </div>
+    <div class="content">
+        <div class="card">
+            <h3>Account: {{ target_user }}</h3>
+            <form method="POST">
+                <label>Change Password</label>
+                <input type="password" name="password" placeholder="New Password">
+                <label>Select UI Theme</label>
+                <select name="theme">
+                    <option value="default" {% if target_data.theme == 'default' %}selected{% endif %}>Default</option>
+                    {% for t in themes %}
+                    <option value="{{ t }}" {% if target_data.theme == t %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+                {% if level >= 2 %}
+                <label>Access Level</label>
+                <input type="number" name="level" value="{{ target_data.level }}">
+                {% endif %}
+                <button type="submit" style="margin-top:15px;">Update Profile</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

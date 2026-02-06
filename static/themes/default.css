@@ -1,0 +1,54 @@
+:root {
+    --p-bg-app: #121212;            /* main background */
+    --p-bg-surface-1: #1e1e1e;      /* navbar, sidebar, bar related */
+    --p-bg-surface-2: #252525;      /* card, container,component */
+    --p-bg-surface-3: #2d2d2d;      /* modal, dropdown,menu */
+    --p-bg-input: #000000;          /* formn,inputs,output(readonly)*/
+    --p-bg-overlay: rgba(0,0,0,0.8);/* modal background */
+
+    --p-border-subtle: #333333;     /* border divider */
+    --p-border-main: #444444;       /* borders card*/
+    --p-border-strong: #666666;     /* borders active*/
+
+    --p-text-main: #ffffff;         /* text primary */
+    --p-text-muted: #b3b3b3;        /* text secondary */
+    --p-text-disabled: #666666;     /* text disable */
+    --p-text-inverse: #000000;      /* text invert */
+
+    --p-primary-main: #00ff00;      /* primary color */
+    --p-primary-hover: #00cc00;     /* primary hover */
+    --p-primary-active: #009900;    /* primary click, active */
+    --p-primary-subtle: rgba(0, 255, 0, 0.1); /* primary tints */
+
+    --p-secondary-main: #ffffff;
+    --p-secondary-hover: #e0e0e0;
+    --p-secondary-active: #cccccc;
+    --p-secondary-subtle: rgba(255, 255, 255, 0.1);
+
+    --p-status-error-main: #ff4444;
+    --p-status-error-bg: rgba(255, 68, 68, 0.1);
+    --p-status-success-main: #00cc00;
+    --p-status-success-bg: rgba(0, 204, 0, 0.1);
+    --p-status-warning-main: #ffbb33;
+    --p-status-warning-bg: rgba(255, 187, 51, 0.1);
+    --p-status-info-main: #33b5e5;
+    --p-status-info-bg: rgba(51, 181, 229, 0.1);
+
+    --p-effect-shadow: rgba(0, 0, 0, 0.5);
+    --p-effect-glow: rgba(0, 255, 0, 0.5);
+    --p-effect-highlight: rgba(255, 255, 255, 0.05);
+
+    --p-ui-selection: rgba(0, 255, 0, 0.3);
+    --p-ui-focus-ring: rgba(0, 255, 0, 0.7);
+
+    --p-extra-1: #33b5e5;
+    --p-extra-2: #aa66cc;
+    --p-extra-3: #99cc00;
+    --p-extra-4: #ffbb33;
+    --p-extra-5: #ff4444;
+    --p-extra-6: #0099cc;
+    --p-extra-7: #9933cc;
+    --p-extra-8: #669900;
+
+}
+

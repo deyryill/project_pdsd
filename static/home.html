@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+    <script src="{{ url_for('static', filename='res/core.js') }}"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard</h1>
+        <a href="/logout" class="btn-logout">Sign Out</a>
+    </div>
+    <div class="content">
+        <div class="card">
+            <h2>Welcome, {{ username }}</h2>
+            <p>Access Level: {{ level }}</p>
+            <hr>
+            <div style="display: flex; gap: 10px;">
+                {% if level >= 1 %}
+                <a href="user_settings.html" class="btn-link">User Settings</a>
+                {% endif %}
+                {% if level >= 2 %}
+                <a href="admin_settings.html" class="btn-link admin">Admin Panel</a>
+                {% endif %}
+            </div>
+            {% if level == 0 %}
+            <p style="color:orange;">(Guest mode: Settings disabled)</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
