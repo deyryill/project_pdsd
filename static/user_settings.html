@@ -14,8 +14,20 @@
     <div class="content">
         <div class="card">
             <h3>Account: {{ target_user }}</h3>
+            {% if target_data.level == 0 and target_user == username %}
+            <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ffeeba; color: #856404;">
+                <strong>Guest Account:</strong> Your email is not verified.
+                <form action="/upgrade_account" method="POST" style="margin-top: 10px;">
+                    <button type="submit" style="background: #856404; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">Verify Email Now</button>
+                </form>
+            </div>
+            {% endif %}
             <form method="POST">
-                <label>Change Password</label>
+                <label>Username</label>
+                <input type="text" name="new_username" value="{{ target_user }}" placeholder="Username" required>
+                <label>Email Address</label>
+                <input type="email" name="email" value="{{ target_data.email }}" placeholder="Email" required>
+                <label>New Password (leave blank to keep current)</label>
                 <input type="password" name="password" placeholder="New Password">
                 <label>Select UI Theme</label>
                 <select name="theme">
@@ -24,11 +36,17 @@
                     <option value="{{ t }}" {% if target_data.theme == t %}selected{% endif %}>{{ t }}</option>
                     {% endfor %}
                 </select>
+                <div style="margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                        <input type="checkbox" name="2fa" style="width: auto;" {% if target_data.get('2fa', True) %}checked{% endif %}>
+                        <strong>Enable Two-Step Verification</strong>
+                    </label>
+                </div>
                 {% if level >= 2 %}
                 <label>Access Level</label>
                 <input type="number" name="level" value="{{ target_data.level }}">
                 {% endif %}
-                <button type="submit" style="margin-top:15px;">Update Profile</button>
+                <button type="submit" style="margin-top:15px; width: 100%;">Update Profile Information</button>
             </form>
         </div>
     </div>

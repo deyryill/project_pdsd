@@ -17,9 +17,7 @@
             <p>Access Level: {{ level }}</p>
             <hr>
             <div style="display: flex; gap: 10px;">
-                {% if level >= 1 %}
                 <a href="user_settings.html" class="btn-link">User Settings</a>
-                {% endif %}
                 {% if level >= 2 %}
                 <a href="admin_settings.html" class="btn-link admin">Admin Panel</a>
                 {% endif %}

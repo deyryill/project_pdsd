@@ -4,18 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f6c390e-ef21-4b9b-9a48-e761cc579ccc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Dasboard analisis.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/admin_settings.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/home.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/res/index/core.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/user_settings.html" afterDir="false" />
+    <list default="true" id="5f6c390e-ef21-4b9b-9a48-e761cc579ccc" name="Changes" comment="init commit">
+      <change afterPath="$PROJECT_DIR$/static/res/eula.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/signup.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/verify.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/guest.sysriot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/system/system.sysriot" beforeDir="false" afterPath="$PROJECT_DIR$/database/system/system.sysriot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/user.sysriot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/admin_settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/admin_settings.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/home.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/res/index/core.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/res/index/sponsor1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/res/index/sponsor2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/res/logo_big.png" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/logo_big.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/res/logo_wide.png" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/logo_wide.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/user_settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/user_settings.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,6 +37,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
@@ -102,6 +113,42 @@
       <option name="presentableId" value="Default" />
       <updated>1770364904162</updated>
     </task>
+    <task id="LOCAL-00001" summary="init commit">
+      <option name="closed" value="true" />
+      <created>1770368958876</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1770368958876</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="init commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="init commit" />
   </component>
 </project>

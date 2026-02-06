@@ -1,0 +1,47 @@
+End User License Agreement (EULA)
+
+This End User License Agreement ("Agreement") is made between Licensor and Licensee. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+1. Grant of License
+
+Licensor hereby grants Licensee a non-exclusive, non-transferable license to use the Software. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+2. License Restrictions
+
+Licensee shall not:
+
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+3. Ownership
+
+All title and intellectual property rights in the Software remain with Licensor. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+4. Updates and Maintenance
+
+Licensor may provide updates and maintenance at its discretion. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.
+5. Term and Termination
+
+This Agreement is effective until terminated. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Upon termination, Licensee must cease use of the Software.
+6. Disclaimer of Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS". Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+7. Limitation of Liability
+
+In no event will Licensor be liable for damages. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+8. Indemnification
+
+Licensee agrees to indemnify Licensor from claims arising from Licensee's breach. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+9. Export Compliance
+
+Licensee will comply with applicable export laws. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+10. Governing Law
+
+This Agreement is governed by the laws of the chosen jurisdiction. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.
+11. Severability
+
+If any provision is invalid, the remainder remains in effect. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+12. Entire Agreement
+
+This Agreement constitutes the entire agreement between the parties. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+Contact: lorem@ipsum.example
+Address: 123 Lorem Ipsum St., Dolor City, CA 90000
