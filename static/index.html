@@ -6,22 +6,49 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
 </head>
-<body class="flex-center">
-    <div class="login-box">
-        <h2>[BRAND HERE]</h2>
-        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-        <form method="POST">
-            <div class="form-group">
-                <input type="text" name="username" class="input" placeholder="Username" required autofocus>
+<body class="index-body">
+    <div class="index-layout">
+        <div class="index-sidebar">
+            <div class="index-brand-wrapper">
+                <img src="/static/res/logo_big.png" alt="Logo" class="index-brand-logo">
             </div>
-            <div class="form-group">
-                <input type="password" name="password" class="input" placeholder="Password" required>
+
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            <form method="POST" class="index-form">
+                <div class="form-group">
+                    <div class="index-icon-wrapper">
+                        <img src="{{ url_for('static', filename='res/login/user.svg') }}" class="index-icon" alt="">
+                        <input type="text" name="username" class="input index-input" placeholder="Username" required autofocus>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="index-icon-wrapper">
+                        <img src="{{ url_for('static', filename='res/login/pass.svg') }}" class="index-icon" alt="">
+                        <input type="password" name="password" class="input index-input" placeholder="Password" required>
+                    </div>
+                </div>
+
+                <div class="index-options">
+                    <label class="index-checkbox-label">
+                        <input type="checkbox" name="remember" class="index-checkbox"> Remember Me
+                    </label>
+                    <a href="#" class="index-forgot-link">Forget Password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-index-login">LOGIN</button>
+            </form>
+
+            <div class="index-footer-text">
+                Not Register yet ? <a href="/signup" class="create-account">Create An Account</a>
             </div>
-            <button type="submit" class="btn btn-primary btn-block btn-lg">Authenticate</button>
-        </form>
-        <div class="login-footer">
-            <p>Don't have an account? <a href="/signup">Register Identity</a></p>
+
+            <div class="index-version-tag">
+                VERSION 1.0.0
+            </div>
         </div>
+        <div class="index-empty-space" {% if bg_image %}style="background-image: url('{{ url_for('static', filename=bg_image) }}');"{% endif %}></div>
     </div>
 </body>
 </html>

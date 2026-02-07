@@ -1,4 +1,4 @@
-import os, secrets, sys, time, threading, smtplib, json
+import os, secrets, sys, time, threading, smtplib, random
 from flask import Flask, request, redirect, url_for, session, render_template, jsonify
 from pathlib import Path
 from werkzeug.utils import secure_filename
@@ -158,8 +158,6 @@ class webserver:
         kwargs['level'] = session.get('level', 0)
         kwargs['config'] = self.sys_man.load_config()
         kwargs['db_usage'] = self.sys_man.get_db_usage()
-
-        # Implementation from dev_emu.py to fix double frame
         if not use_frame:
             return render_template(template_name, **kwargs)
         if request.args.get('content'):
@@ -207,8 +205,15 @@ class webserver:
                     self.create_session(username, users[username].get('level', 0))
                     return redirect(url_for('home'))
                 error = "Invalid Credentials"
-            return self.render_page('index.html', use_frame=False, error=error)
 
+            bg_image = None
+            frame_dir = self.sys_man.dir_root / "static" / "res" / "login"
+            if frame_dir.exists():
+                images = list(frame_dir.glob("*.jpg"))
+                if images:
+                    bg_image = f"res/login/{random.choice(images).name}"
+
+            return self.render_page('index.html', use_frame=False, error=error, bg_image=bg_image)
         @self.app.route('/signup', methods=['GET', 'POST'])
         def signup_page():
             if 'username' in session: return redirect(url_for('home'))
@@ -464,7 +469,9 @@ class webserver:
 
     def run(self):
         conf = self.sys_man.load_config().get('server', {})
-        self.app.run(host='0.0.0.0', port=conf.get('port', 5000), debug=bool(conf.get('debug_mode', False)))
+        self.app.config['TEMPLATES_AUTO_RELOAD'] = True
+        self.app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+        self.app.run(host='0.0.0.0', port=conf.get('port', 5000), debug=bool(conf.get('debug_mode', True)))
 
 
 if __name__ == "__main__":

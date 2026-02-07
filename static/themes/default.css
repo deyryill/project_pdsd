@@ -86,12 +86,12 @@
     --p-status-warning-text: #111111;
     --p-status-warning-border: #f9ab00;
 
-    --p-status-info-main: #1a73e8;
-    --p-status-info-hover: #155db5;
-    --p-status-info-active: #104a91;
+    --p-status-info-main: #5f9ffa;
+    --p-status-info-hover: #1d78e5;
+    --p-status-info-active: #1460bd;
     --p-status-info-bg: rgba(26, 115, 232, 0.1);
     --p-status-info-text: #ffffff;
-    --p-status-info-border: #1a73e8;
+    --p-status-info-border: #277ff3;
 
     --p-stat-1: #0068b5;
     --p-stat-2: #00c7fd;
