@@ -3,25 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[BRAND HERE]</title>
+    <title>System Frame</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
 </head>
-<body class="frame-body">
+<body class="frame-body" data-init-target="{{ target }}">
     <nav class="sidebar">
         <div class="nav-top">
-            <span class="nav-brand">[LOGO HERE]</span>
-            <a href="home.html?content=1" target="content_frame">Dashboard</a>
-            <a href="user_settings.html?content=1" target="content_frame">Profile</a>
-            {% if session.get('level', 0) >= 2 %}
-            <a href="admin_settings.html?content=1" target="content_frame" style="color: var(--p-extra-5);">Admin</a>
-            {% endif %}
+            <div class="nav-brand-container">
+                <img src="{{ url_for('static', filename='res/logo_wide.png') }}" alt="Logo" class="nav-logo">
+            </div>
+
+            <div class="nav-links">
+                <a href="home.html?content=1" target="content_frame" class="nav-item" data-page="home.html">
+                    <img src="{{ url_for('static', filename='res/frame/1.svg') }}" class="nav-icon" alt="">
+                    <span>Home</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <img src="{{ url_for('static', filename='res/frame/2.svg') }}" class="nav-icon" alt="">
+                    <span>Data analysis</span>
+                </a>
+
+                <a href="#" class="nav-item">
+                    <img src="{{ url_for('static', filename='res/frame/3.svg') }}" class="nav-icon" alt="">
+                    <span>Database</span>
+                </a>
+
+                <a href="user_settings.html?content=1" target="content_frame" class="nav-item" data-page="user_settings.html">
+                    <img src="{{ url_for('static', filename='res/frame/4.svg') }}" class="nav-icon" alt="">
+                    <span>Settings</span>
+                </a>
+
+                {% if session.get('level', 0) >= 2 %}
+                <a href="admin_settings.html?content=1" target="content_frame" class="nav-item" data-page="admin_settings.html">
+                    <img src="{{ url_for('static', filename='res/frame/5.svg') }}" class="nav-icon" alt="">
+                    <span>Admin Settings</span>
+                </a>
+                {% endif %}
+            </div>
         </div>
 
         <div class="nav-bottom">
-            <div class="user-badge" title="{{ session['username'] }}">{{ session['username'] }}</div>
-            <a href="/logout" target="_top" class="btn btn-sm btn-danger btn-block">Logout</a>
+            <a href="/logout" target="_top" class="logout-btn">
+                <img src="{{ url_for('static', filename='res/frame/0.svg') }}" alt="">
+                <span>LOGOUT</span>
+            </a>
         </div>
     </nav>
 

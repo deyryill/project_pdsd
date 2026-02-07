@@ -3,50 +3,106 @@
     --p-bg-surface-1: #ffffff;
     --p-bg-surface-2: #f8f9fa;
     --p-bg-surface-3: #ffffff;
+    --p-bg-surface-4: #eef2f6;
+    --p-bg-surface-alt: #f0f4f8;
     --p-bg-input: #f0f2f5;
+    --p-bg-input-focus: #ffffff;
     --p-bg-overlay: rgba(0, 40, 90, 0.85);
+    --p-bg-tooltip: #111111;
 
     --p-border-subtle: #e1e4e8;
     --p-border-main: #d1d5db;
     --p-border-strong: #0068b5;
+    --p-border-focus: #00c7fd;
+    --p-border-inverse: #ffffff;
 
     --p-text-main: #111111;
     --p-text-muted: #555555;
     --p-text-disabled: #9ca3af;
     --p-text-inverse: #ffffff;
+    --p-text-link: #0068b5;
+    --p-text-link-hover: #004e8a;
 
     --p-primary-main: #0068b5;
     --p-primary-hover: #004e8a;
     --p-primary-active: #003666;
     --p-primary-subtle: rgba(0, 104, 181, 0.1);
+    --p-primary-text: #ffffff;
+    --p-primary-border: #0068b5;
+
+    --p-primary-alt-main: #4a90e2;
+    --p-primary-alt-hover: #357abd;
+    --p-primary-alt-active: #2a629c;
+    --p-primary-alt-subtle: rgba(74, 144, 226, 0.1);
+    --p-primary-alt-text: #ffffff;
+    --p-primary-alt-border: #4a90e2;
+
+    --p-primary-deep-main: #002f52;
+    --p-primary-deep-hover: #001f36;
+    --p-primary-deep-active: #001221;
+    --p-primary-deep-subtle: rgba(0, 47, 82, 0.1);
+    --p-primary-deep-text: #ffffff;
+    --p-primary-deep-border: #002f52;
 
     --p-secondary-main: #00c7fd;
     --p-secondary-hover: #009cc7;
     --p-secondary-active: #007ba0;
     --p-secondary-subtle: rgba(0, 199, 253, 0.1);
+    --p-secondary-text: #111111;
+    --p-secondary-border: #00c7fd;
+
+    --p-secondary-alt-main: #00e5ff;
+    --p-secondary-alt-hover: #00b8cc;
+    --p-secondary-alt-active: #008ba3;
+    --p-secondary-alt-subtle: rgba(0, 229, 255, 0.1);
+    --p-secondary-alt-text: #111111;
+    --p-secondary-alt-border: #00e5ff;
+
+    --p-secondary-deep-main: #0097a7;
+    --p-secondary-deep-hover: #007c89;
+    --p-secondary-deep-active: #006064;
+    --p-secondary-deep-subtle: rgba(0, 151, 167, 0.1);
+    --p-secondary-deep-text: #ffffff;
+    --p-secondary-deep-border: #0097a7;
 
     --p-status-error-main: #d93025;
+    --p-status-error-hover: #b31412;
+    --p-status-error-active: #9e0f0d;
     --p-status-error-bg: rgba(217, 48, 37, 0.1);
+    --p-status-error-text: #ffffff;
+    --p-status-error-border: #d93025;
+
     --p-status-success-main: #1e8e3e;
+    --p-status-success-hover: #137333;
+    --p-status-success-active: #0d5924;
     --p-status-success-bg: rgba(30, 142, 62, 0.1);
+    --p-status-success-text: #ffffff;
+    --p-status-success-border: #1e8e3e;
+
     --p-status-warning-main: #f9ab00;
+    --p-status-warning-hover: #d69300;
+    --p-status-warning-active: #b37b00;
     --p-status-warning-bg: rgba(249, 171, 0, 0.1);
+    --p-status-warning-text: #111111;
+    --p-status-warning-border: #f9ab00;
+
     --p-status-info-main: #1a73e8;
+    --p-status-info-hover: #155db5;
+    --p-status-info-active: #104a91;
     --p-status-info-bg: rgba(26, 115, 232, 0.1);
+    --p-status-info-text: #ffffff;
+    --p-status-info-border: #1a73e8;
+
+    --p-stat-1: #0068b5;
+    --p-stat-2: #00c7fd;
+    --p-stat-3: #1e8e3e;
+    --p-stat-4: #f9ab00;
 
     --p-effect-shadow: rgba(0, 0, 0, 0.2);
+    --p-effect-shadow-lg: rgba(0, 0, 0, 0.35);
     --p-effect-glow: rgba(0, 199, 253, 0.4);
     --p-effect-highlight: rgba(255, 255, 255, 0.2);
 
     --p-ui-selection: rgba(0, 104, 181, 0.15);
     --p-ui-focus-ring: rgba(0, 199, 253, 0.6);
-
-    --p-extra-1: #0068b5;
-    --p-extra-2: #00c7fd;
-    --p-extra-3: #ffffff;
-    --p-extra-4: #f8f9fa;
-    --p-extra-5: #004e8a;
-    --p-extra-6: #111111;
-    --p-extra-7: #555555;
-    --p-extra-8: #003666;
 }
