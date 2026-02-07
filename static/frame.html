@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[BRAND HERE]</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+    <script src="{{ url_for('static', filename='res/core.js') }}"></script>
+</head>
+<body class="frame-body">
+    <nav class="sidebar">
+        <div class="nav-top">
+            <span class="nav-brand">[LOGO HERE]</span>
+            <a href="home.html?content=1" target="content_frame">Dashboard</a>
+            <a href="user_settings.html?content=1" target="content_frame">Profile</a>
+            {% if session.get('level', 0) >= 2 %}
+            <a href="admin_settings.html?content=1" target="content_frame" style="color: var(--p-extra-5);">Admin</a>
+            {% endif %}
+        </div>
+
+        <div class="nav-bottom">
+            <div class="user-badge" title="{{ session['username'] }}">{{ session['username'] }}</div>
+            <a href="/logout" target="_top" class="btn btn-sm btn-danger btn-block">Logout</a>
+        </div>
+    </nav>
+
+    <iframe name="content_frame" class="main-content" src="{{ target }}"></iframe>
+</body>
+</html>

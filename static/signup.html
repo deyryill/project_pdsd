@@ -3,63 +3,60 @@
 <head>
     <title>Sign Up</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
-    <style>
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 80%; max-width: 500px; border-radius: 8px; text-align: center; }
-        .eula-text { text-align: left; max-height: 200px; overflow-y: auto; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; margin: 15px 0; font-size: 0.9em; white-space: pre-wrap; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+    <script src="{{ url_for('static', filename='res/core.js') }}"></script>
 </head>
-<body class="login-page">
-    <div class="card">
+<body class="flex-center">
+    <div class="login-box">
         <h2>Register Account</h2>
-        {% if error %}<div class="error" style="color: #ff4444; margin-bottom: 10px; font-weight: bold;">{{ error }}</div>{% endif %}
+        {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
         <form id="signupForm" method="POST">
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="email" name="email" placeholder="Organization Email" required>
-            <input type="password" name="password" placeholder="Password" required>
+            <div class="form-group">
+                <input type="text" name="username" class="input" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="email" name="email" class="input" placeholder="Organization Email" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" class="input" placeholder="Password" required>
+            </div>
             <input type="hidden" name="verify_now" id="verify_now" value="true">
 
             <div style="margin: 15px 0; font-size: 0.9em; text-align: left;">
                 <input type="checkbox" id="eula_check" onchange="document.getElementById('regBtn').disabled = !this.checked">
-                <label for="eula_check">I agree to the <a href="#" onclick="showEula()">End User License Agreement</a></label>
+                <label for="eula_check">I agree to the <a href="#" onclick="showEula('{{ url_for('static', filename='res/eula.txt') }}')">EULA</a></label>
             </div>
 
-            <button type="button" id="regBtn" disabled onclick="showVerifyPopup()" style="width: 100%;">Register</button>
+            <button type="button" id="regBtn" class="btn btn-primary btn-block" disabled onclick="showVerifyPopup()">Register</button>
         </form>
-    </div>
-
-    <div id="eulaModal" class="modal">
-        <div class="modal-content">
-            <h3>License Agreement</h3>
-            <div class="eula-text" id="eulaContent">Loading...</div>
-            <button onclick="closeEula()">Close</button>
+        <div class="login-footer">
+            <p>Already have an account? <a href="/">Login</a></p>
         </div>
     </div>
 
-    <div id="verifyModal" class="modal">
+    <div id="eulaModal" class="modal-wrapper">
         <div class="modal-content">
-            <h3>Verification Required</h3>
-            <p>Would you like to verify your email now to unlock Level 1 features, or continue as a Guest?</p>
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button onclick="submitSignup('true')" style="flex: 1;">Verify Now</button>
-                <button onclick="submitSignup('false')" style="flex: 1; background: #666;">Later (Guest)</button>
+            <div class="modal-header"><h3>License Agreement</h3></div>
+            <div class="modal-body">
+                <div class="eula-text" id="eulaContent">Loading...</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEula()">Close</button>
             </div>
         </div>
     </div>
 
-    <script>
-        function showEula() {
-            document.getElementById('eulaModal').style.display = 'block';
-            fetch("{{ url_for('static', filename='res/eula.txt') }}")
-                .then(r => r.text())
-                .then(t => document.getElementById('eulaContent').innerText = t);
-        }
-        function closeEula() { document.getElementById('eulaModal').style.display = 'none'; }
-        function showVerifyPopup() { document.getElementById('verifyModal').style.display = 'block'; }
-        function submitSignup(val) {
-            document.getElementById('verify_now').value = val;
-            document.getElementById('signupForm').submit();
-        }
-    </script>
+    <div id="verifyModal" class="modal-wrapper">
+        <div class="modal-content">
+            <div class="modal-header"><h3>Verification Required</h3></div>
+            <div class="modal-body">
+                <p>Would you like to verify your email now to unlock Level 1 features, or continue as a Guest?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="submitSignup('true')">Verify Now</button>
+                <button class="btn btn-secondary" onclick="submitSignup('false')">Later (Guest)</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

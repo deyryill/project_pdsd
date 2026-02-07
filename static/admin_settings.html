@@ -7,45 +7,44 @@
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
 </head>
 <body>
-    <div class="header">
-        <a href="home.html" style="color:white; text-decoration:none;">&larr; Back</a>
-        <h1>System Administration</h1>
-        <div>{{ username }} [ADMIN]</div>
-    </div>
+    <div class="page-container">
+        <div class="header">
+            <h1>System Administration</h1>
+            <div class="badge badge-sys">ADMIN</div>
+        </div>
 
-    <div class="content">
+        <div class="grid">
+            <div class="card">
+                <h3>System Status</h3>
+                <div class="stat-number">{{ (db_usage / 1024) | round(2) }} KB</div>
+                <div class="stat-label">Database Size</div>
+            </div>
+            <div class="card">
+                <h3>Configuration</h3>
+                <textarea id="sys-config" class="input" style="height:100px; font-family:monospace;">{{ config | tojson(indent=4) }}</textarea>
+                <button class="btn btn-primary btn-sm" onclick="saveSysConfig()" style="margin-top:10px;">Save Config</button>
+            </div>
+        </div>
+
         <div class="card">
-            <h3>System Status</h3>
-            <p style="font-size: 0.9em; color: #666;">Database Usage: {{ (db_usage / 1024) | round(2) }} KB</p>
-        </div>
-
-        <div class="card" style="margin-top:20px;">
-            <h3>System Configuration</h3>
-            <textarea id="sys-config" style="width:100%; height:180px; font-family:monospace; margin-bottom:10px;">{{ config | tojson(indent=4) }}</textarea>
-            <button onclick="saveSysConfig()">Save Global Config</button>
-        </div>
-
-        <div class="card" style="margin-top:20px;">
             <h3>User Management</h3>
-
-            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; background: rgba(0,0,0,0.02); border-radius: 4px;">
-                <strong>Quick Add User</strong>
-                <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
-                    <input type="text" id="new-user-name" placeholder="Username" style="flex:1;">
-                    <input type="email" id="new-user-email" placeholder="Email" style="flex:1;">
-                    <input type="password" id="new-user-pass" placeholder="Password" style="flex:1;">
-                    <select id="new-user-level">
+            <div style="background: var(--p-bg-surface-1); padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="text" id="new-user-name" class="input" placeholder="Username" style="flex:1;">
+                    <input type="email" id="new-user-email" class="input" placeholder="Email" style="flex:1;">
+                    <input type="password" id="new-user-pass" class="input" placeholder="Password" style="flex:1;">
+                    <select id="new-user-level" class="input" style="width: auto;">
                         <option value="0">Guest (0)</option>
                         <option value="1">User (1)</option>
                         <option value="2">Admin (2)</option>
                     </select>
-                    <button onclick="createUser()">Add</button>
+                    <button class="btn btn-primary" onclick="createUser()">Add User</button>
                 </div>
             </div>
 
-            <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="user-search" placeholder="Search usernames or emails..." onkeyup="filterUsers()" style="flex-grow: 1;">
-                <select id="level-filter" onchange="filterUsers()">
+            <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <input type="text" id="user-search" class="input" placeholder="Search users..." onkeyup="filterUsers()" style="flex:2;">
+                <select id="level-filter" class="input" onchange="filterUsers()" style="flex:1;">
                     <option value="">All Levels</option>
                     <option value="0">Level 0</option>
                     <option value="1">Level 1</option>
@@ -53,17 +52,17 @@
                 </select>
             </div>
 
-            <div style="margin-bottom: 10px; display: flex; gap: 8px;">
-                <button onclick="batchDelete()" class="btn-del" style="background-color: #d9534f;">Delete Selected</button>
-                <button onclick="batchSetLevel(0)">Set Guest</button>
-                <button onclick="batchSetLevel(1)">Set User</button>
-                <button onclick="batchSetLevel(2)">Set Admin</button>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <button class="btn btn-danger btn-sm" onclick="batchDelete()">Delete Selected</button>
+                <button class="btn btn-secondary btn-sm" onclick="batchSetLevel(0)">Set Guest</button>
+                <button class="btn btn-secondary btn-sm" onclick="batchSetLevel(1)">Set User</button>
+                <button class="btn btn-secondary btn-sm" onclick="batchSetLevel(2)">Set Admin</button>
             </div>
 
-            <table style="width:100%; text-align: left; border-collapse: collapse;" id="user-table">
+            <table class="data-table">
                 <thead>
-                    <tr style="border-bottom: 2px solid #ccc;">
-                        <th style="width: 30px;"><input type="checkbox" id="master-select" onclick="toggleAll(this)"></th>
+                    <tr>
+                        <th style="width: 40px;"><input type="checkbox" id="master-select" onclick="toggleAll(this)"></th>
                         <th>Username</th>
                         <th>Email</th>
                         <th>Level</th>
@@ -72,157 +71,49 @@
                 </thead>
                 <tbody>
                     {% for u, data in users_list.items() %}
-                    <tr class="user-row" style="border-bottom: 1px solid #eee;">
+                    <tr class="user-row">
                         <td><input type="checkbox" class="user-checkbox" value="{{ u }}"></td>
                         <td class="user-name"><strong>{{ u }}</strong></td>
                         <td class="user-email">{{ data.email }}</td>
-                        <td class="user-level">{{ data.level }}</td>
-                        <td>
-                            <a href="user_settings.html?edit_user={{ u }}" class="btn-link" style="padding: 4px 10px; font-size: 12px;">Settings</a>
-                        </td>
+                        <td class="user-level"><span class="badge badge-info">{{ data.level }}</span></td>
+                        <td><a href="user_settings.html?edit_user={{ u }}&content=1" class="btn btn-secondary btn-sm">Edit</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <div class="card" style="margin-top:20px;">
-            <h3>Theme Management</h3>
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <input type="file" id="theme-upload" accept=".css" style="flex-grow: 1;">
-                <button onclick="uploadTheme()">Upload CSS</button>
-            </div>
-            <hr>
-            <ul id="theme-list" style="list-style: none; padding: 0;">
-                {% for t in themes %}
-                <li style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc;">
-                    <span>{{ t }}.css</span>
-                    {% if t != 'default' %}
-                    <button onclick="deleteTheme('{{ t }}')" class="btn-del" style="padding: 2px 8px;">Delete</button>
-                    {% endif %}
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="card" style="margin-top:20px;">
-            <h3>Activity Logs (logs.sysriot)</h3>
-            <div id="log-container" style="background: #1a1a1a; color: #00ff00; padding: 15px; font-family: 'Courier New', monospace; height: 200px; overflow-y: auto; font-size: 12px; border-radius: 4px;">
-                {% if logs %}
-                    {% for log in logs %}
-                    <div style="margin-bottom: 4px; border-left: 2px solid #333; padding-left: 8px;">{{ log }}</div>
+        <div class="grid">
+            <div class="card">
+                <h3>Themes</h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="file" id="theme-upload" accept=".css" class="input">
+                    <button class="btn btn-primary btn-sm" onclick="uploadTheme()">Upload</button>
+                </div>
+                <ul class="theme-select-list">
+                    {% for t in themes %}
+                    <li class="theme-option">
+                        <span>{{ t }}.css</span>
+                        {% if t != 'default' %}
+                        <button class="btn btn-danger btn-sm" onclick="deleteTheme('{{ t }}')">Delete</button>
+                        {% endif %}
+                    </li>
                     {% endfor %}
-                {% else %}
-                    <div style="color: #666;">No activity logged yet.</div>
-                {% endif %}
+                </ul>
             </div>
-            <button onclick="location.reload()" style="margin-top:10px; background: #444;">Refresh Logs</button>
+            <div class="card">
+                <h3>System Logs</h3>
+                <div id="log-container">
+                    {% if logs %}
+                        {% for log in logs %}
+                        <div class="log-entry">{{ log }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-muted">No logs available.</div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
-
-    <script>
-        function createUser() {
-            const username = document.getElementById('new-user-name').value;
-            const email = document.getElementById('new-user-email').value;
-            const password = document.getElementById('new-user-pass').value;
-            const level = document.getElementById('new-user-level').value;
-            if(!username || !password || !email) return alert('Fill all fields');
-
-            fetch('/API/admin/create_user', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username, email, password, level})
-            }).then(res => {
-                if(res.status === 400) alert('User already exists or missing data');
-                else location.reload();
-            });
-        }
-
-        function filterUsers() {
-            const query = document.getElementById('user-search').value.toLowerCase();
-            const level = document.getElementById('level-filter').value;
-            const rows = document.querySelectorAll('.user-row');
-
-            rows.forEach(row => {
-                const name = row.querySelector('.user-name').textContent.toLowerCase();
-                const email = row.querySelector('.user-email').textContent.toLowerCase();
-                const userLevel = row.querySelector('.user-level').textContent;
-                const matchesSearch = name.includes(query) || email.includes(query);
-                const matchesLevel = level === "" || userLevel === level;
-
-                row.style.display = (matchesSearch && matchesLevel) ? "" : "none";
-                if(row.style.display === 'none') row.querySelector('.user-checkbox').checked = false;
-            });
-        }
-
-        function toggleAll(master) {
-            document.querySelectorAll('.user-checkbox').forEach(cb => {
-                if(cb.parentElement.parentElement.style.display !== 'none') {
-                    cb.checked = master.checked;
-                }
-            });
-        }
-
-        function getSelectedUsers() {
-            return Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
-        }
-
-        function batchDelete() {
-            const users = getSelectedUsers();
-            if(!users.length) return alert('Select users first');
-            if(confirm(`Permanently delete ${users.length} users?`)) {
-                fetch('/API/admin/batch_delete', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({users})
-                }).then(() => location.reload());
-            }
-        }
-
-        function batchSetLevel(lvl) {
-            const users = getSelectedUsers();
-            if(!users.length) return alert('Select users first');
-            fetch('/API/admin/batch_level', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({users, level: lvl})
-            }).then(() => location.reload());
-        }
-
-        function saveSysConfig() {
-            try {
-                const config = JSON.parse(document.getElementById('sys-config').value);
-                fetch('/API/admin/save_config', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(config)
-                }).then(() => alert('System Updated'));
-            } catch(e) { alert('Invalid JSON format'); }
-        }
-
-        function uploadTheme() {
-            const file = document.getElementById('theme-upload').files[0];
-            if(!file) return alert('Select a CSS file');
-            const formData = new FormData();
-            formData.append('theme_file', file);
-            fetch('/API/admin/upload_theme', {method: 'POST', body: formData})
-            .then(() => location.reload());
-        }
-
-        function deleteTheme(name) {
-            if(confirm('Delete theme ' + name + '?')) {
-                fetch('/API/admin/delete_theme', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({theme: name})
-                }).then(() => location.reload());
-            }
-        }
-
-        window.onload = function() {
-            const logBox = document.getElementById('log-container');
-            logBox.scrollTop = logBox.scrollHeight;
-        };
-    </script>
 </body>
 </html>

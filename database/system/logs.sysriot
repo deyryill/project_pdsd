@@ -1,3 +1,12 @@
 [2026-02-06 16:55:02] user=wolf33b action=signup detail=Successfully verified via OTP
 [2026-02-06 17:29:28] user=wolf33b action=signup detail=Guest registered
 [2026-02-06 17:30:32] user=wolf33b action=verification detail=Upgraded to Level 1
+[2026-02-06 20:39:30] user=admin action=batch_level detail=Set level 0 for: wolf33b
+[2026-02-06 20:39:31] user=admin action=batch_level detail=Set level 1 for: wolf33b
+[2026-02-06 20:39:32] user=admin action=batch_level detail=Set level 2 for: wolf33b
+[2026-02-06 20:39:33] user=admin action=batch_level detail=Set level 2 for: wolf33b
+[2026-02-06 20:39:34] user=admin action=batch_level detail=Set level 1 for: wolf33b
+[2026-02-06 20:39:35] user=admin action=batch_level detail=Set level 0 for: wolf33b
+[2026-02-06 20:39:35] user=admin action=batch_level detail=Set level 1 for: wolf33b
+[2026-02-06 20:39:36] user=admin action=batch_level detail=Set level 2 for: wolf33b
+[2026-02-06 20:39:58] user=admin action=config_update detail=Config changed

@@ -4,49 +4,65 @@
     <title>User Settings</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+    <script src="{{ url_for('static', filename='res/core.js') }}"></script>
 </head>
 <body>
-    <div class="header">
-        <a href="home.html" style="color:white; text-decoration:none;">&larr; Back</a>
-        <h1>Account Settings</h1>
-        <div>{{ username }}</div>
-    </div>
-    <div class="content">
-        <div class="card">
-            <h3>Account: {{ target_user }}</h3>
+    <div class="page-container">
+        <div class="header">
+            <h1>Settings</h1>
+            <div>{{ username }}</div>
+        </div>
+        <div class="content-box" style="max-width: 600px; margin: 0 auto;">
+            <h3>Edit Profile: {{ target_user }}</h3>
+
             {% if target_data.level == 0 and target_user == username %}
-            <div style="background: #fff3cd; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #ffeeba; color: #856404;">
-                <strong>Guest Account:</strong> Your email is not verified.
+            <div class="alert alert-warning">
+                <strong>Guest Account:</strong> Email not verified.
                 <form action="/upgrade_account" method="POST" style="margin-top: 10px;">
-                    <button type="submit" style="background: #856404; color: white; border: none; padding: 5px 15px; border-radius: 4px; cursor: pointer;">Verify Email Now</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Verify Now</button>
                 </form>
             </div>
             {% endif %}
+
             <form method="POST">
-                <label>Username</label>
-                <input type="text" name="new_username" value="{{ target_user }}" placeholder="Username" required>
-                <label>Email Address</label>
-                <input type="email" name="email" value="{{ target_data.email }}" placeholder="Email" required>
-                <label>New Password (leave blank to keep current)</label>
-                <input type="password" name="password" placeholder="New Password">
-                <label>Select UI Theme</label>
-                <select name="theme">
-                    <option value="default" {% if target_data.theme == 'default' %}selected{% endif %}>Default</option>
-                    {% for t in themes %}
-                    <option value="{{ t }}" {% if target_data.theme == t %}selected{% endif %}>{{ t }}</option>
-                    {% endfor %}
-                </select>
-                <div style="margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 4px;">
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="checkbox" name="2fa" style="width: auto;" {% if target_data.get('2fa', True) %}checked{% endif %}>
-                        <strong>Enable Two-Step Verification</strong>
-                    </label>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="new_username" class="input" value="{{ target_user }}" required>
                 </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="input" value="{{ target_data.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <input type="password" name="password" class="input" placeholder="Leave blank to keep current">
+                </div>
+                <div class="form-group">
+                    <label>Theme</label>
+                    <select name="theme" class="input">
+                        <option value="default" {% if target_data.theme == 'default' %}selected{% endif %}>Default</option>
+                        {% for t in themes %}
+                        <option value="{{ t }}" {% if target_data.theme == t %}selected{% endif %}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin: 20px 0;">
+                    <label class="switch">
+                        <input type="checkbox" name="2fa" {% if target_data.get('2fa', True) %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                    <span style="vertical-align: middle; font-weight: bold;">Enable Two-Factor Authentication</span>
+                </div>
+
                 {% if level >= 2 %}
-                <label>Access Level</label>
-                <input type="number" name="level" value="{{ target_data.level }}">
+                <div class="form-group">
+                    <label>Access Level (Admin Override)</label>
+                    <input type="number" name="level" class="input" value="{{ target_data.level }}">
+                </div>
                 {% endif %}
-                <button type="submit" style="margin-top:15px; width: 100%;">Update Profile Information</button>
+
+                <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
             </form>
         </div>
     </div>

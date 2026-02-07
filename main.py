@@ -1,8 +1,7 @@
-import os, secrets, sys, time, threading
+import os, secrets, sys, time, threading, smtplib, json
 from flask import Flask, request, redirect, url_for, session, render_template, jsonify
 from pathlib import Path
 from werkzeug.utils import secure_filename
-import smtplib
 from email.message import EmailMessage
 
 
@@ -137,39 +136,15 @@ class webserver:
         msg['From'] = conf.get('user')
         msg['To'] = target_email
         msg.set_content(f"Your verification code is: {code}. Valid for 5 minutes.")
-
-        logo_path = self.sys_man.dir_root / "static" / "res" / "logo_OTP.png"
-        img_tag = '<img src="cid:logo" style="width: 140px; margin-bottom: 20px;">' if logo_path.exists() else ''
-
-        html_content = f"""
-        <div style="font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f0f2f5; padding: 40px 10px; text-align: center;">
-            <div style="max-width: 480px; margin: auto; background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e1e4e8;">
-                {img_tag}
-                <h2 style="color: #1a1a1a; margin-top: 0; font-weight: 600;">Security Verification</h2>
-                <p style="color: #4a5568; font-size: 16px; line-height: 1.5;">Please use the following verification code to complete your request.</p>
-                <div style="margin: 30px 0; padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 2px dashed #cbd5e0;">
-                    <span style="font-size: 38px; font-weight: 800; color: #2563eb; letter-spacing: 6px; font-family: monospace;">{code}</span>
-                </div>
-                <p style="color: #a0aec0; font-size: 11px; margin: 0;">&copy; {time.strftime("%Y")} RIOT System.</p>
-            </div>
-        </div>
-        """
-        msg.add_alternative(html_content, subtype='html')
-        if logo_path.exists():
-            html_part = msg.get_payload()[1]
-            with open(logo_path, 'rb') as f:
-                img_data = f.read()
-            html_part.add_related(img_data, 'image', 'png', cid='logo')
-
         try:
             with smtplib.SMTP_SSL(conf.get('host'), conf.get('port')) as smtp:
                 smtp.login(conf.get('user'), conf.get('pass'))
                 smtp.send_message(msg)
             return True
-        except: return False
+        except:
+            return False
 
-
-    def render_page(self, template_name, **kwargs):
+    def render_page(self, template_name, use_frame=True, **kwargs):
         users = self.sys_man.load_users()
         current_theme = 'default'
         if 'username' in session and session['username'] in users:
@@ -177,12 +152,28 @@ class webserver:
             theme_path = Path(self.app.static_folder) / 'themes' / f"{candidate}.css"
             if theme_path.exists():
                 current_theme = candidate
+
         kwargs['theme'] = current_theme
         kwargs['username'] = session.get('username')
         kwargs['level'] = session.get('level', 0)
         kwargs['config'] = self.sys_man.load_config()
         kwargs['db_usage'] = self.sys_man.get_db_usage()
-        return render_template(template_name, **kwargs)
+
+        # Implementation from dev_emu.py to fix double frame
+        if not use_frame:
+            return render_template(template_name, **kwargs)
+        if request.args.get('content'):
+            return render_template(template_name, **kwargs)
+
+        target_url = f"{template_name}?content=1"
+        return render_template('frame.html', target=target_url, **kwargs)
+
+    def create_session(self, username, level):
+        session['username'] = username
+        session['level'] = int(level)
+        token = secrets.token_hex(16)
+        session['token'] = token
+        self.active_sessions[username] = token
 
     def routes(self):
         @self.app.before_request
@@ -213,15 +204,10 @@ class webserver:
                         session['active_otp_data'] = {"otp": otp_code, "time": time.time(), "type": "2fa"}
                         self.send_otp(users[username]['email'], otp_code)
                         return redirect(url_for('verify_otp'))
-
-                    session['username'] = username
-                    session['level'] = users[username].get('level', 0)
-                    token = secrets.token_hex(16)
-                    session['token'] = token
-                    self.active_sessions[username] = token
+                    self.create_session(username, users[username].get('level', 0))
                     return redirect(url_for('home'))
                 error = "Invalid Credentials"
-            return self.render_page('index.html', error=error)
+            return self.render_page('index.html', use_frame=False, error=error)
 
         @self.app.route('/signup', methods=['GET', 'POST'])
         def signup_page():
@@ -247,20 +233,9 @@ class webserver:
                     else:
                         new_user = {"info": {"password": password, "email": email, "level": 0, "theme": "default", "2fa": False}}
                         self.sys_man.save_sysriot(self.sys_man.dir_db / f"{username}.sysriot", new_user)
-                        return redirect(url_for('login_page'))
-            return self.render_page('signup.html', error=error)
-
-        @self.app.route('/API/admin/system_status', methods=['GET'])
-        def api_system_status():
-            if session.get('level', 0) < 2: return jsonify({"status": "error"}), 403
-            files = []
-            for path in self.sys_man.dir_root.rglob('*'):
-                if path.is_file():
-                    files.append({
-                        "name": str(path.relative_to(self.sys_man.dir_root)),
-                        "size": f"{path.stat().st_size / 1024:.1f} KB"
-                    })
-            return jsonify({"status": "success", "files": files, "time": time.strftime("%Y-%m-%d %H:%M:%S")})
+                        self.create_session(username, 0)
+                        return redirect(url_for('home'))
+            return self.render_page('signup.html', use_frame=False, error=error)
 
         @self.app.route('/verify', methods=['GET', 'POST'])
         def verify_otp():
@@ -268,43 +243,34 @@ class webserver:
             reg_id = session.get('reg_id')
             pending = self.pending_registrations.get(reg_id) if reg_id else None
             active_otp = session.get('active_otp_data')
-
             if not pending and not active_otp and 'username' not in session:
                 return redirect(url_for('signup_page'))
-
             otp_data = pending if pending else active_otp
             remaining = 0
             if otp_data:
                 elapsed = time.time() - otp_data['time']
                 remaining = max(0, int(300 - elapsed))
-
             if request.method == 'POST':
                 user_input = request.form.get('otp').upper()
                 if remaining <= 0:
                     error = "Code expired. Please resend."
                 elif user_input == otp_data['otp']:
                     users = self.sys_man.load_users()
-
                     if pending:
                         target_user = pending['username']
                         u_data = {"password": pending['password'], "email": pending['email'], "level": 1, "theme": "default", "2fa": True}
                         self.sys_man.save_sysriot(self.sys_man.dir_db / f"{target_user}.sysriot", {"info": u_data})
                         del self.pending_registrations[reg_id]
                         session.pop('reg_id')
-                        return redirect(url_for('login_page'))
-
+                        self.create_session(target_user, 1)
+                        return redirect(url_for('home'))
                     elif active_otp.get('type') == '2fa':
                         target_user = session.get('temp_user')
-                        session['username'] = target_user
-                        session['level'] = users[target_user].get('level', 0)
-                        token = secrets.token_hex(16)
-                        session['token'] = token
-                        self.active_sessions[target_user] = token
+                        self.create_session(target_user, users[target_user].get('level', 0))
                         session.pop('pending_2fa', None)
                         session.pop('temp_user', None)
                         session.pop('active_otp_data', None)
                         return redirect(url_for('home'))
-
                     else:
                         target_user = session['username']
                         u_data = users[target_user]
@@ -315,33 +281,19 @@ class webserver:
                         return redirect(url_for('home'))
                 else:
                     error = "Invalid code"
-            return self.render_page('verify.html', error=error, remaining=remaining)
-        @self.app.route('/upgrade_account', methods=['POST'])
-        def upgrade_account():
-            if 'username' not in session or session.get('level') > 0:
-                return redirect(url_for('home'))
-            users = self.sys_man.load_users()
-            user_data = users.get(session['username'])
-            otp_code = secrets.token_hex(3).upper()
-            session['active_otp_data'] = {"otp": otp_code, "time": time.time()}
-            if self.send_otp(user_data['email'], otp_code):
-                return redirect(url_for('verify_otp'))
-            return "Failed to send OTP", 500
+            return self.render_page('verify.html', use_frame=False, error=error, remaining=remaining)
 
-        def resend_otp(self):
+        @self.app.route('/resend_otp', methods=['POST'])
+        def resend_otp():
             now = time.time()
             last_time = session.get('last_otp_time', 0)
             current_delay = session.get('resend_delay', 30)
-
             if now - last_time < current_delay:
                 return f"Please wait {int(current_delay - (now - last_time))} seconds.", 429
-
             session['last_otp_time'] = now
             session['resend_delay'] = min(current_delay + 30, 900)
-
             target_email = None
             otp_code = secrets.token_hex(3).upper()
-
             if 'reg_id' in session:
                 reg_id = session['reg_id']
                 if reg_id in self.pending_registrations:
@@ -355,14 +307,26 @@ class webserver:
                 user_key = session.get('temp_user') or session.get('username')
                 if user_key in users:
                     target_email = users[user_key]['email']
-
             if target_email and self.send_otp(target_email, otp_code):
                 return redirect(url_for('verify_otp'))
             return "Failed to resend OTP", 500
+
+        @self.app.route('/upgrade_account', methods=['POST'])
+        def upgrade_account():
+            if 'username' not in session or session.get('level') > 0:
+                return redirect(url_for('home'))
+            users = self.sys_man.load_users()
+            user_data = users.get(session['username'])
+            otp_code = secrets.token_hex(3).upper()
+            session['active_otp_data'] = {"otp": otp_code, "time": time.time()}
+            if self.send_otp(user_data['email'], otp_code):
+                return redirect(url_for('verify_otp'))
+            return "Failed to send OTP", 500
+
         @self.app.route('/home.html')
         def home():
             if 'username' not in session: return redirect(url_for('login_page'))
-            return self.render_page('home.html')
+            return self.render_page('home.html', use_frame=True)
 
         @self.app.route('/user_settings.html', methods=['GET', 'POST'])
         def user_settings():
@@ -370,29 +334,24 @@ class webserver:
             users = self.sys_man.load_users()
             target_user = request.args.get('edit_user', session['username'])
             if session.get('level') < 2: target_user = session['username']
-
             if request.method == 'POST':
                 new_username = request.form.get('new_username', '').strip().lower()
                 new_email = request.form.get('email', '').strip().lower()
                 is_2fa = request.form.get('2fa') == 'on'
-
                 u_data = users[target_user]
                 u_data['password'] = request.form.get('password') or u_data['password']
                 u_data['theme'] = request.form.get('theme')
                 u_data['email'] = new_email or u_data['email']
                 u_data['2fa'] = is_2fa
-
                 if new_username and new_username != target_user:
                     if not (self.sys_man.dir_db / f"{new_username}.sysriot").exists():
                         os.remove(self.sys_man.dir_db / f"{target_user}.sysriot")
                         target_user = new_username
                         if session['username'] != 'admin': session['username'] = new_username
-
                 self.sys_man.save_sysriot(self.sys_man.dir_db / f"{target_user}.sysriot", {"info": u_data})
-                return redirect(url_for('user_settings', edit_user=target_user))
-
+                return redirect(url_for('user_settings', edit_user=target_user, content=1))
             themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
-            return self.render_page('user_settings.html', themes=themes, target_user=target_user, target_data=users.get(target_user, {}))
+            return self.render_page('user_settings.html', use_frame=True, themes=themes, target_user=target_user, target_data=users.get(target_user, {}))
 
         @self.app.route('/admin_settings.html')
         def admin_settings():
@@ -404,10 +363,19 @@ class webserver:
                 with open(log_path, "r") as f:
                     logs = [line.strip() for line in f.readlines()[-50:]]
             themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
-            return self.render_page('admin_settings.html',
-                                    users_list=self.sys_man.load_users(),
-                                    themes=themes,
-                                    logs=logs)
+            return self.render_page('admin_settings.html', use_frame=True, users_list=self.sys_man.load_users(), themes=themes, logs=logs)
+
+        @self.app.route('/API/admin/system_status', methods=['GET'])
+        def api_system_status():
+            if session.get('level', 0) < 2: return jsonify({"status": "error"}), 403
+            files = []
+            for path in self.sys_man.dir_root.rglob('*'):
+                if path.is_file():
+                    files.append({
+                        "name": str(path.relative_to(self.sys_man.dir_root)),
+                        "size": f"{path.stat().st_size / 1024:.1f} KB"
+                    })
+            return jsonify({"status": "success", "files": files, "time": time.strftime("%Y-%m-%d %H:%M:%S")})
 
         @self.app.route('/API/admin/create_user', methods=['POST'])
         def api_create_user():

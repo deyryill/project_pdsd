@@ -4,24 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f6c390e-ef21-4b9b-9a48-e761cc579ccc" name="Changes" comment="init commit">
-      <change afterPath="$PROJECT_DIR$/static/res/eula.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/signup.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/verify.html" afterDir="false" />
+    <list default="true" id="5f6c390e-ef21-4b9b-9a48-e761cc579ccc" name="Changes" comment="update part 1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/guest.sysriot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/admin.sysriot" beforeDir="false" afterPath="$PROJECT_DIR$/database/admin.sysriot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/system/logs.sysriot" beforeDir="false" afterPath="$PROJECT_DIR$/database/system/logs.sysriot" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database/system/system.sysriot" beforeDir="false" afterPath="$PROJECT_DIR$/database/system/system.sysriot" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/user.sysriot" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/admin_settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/admin_settings.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/home.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/res/index/core.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/res/index/sponsor1.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/res/index/sponsor2.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/res/logo_big.png" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/logo_big.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/res/logo_wide.png" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/logo_wide.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/res/core.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/core.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/res/core.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/core.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/signup.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/signup.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Intel inside.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Just red.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Natural Skintone.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Pinky Lover.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Purple shine.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Rubber Ducky.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Sultan Sunrise.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Super Blue.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Super Neon.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Touch Grass.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/default.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/themes/default.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/user_settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/user_settings.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/verify.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/verify.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +128,23 @@
       <option name="project" value="LOCAL" />
       <updated>1770368958876</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="update part 1">
+      <option name="closed" value="true" />
+      <created>1770376296957</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1770376296957</updated>
+    </task>
+    <task id="LOCAL-00003" summary="update part 1">
+      <option name="closed" value="true" />
+      <created>1770376317125</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1770376317125</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -149,6 +172,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="init commit" />
+    <MESSAGE value="update part 1" />
+    <option name="LAST_COMMIT_MESSAGE" value="update part 1" />
   </component>
 </project>
