@@ -1,5 +1,4 @@
 :root {
-    /* BACKGROUND */
     --p-bg-app: #313338;
     --p-bg-surface-1: #2b2d31;
     --p-bg-surface-2: #232428;
@@ -11,14 +10,12 @@
     --p-bg-overlay: rgba(0,0,0,0.85);
     --p-bg-tooltip: #111214;
 
-    /* BORDER */
     --p-border-subtle: #26272d;
     --p-border-main: #1e1f22;
     --p-border-strong: #5865f2;
     --p-border-focus: #7983f5;
     --p-border-inverse: #ffffff;
 
-    /* TEXT */
     --p-text-main: #f2f3f5;
     --p-text-muted: #b5bac1;
     --p-text-disabled: #80848e;
@@ -26,7 +23,6 @@
     --p-text-link: #5865f2;
     --p-text-link-hover: #7983f5;
 
-    /* PRIMARY */
     --p-primary-main: #5865f2;
     --p-primary-hover: #4752c4;
     --p-primary-active: #3c45a5;
@@ -34,7 +30,6 @@
     --p-primary-text: #ffffff;
     --p-primary-border: #5865f2;
 
-    /* PRIMARY ALT */
     --p-primary-alt-main: #7983f5;
     --p-primary-alt-hover: #5865f2;
     --p-primary-alt-active: #4752c4;
@@ -42,7 +37,6 @@
     --p-primary-alt-text: #ffffff;
     --p-primary-alt-border: #7983f5;
 
-    /* PRIMARY DEEP */
     --p-primary-deep-main: #3c45a5;
     --p-primary-deep-hover: #2f377f;
     --p-primary-deep-active: #23295e;
@@ -50,7 +44,6 @@
     --p-primary-deep-text: #ffffff;
     --p-primary-deep-border: #3c45a5;
 
-    /* SECONDARY */
     --p-secondary-main: #4f545c;
     --p-secondary-hover: #5d6269;
     --p-secondary-active: #6b7078;
@@ -58,7 +51,6 @@
     --p-secondary-text: #ffffff;
     --p-secondary-border: #4f545c;
 
-    /* SECONDARY ALT */
     --p-secondary-alt-main: #232428;
     --p-secondary-alt-hover: #2b2d31;
     --p-secondary-alt-active: #313338;
@@ -66,7 +58,6 @@
     --p-secondary-alt-text: #f2f3f5;
     --p-secondary-alt-border: #232428;
 
-    /* SECONDARY DEEP */
     --p-secondary-deep-main: #1e1f22;
     --p-secondary-deep-hover: #232428;
     --p-secondary-deep-active: #2b2d31;
@@ -74,7 +65,6 @@
     --p-secondary-deep-text: #f2f3f5;
     --p-secondary-deep-border: #1e1f22;
 
-    /* STATUS */
     --p-status-error-main: #ed4245;
     --p-status-error-hover: #c03537;
     --p-status-error-active: #9e2b2d;
@@ -103,19 +93,16 @@
     --p-status-info-text: #000000;
     --p-status-info-border: #00b0f4;
 
-    /* STAT */
     --p-stat-1: #5865f2;
     --p-stat-2: #3ba55c;
     --p-stat-3: #faa61a;
     --p-stat-4: #ed4245;
 
-    /* EFFECT */
     --p-effect-shadow: rgba(0,0,0,0.6);
     --p-effect-shadow-lg: rgba(0,0,0,0.8);
     --p-effect-glow: rgba(88,101,242,0.4);
     --p-effect-highlight: rgba(255,255,255,0.03);
 
-    /* UI */
     --p-ui-selection: rgba(88,101,242,0.3);
     --p-ui-focus-ring: rgba(88,101,242,0.8);
 }

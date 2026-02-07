@@ -1,22 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>{{ 'Sign Up' if mode == 'signup' else 'Verify' if mode == 'verify' else 'Login' }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
 </head>
 <body class="index-body">
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loader"></div>
+        <div class="loading-text">Please Wait...</div>
+    </div>
     <div class="index-layout">
         <div class="index-sidebar">
             <div class="index-brand-wrapper">
                 <img src="/static/res/logo_big.png" alt="Logo" class="index-brand-logo">
             </div>
 
-            {% if error %}
+            {% if error and mode != 'verify' %}
             <div class="alert alert-danger">{{ error }}</div>
             {% endif %}
-            <form method="POST" class="index-form">
+
+            {% if mode == 'signup' %}
+            <form id="signupForm" method="POST" class="index-form" action="{{ url_for('index_route') }}" onsubmit="showLoading()">
+                <input type="hidden" name="action" value="signup">
+                <div class="form-group">
+                    <div class="index-icon-wrapper">
+                        <img src="{{ url_for('static', filename='res/login/user.svg') }}" class="index-icon" alt="">
+                        <input type="text" name="username" class="input index-input" placeholder="Username" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="index-icon-wrapper">
+                        <img src="{{ url_for('static', filename='res/login/user.svg') }}" class="index-icon" alt="">
+                        <input type="text" name="email" class="input index-input" placeholder="Organization Email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="index-icon-wrapper">
+                        <img src="{{ url_for('static', filename='res/login/pass.svg') }}" class="index-icon" alt="">
+                        <input type="password" name="password" class="input index-input" placeholder="Password" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="index-icon-wrapper">
+                        <img src="{{ url_for('static', filename='res/login/pass.svg') }}" class="index-icon" alt="">
+                        <input type="password" name="confirm_password" class="input index-input" placeholder="Confirm Password" required>
+                    </div>
+                </div>
+
+                <div class="index-options" style="justify-content: flex-start;">
+                    <label class="index-checkbox-label">
+                        <input type="checkbox" name="agree" id="eula_check" class="index-checkbox">
+                        <span style="margin-left: 5px;">Agree with <a href="#" class="index-forgot-link" onclick="showEula('{{ url_for('static', filename='res/eula.txt') }}')">Terms & Conditions</a></span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-index-login">REGISTER</button>
+            </form>
+
+            <div class="index-footer-text">
+                Already registered? <a href="/?mode=login" class="create-account">Login</a>
+            </div>
+
+            {% else %}
+
+            <form method="POST" class="index-form" action="{{ url_for('index_route') }}" onsubmit="showLoading()">
+                <input type="hidden" name="action" value="login">
                 <div class="form-group">
                     <div class="index-icon-wrapper">
                         <img src="{{ url_for('static', filename='res/login/user.svg') }}" class="index-icon" alt="">
@@ -41,14 +94,78 @@
             </form>
 
             <div class="index-footer-text">
-                Not Register yet ? <a href="/signup" class="create-account">Create An Account</a>
+                Not Register yet ? <a href="/?mode=signup" class="create-account">Create An Account</a>
             </div>
+            {% endif %}
 
             <div class="index-version-tag">
                 VERSION 1.0.0
             </div>
         </div>
         <div class="index-empty-space" {% if bg_image %}style="background-image: url('{{ url_for('static', filename=bg_image) }}');"{% endif %}></div>
+    </div>
+
+    {% if mode == 'verify' %}
+    <div id="verifyModal" class="modal-wrapper show">
+        <div class="modal-content verify-modal-content">
+            <div class="verify-body">
+                <div class="verify-title">Enter OTP Code</div>
+                <div class="verify-desc">
+                    The OTP code will be sent via email to<br>
+                    <strong>{{ target_email }}</strong>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger" style="margin-bottom: 15px; padding: 10px; font-size: 0.9rem;">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('index_route') }}" id="otpForm">
+                    <input type="hidden" name="action" value="verify">
+                    <input type="hidden" name="otp" id="real_otp">
+
+                    <div class="otp-grid">
+                        <input type="text" class="otp-box" maxlength="1" oninput="handleOtp(this)" onkeydown="handleBackspace(this, event)" onpaste="handlePaste(event)">
+                        <input type="text" class="otp-box" maxlength="1" oninput="handleOtp(this)" onkeydown="handleBackspace(this, event)" onpaste="handlePaste(event)">
+                        <input type="text" class="otp-box" maxlength="1" oninput="handleOtp(this)" onkeydown="handleBackspace(this, event)" onpaste="handlePaste(event)">
+                        <input type="text" class="otp-box" maxlength="1" oninput="handleOtp(this)" onkeydown="handleBackspace(this, event)" onpaste="handlePaste(event)">
+                        <input type="text" class="otp-box" maxlength="1" oninput="handleOtp(this)" onkeydown="handleBackspace(this, event)" onpaste="handlePaste(event)">
+                        <input type="text" class="otp-box" maxlength="1" oninput="handleOtp(this)" onkeydown="handleBackspace(this, event)" onpaste="handlePaste(event)">
+                    </div>
+
+                    <div class="resend-wrapper">
+                        Didn't receive the code?
+                        <form action="{{ url_for('index_route') }}" method="POST" class="resend-form" id="resendForm">
+                            <input type="hidden" name="action" value="resend">
+                            <button type="button" class="resend-btn" id="resendBtn" onclick="submitResend()" disabled>Resend</button>
+                        </form>
+                        <span id="timerText" style="margin-left: 5px;">({{ remaining }}s)</span>
+                    </div>
+
+                    <div class="verify-actions">
+                        <button type="button" class="btn-verify-primary" onclick="submitOtp()">Verified</button>
+                        <a href="/?mode=login" class="btn-verify-secondary" style="display: block; text-align: center; text-decoration: none;">cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initOtpTimer("{{ remaining }}");
+        });
+    </script>
+    {% endif %}
+
+    <div id="eulaModal" class="modal-wrapper">
+        <div class="modal-content">
+            <div class="modal-header"><h3>License Agreement</h3></div>
+            <div class="modal-body">
+                <div class="eula-text" id="eulaContent">Loading...</div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEula()">Close</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>

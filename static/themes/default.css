@@ -1,108 +1,122 @@
 :root {
-    --p-bg-app: #0068b5;
-    --p-bg-surface-1: #ffffff;
-    --p-bg-surface-2: #f8f9fa;
-    --p-bg-surface-3: #ffffff;
-    --p-bg-surface-4: #eef2f6;
-    --p-bg-surface-alt: #f0f4f8;
-    --p-bg-input: #f0f2f5;
+    /* BACKGROUNDS */
+    --p-bg-app: #0b57d0;                 /* Deep Blue - Main Sidebar/Login Background */
+    --p-bg-surface-1: #397cec;           /* Light Blue-Grey - Dashboard Background */
+    --p-bg-surface-2: #ffffff;           /* Pure White - Cards/Containers */
+    --p-bg-surface-3: #e1e9f5;           /* Surface for headers/secondary areas */
+    --p-bg-surface-4: #c2d7ff;           /* Highlight surface */
+    --p-bg-surface-alt: #f0f4f9;         /* Alternate surface */
+
+    --p-bg-input: #ffffff;               /* Input background on white surfaces */
     --p-bg-input-focus: #ffffff;
-    --p-bg-overlay: rgba(0, 40, 90, 0.85);
-    --p-bg-tooltip: #111111;
+    --p-bg-overlay: rgba(11, 87, 208, 0.9); /* Blue tinted overlay */
+    --p-bg-tooltip: #001d35;
 
-    --p-border-subtle: #e1e4e8;
-    --p-border-main: #d1d5db;
-    --p-border-strong: #0068b5;
-    --p-border-focus: #00c7fd;
-    --p-border-inverse: #ffffff;
+    /* BORDERS */
+    --p-border-subtle: #e3e3e3;
+    --p-border-main: #c4c7c5;
+    --p-border-strong: #0b57d0;
+    --p-border-focus: #7cacf8;
+    --p-border-inverse: rgba(255, 255, 255, 0.6); /* Semi-transparent white for Blue BG inputs */
 
-    --p-text-main: #111111;
-    --p-text-muted: #555555;
-    --p-text-disabled: #9ca3af;
-    --p-text-inverse: #ffffff;
-    --p-text-link: #0068b5;
-    --p-text-link-hover: #004e8a;
+    /* TEXT */
+    --p-text-main: #1f1f1f;              /* Nearly Black - Main Text */
+    --p-text-muted: #444746;             /* Dark Grey - Secondary Text */
+    --p-text-disabled: #8e918f;
+    --p-text-inverse: #ffffff;           /* Pure White - For text on Blue BG */
+    --p-text-link: #0b57d0;              /* Blue Link */
+    --p-text-link-hover: #0842a0;
 
-    --p-primary-main: #0068b5;
-    --p-primary-hover: #004e8a;
-    --p-primary-active: #003666;
-    --p-primary-subtle: rgba(0, 104, 181, 0.1);
-    --p-primary-text: #ffffff;
-    --p-primary-border: #0068b5;
+    /* PRIMARY BRAND */
+    --p-primary-main: #0b57d0;           /* Google/Standard Blue */
+    --p-primary-hover: #0842a0;
+    --p-primary-active: #062e6f;
+    --p-primary-subtle: rgba(11, 87, 208, 0.1);
+    --p-primary-text: #ffffff;           /* White text on Primary Button */
+    --p-primary-border: #0b57d0;
 
-    --p-primary-alt-main: #4a90e2;
-    --p-primary-alt-hover: #357abd;
-    --p-primary-alt-active: #2a629c;
-    --p-primary-alt-subtle: rgba(74, 144, 226, 0.1);
-    --p-primary-alt-text: #ffffff;
-    --p-primary-alt-border: #4a90e2;
+    /* PRIMARY ALT (Lighter Blue) */
+    --p-primary-alt-main: #d3e3fd;
+    --p-primary-alt-hover: #c2d7ff;
+    --p-primary-alt-active: #a8c7fa;
+    --p-primary-alt-subtle: rgba(211, 227, 253, 0.3);
+    --p-primary-alt-text: #041e49;       /* Dark Blue text on Light Blue button */
+    --p-primary-alt-border: #d3e3fd;
 
-    --p-primary-deep-main: #002f52;
-    --p-primary-deep-hover: #001f36;
-    --p-primary-deep-active: #001221;
-    --p-primary-deep-subtle: rgba(0, 47, 82, 0.1);
+    /* PRIMARY DEEP (Darkest Blue) */
+    --p-primary-deep-main: #001d35;
+    --p-primary-deep-hover: #001524;
+    --p-primary-deep-active: #000000;
+    --p-primary-deep-subtle: rgba(0, 29, 53, 0.1);
     --p-primary-deep-text: #ffffff;
-    --p-primary-deep-border: #002f52;
+    --p-primary-deep-border: #001d35;
 
-    --p-secondary-main: #00c7fd;
-    --p-secondary-hover: #009cc7;
-    --p-secondary-active: #007ba0;
-    --p-secondary-subtle: rgba(0, 199, 253, 0.1);
-    --p-secondary-text: #111111;
-    --p-secondary-border: #00c7fd;
+    /* SECONDARY (Accent/Cyan) */
+    --p-secondary-main: #7cacf8;         /* Bright Blue Accent */
+    --p-secondary-hover: #5992ef;
+    --p-secondary-active: #3b7ddd;
+    --p-secondary-subtle: rgba(124, 172, 248, 0.1);
+    --p-secondary-text: #001d35;
+    --p-secondary-border: #7cacf8;
 
-    --p-secondary-alt-main: #00e5ff;
-    --p-secondary-alt-hover: #00b8cc;
-    --p-secondary-alt-active: #008ba3;
-    --p-secondary-alt-subtle: rgba(0, 229, 255, 0.1);
-    --p-secondary-alt-text: #111111;
-    --p-secondary-alt-border: #00e5ff;
+    /* SECONDARY ALT */
+    --p-secondary-alt-main: #c2d7ff;
+    --p-secondary-alt-hover: #a8c7fa;
+    --p-secondary-alt-active: #7cacf8;
+    --p-secondary-alt-subtle: rgba(194, 215, 255, 0.1);
+    --p-secondary-alt-text: #0b57d0;
+    --p-secondary-alt-border: #c2d7ff;
 
-    --p-secondary-deep-main: #0097a7;
-    --p-secondary-deep-hover: #007c89;
-    --p-secondary-deep-active: #006064;
-    --p-secondary-deep-subtle: rgba(0, 151, 167, 0.1);
+    /* SECONDARY DEEP */
+    --p-secondary-deep-main: #041e49;
+    --p-secondary-deep-hover: #062e6f;
+    --p-secondary-deep-active: #0842a0;
+    --p-secondary-deep-subtle: rgba(4, 30, 73, 0.1);
     --p-secondary-deep-text: #ffffff;
-    --p-secondary-deep-border: #0097a7;
+    --p-secondary-deep-border: #041e49;
 
-    --p-status-error-main: #d93025;
-    --p-status-error-hover: #b31412;
-    --p-status-error-active: #9e0f0d;
-    --p-status-error-bg: rgba(217, 48, 37, 0.1);
-    --p-status-error-text: #ffffff;
-    --p-status-error-border: #d93025;
+    /* STATUS COLORS */
+    --p-status-error-main: #b3261e;
+    --p-status-error-hover: #8c1d18;
+    --p-status-error-active: #601410;
+    --p-status-error-bg: #f9dedc;
+    --p-status-error-text: #410e0b;
+    --p-status-error-border: #b3261e;
 
-    --p-status-success-main: #1e8e3e;
-    --p-status-success-hover: #137333;
-    --p-status-success-active: #0d5924;
-    --p-status-success-bg: rgba(30, 142, 62, 0.1);
-    --p-status-success-text: #ffffff;
-    --p-status-success-border: #1e8e3e;
+    --p-status-success-main: #146c2e;
+    --p-status-success-hover: #0f5223;
+    --p-status-success-active: #0a3818;
+    --p-status-success-bg: #c4eed0;
+    --p-status-success-text: #04210b;
+    --p-status-success-border: #146c2e;
 
-    --p-status-warning-main: #f9ab00;
-    --p-status-warning-hover: #d69300;
-    --p-status-warning-active: #b37b00;
-    --p-status-warning-bg: rgba(249, 171, 0, 0.1);
-    --p-status-warning-text: #111111;
-    --p-status-warning-border: #f9ab00;
+    --p-status-warning-main: #e09f1f;
+    --p-status-warning-hover: #bc820f;
+    --p-status-warning-active: #8e6205;
+    --p-status-warning-bg: #ffeec9;
+    --p-status-warning-text: #1f1f1f;
+    --p-status-warning-border: #e09f1f;
 
-    --p-status-info-main: #5f9ffa;
-    --p-status-info-hover: #1d78e5;
-    --p-status-info-active: #1460bd;
-    --p-status-info-bg: rgba(26, 115, 232, 0.1);
-    --p-status-info-text: #ffffff;
-    --p-status-info-border: #277ff3;
+    --p-status-info-main: #0b57d0;
+    --p-status-info-hover: #0842a0;
+    --p-status-info-active: #062e6f;
+    --p-status-info-bg: #d3e3fd;
+    --p-status-info-text: #041e49;
+    --p-status-info-border: #0b57d0;
 
-    --p-stat-1: #0068b5;
-    --p-stat-2: #00c7fd;
-    --p-stat-3: #1e8e3e;
-    --p-stat-4: #f9ab00;
+    /* STATS */
+    --p-stat-1: #0b57d0;
+    --p-stat-2: #146c2e;
+    --p-stat-3: #e09f1f;
+    --p-stat-4: #b3261e;
 
-    --p-effect-shadow: rgba(0, 0, 0, 0.2);
-    --p-effect-shadow-lg: rgba(0, 0, 0, 0.35);
-    --p-effect-glow: rgba(0, 199, 253, 0.4);
+    /* EFFECT */
+    --p-effect-shadow: rgba(0, 0, 0, 0.15);
+    --p-effect-shadow-lg: rgba(0, 0, 0, 0.25);
+    --p-effect-glow: rgba(11, 87, 208, 0.3);
     --p-effect-highlight: rgba(255, 255, 255, 0.2);
 
-    --p-ui-selection: rgba(0, 104, 181, 0.15);
-    --p-ui-focus-ring: rgba(0, 199, 253, 0.6);
+    /* UI */
+    --p-ui-selection: rgba(11, 87, 208, 0.2);
+    --p-ui-focus-ring: rgba(11, 87, 208, 0.4);
 }
