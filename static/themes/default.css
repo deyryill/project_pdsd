@@ -1,11 +1,11 @@
 :root {
     /* BACKGROUNDS */
-    --p-bg-app: #0b57d0;                 /* Deep Blue - Main Sidebar/Login Background */
-    --p-bg-surface-1: #397cec;           /* Light Blue-Grey - Dashboard Background */
+    --p-bg-app: #397cec;                  /* Deep Blue - Main Sidebar/Login Background */
+    --p-bg-surface-1: linear-gradient(180deg,rgba(140, 193, 245, 1) 0%, rgba(70, 145, 237, 1) 35%, rgba(43, 89, 159, 1) 100%);           /* Light Blue-Grey - Dashboard Background */
     --p-bg-surface-2: #ffffff;           /* Pure White - Cards/Containers */
     --p-bg-surface-3: #e1e9f5;           /* Surface for headers/secondary areas */
-    --p-bg-surface-4: #c2d7ff;           /* Highlight surface */
-    --p-bg-surface-alt: #f0f4f9;         /* Alternate surface */
+    --p-bg-surface-4: #8CC1F5;           /* Highlight surface */
+    --p-bg-surface-alt: #8CC1F5;         /* Alternate surface */
 
     --p-bg-input: #ffffff;               /* Input background on white surfaces */
     --p-bg-input-focus: #ffffff;
@@ -20,7 +20,7 @@
     --p-border-inverse: rgba(255, 255, 255, 0.6); /* Semi-transparent white for Blue BG inputs */
 
     /* TEXT */
-    --p-text-main: #1f1f1f;              /* Nearly Black - Main Text */
+    --p-text-main: #000000;              /* Nearly Black - Main Text */
     --p-text-muted: #444746;             /* Dark Grey - Secondary Text */
     --p-text-disabled: #8e918f;
     --p-text-inverse: #ffffff;           /* Pure White - For text on Blue BG */
@@ -28,11 +28,11 @@
     --p-text-link-hover: #0842a0;
 
     /* PRIMARY BRAND */
-    --p-primary-main: #0b57d0;           /* Google/Standard Blue */
+    --p-primary-main: #2B678F;           /* Google/Standard Blue */
     --p-primary-hover: #0842a0;
     --p-primary-active: #062e6f;
     --p-primary-subtle: rgba(11, 87, 208, 0.1);
-    --p-primary-text: #ffffff;           /* White text on Primary Button */
+    --p-primary-text: #000000;           /* White text on Primary Button */
     --p-primary-border: #0b57d0;
 
     /* PRIMARY ALT (Lighter Blue) */
