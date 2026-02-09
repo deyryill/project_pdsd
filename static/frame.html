@@ -17,28 +17,28 @@
 
             <div class="nav-links">
                 <a href="home.html?content=1" target="content_frame" class="nav-item" data-page="home.html">
-                    <img src="{{ url_for('static', filename='res/frame/1.svg') }}" class="nav-icon" alt="">
+                    <img src="{{ url_for('static', filename='res/frame/home.svg') }}" class="nav-icon" alt="">
                     <span>Home</span>
                 </a>
 
                 <a href="#" class="nav-item">
-                    <img src="{{ url_for('static', filename='res/frame/2.svg') }}" class="nav-icon" alt="">
+                    <img src="{{ url_for('static', filename='res/frame/marker.svg') }}" class="nav-icon" alt="">
                     <span>Data analysis</span>
                 </a>
 
                 <a href="#" class="nav-item">
-                    <img src="{{ url_for('static', filename='res/frame/3.svg') }}" class="nav-icon" alt="">
+                    <img src="{{ url_for('static', filename='res/frame/database-management.svg') }}" class="nav-icon" alt="">
                     <span>Database</span>
                 </a>
 
                 <a href="user_settings.html?content=1" target="content_frame" class="nav-item" data-page="user_settings.html">
-                    <img src="{{ url_for('static', filename='res/frame/4.svg') }}" class="nav-icon" alt="">
+                    <img src="{{ url_for('static', filename='res/frame/settings.svg') }}" class="nav-icon" alt="">
                     <span>Settings</span>
                 </a>
 
                 {% if session.get('level', 0) >= 2 %}
                 <a href="admin_settings.html?content=1" target="content_frame" class="nav-item" data-page="admin_settings.html">
-                    <img src="{{ url_for('static', filename='res/frame/5.svg') }}" class="nav-icon" alt="">
+                    <img src="{{ url_for('static', filename='res/frame/settings.svg') }}" class="nav-icon" alt="">
                     <span>Admin Settings</span>
                 </a>
                 {% endif %}
@@ -47,7 +47,7 @@
 
         <div class="nav-bottom">
             <a href="/logout" target="_top" class="logout-btn">
-                <img src="{{ url_for('static', filename='res/frame/0.svg') }}" alt="">
+                <img src="{{ url_for('static', filename='res/frame/exit.svg') }}" alt="">
                 <span>LOGOUT</span>
             </a>
         </div>
