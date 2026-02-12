@@ -40,7 +40,6 @@
                 <div class="form-group">
                     <label>Theme</label>
                     <select name="theme" class="input">
-                        <option value="default" {% if target_data.theme == 'default' %}selected{% endif %}>Default</option>
                         {% for t in themes %}
                         <option value="{{ t }}" {% if target_data.theme == t %}selected{% endif %}>{{ t }}</option>
                         {% endfor %}

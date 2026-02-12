@@ -1,7 +1,7 @@
 :root {
     /* BACKGROUND */
     --p-bg-app: #000000;
-    --p-bg-surface-1: #111111;
+    --p-bg-surface-1: radial-gradient(circle,rgba(51, 232, 126, 1) 0%, rgba(28, 115, 214, 1) 100%);
     --p-bg-surface-2: #1a1a1a;
     --p-bg-surface-3: #222222;
     --p-bg-surface-4: #2a2a2a;

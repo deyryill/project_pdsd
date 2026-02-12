@@ -4,23 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f6c390e-ef21-4b9b-9a48-e761cc579ccc" name="Changes" comment="update index design">
+    <list default="true" id="5f6c390e-ef21-4b9b-9a48-e761cc579ccc" name="Changes" comment="-revert otp rollback code&#10;-merge signup singin verified page into single index.&#10;-rework core.css color usage&#10;-rework default.css color&#10;-fix slow OTP&#10;-update UI &#10;-compress core.js and core.css to improve performance">
+      <change afterPath="$PROJECT_DIR$/static/themes/DEVKIT.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/admin.sysriot" beforeDir="false" afterPath="$PROJECT_DIR$/database/admin.sysriot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/system/system.sysriot" beforeDir="false" afterPath="$PROJECT_DIR$/database/system/system.sysriot" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/bak/frame.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/bak/history.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/bak/home.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/bak/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/bak/login.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/bak/manager.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/bak/setting.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/res/core.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/core.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/res/core.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/res/core.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/signup.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/themes/Discord.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/themes/Discord.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Missing texture.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Nvidia.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Steam deck.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/themes/Windows 95.css" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/static/themes/default.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/themes/default.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/verify.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/user_settings.html" beforeDir="false" afterPath="$PROJECT_DIR$/static/user_settings.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,18 +49,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Python.main.executor": "Run",
-    "Python.system 3.8.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "G:/Project/Dasboard analisis/database",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.system 3.8.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;G:/Project/Dasboard analisis/static/themes&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="G:\Project\Dasboard analisis\static\themes" />
       <recent name="G:\Project\Dasboard analisis\database" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -181,7 +179,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770469700114</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="-revert otp rollback code&#10;-merge signup singin verified page into single index.&#10;-rework core.css color usage&#10;-rework default.css color&#10;-fix slow OTP&#10;-update UI &#10;-compress core.js and core.css to improve performance">
+      <option name="closed" value="true" />
+      <created>1770492984633</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1770492984633</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.History.Properties">
@@ -223,6 +229,7 @@
     <MESSAGE value="update init part 2" />
     <MESSAGE value="update init part 3" />
     <MESSAGE value="update index design" />
-    <option name="LAST_COMMIT_MESSAGE" value="update index design" />
+    <MESSAGE value="-revert otp rollback code&#10;-merge signup singin verified page into single index.&#10;-rework core.css color usage&#10;-rework default.css color&#10;-fix slow OTP&#10;-update UI &#10;-compress core.js and core.css to improve performance" />
+    <option name="LAST_COMMIT_MESSAGE" value="-revert otp rollback code&#10;-merge signup singin verified page into single index.&#10;-rework core.css color usage&#10;-rework default.css color&#10;-fix slow OTP&#10;-update UI &#10;-compress core.js and core.css to improve performance" />
   </component>
 </project>

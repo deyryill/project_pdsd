@@ -1,0 +1,121 @@
+:root {
+    /* BACKGROUND */
+    --p-bg-app: #000000;
+    --p-bg-surface-1: radial-gradient(circle,rgba(51, 232, 126, 1) 0%, rgba(28, 115, 214, 1) 100%);
+    --p-bg-surface-2: #1a1a1a;
+    --p-bg-surface-3: #222222;
+    --p-bg-surface-4: #2a2a2a;
+    --p-bg-surface-alt: #151515;
+    --p-bg-input: #050505;
+    --p-bg-input-focus: #111111;
+    --p-bg-overlay: rgba(0,0,0,0.9);
+    --p-bg-tooltip: #0a0a0a;
+
+    /* BORDER */
+    --p-border-subtle: #333333;
+    --p-border-main: #444444;
+    --p-border-strong: #76b900;
+    --p-border-focus: #8edb00;
+    --p-border-inverse: #ffffff;
+
+    /* TEXT */
+    --p-text-main: #ffffff;
+    --p-text-muted: #999999;
+    --p-text-disabled: #555555;
+    --p-text-inverse: #000000;
+    --p-text-link: #76b900;
+    --p-text-link-hover: #8edb00;
+
+    /* PRIMARY */
+    --p-primary-main: #76b900;
+    --p-primary-hover: #5e9400;
+    --p-primary-active: #4a7500;
+    --p-primary-subtle: rgba(118,185,0,0.15);
+    --p-primary-text: #000000;
+    --p-primary-border: #76b900;
+
+    /* PRIMARY ALT */
+    --p-primary-alt-main: #8edb00;
+    --p-primary-alt-hover: #76b900;
+    --p-primary-alt-active: #5e9400;
+    --p-primary-alt-subtle: rgba(142,219,0,0.15);
+    --p-primary-alt-text: #000000;
+    --p-primary-alt-border: #8edb00;
+
+    /* PRIMARY DEEP */
+    --p-primary-deep-main: #4a7500;
+    --p-primary-deep-hover: #3b5d00;
+    --p-primary-deep-active: #2c4500;
+    --p-primary-deep-subtle: rgba(74,117,0,0.15);
+    --p-primary-deep-text: #ffffff;
+    --p-primary-deep-border: #4a7500;
+
+    /* SECONDARY */
+    --p-secondary-main: #ffffff;
+    --p-secondary-hover: #e0e0e0;
+    --p-secondary-active: #cccccc;
+    --p-secondary-subtle: rgba(255,255,255,0.1);
+    --p-secondary-text: #000000;
+    --p-secondary-border: #ffffff;
+
+    /* SECONDARY ALT */
+    --p-secondary-alt-main: #2a2a2a;
+    --p-secondary-alt-hover: #333333;
+    --p-secondary-alt-active: #444444;
+    --p-secondary-alt-subtle: rgba(255,255,255,0.05);
+    --p-secondary-alt-text: #ffffff;
+    --p-secondary-alt-border: #333333;
+
+    /* SECONDARY DEEP */
+    --p-secondary-deep-main: #111111;
+    --p-secondary-deep-hover: #1a1a1a;
+    --p-secondary-deep-active: #222222;
+    --p-secondary-deep-subtle: rgba(255,255,255,0.03);
+    --p-secondary-deep-text: #ffffff;
+    --p-secondary-deep-border: #111111;
+
+    /* STATUS */
+    --p-status-error-main: #ff3333;
+    --p-status-error-hover: #e60000;
+    --p-status-error-active: #b30000;
+    --p-status-error-bg: rgba(255,51,51,0.1);
+    --p-status-error-text: #ffffff;
+    --p-status-error-border: #ff3333;
+
+    --p-status-success-main: #76b900;
+    --p-status-success-hover: #5e9400;
+    --p-status-success-active: #4a7500;
+    --p-status-success-bg: rgba(118,185,0,0.1);
+    --p-status-success-text: #000000;
+    --p-status-success-border: #76b900;
+
+    --p-status-warning-main: #ffcc00;
+    --p-status-warning-hover: #e6b800;
+    --p-status-warning-active: #cc9900;
+    --p-status-warning-bg: rgba(255,204,0,0.1);
+    --p-status-warning-text: #000000;
+    --p-status-warning-border: #ffcc00;
+
+    --p-status-info-main: #00aeff;
+    --p-status-info-hover: #0096db;
+    --p-status-info-active: #007bb5;
+    --p-status-info-bg: rgba(0,174,255,0.1);
+    --p-status-info-text: #000000;
+    --p-status-info-border: #00aeff;
+
+    /* STAT */
+    --p-stat-1: #76b900;
+    --p-stat-2: #00aeff;
+    --p-stat-3: #ffcc00;
+    --p-stat-4: #ff3333;
+
+    /* EFFECT */
+    --p-effect-shadow: rgba(0,0,0,0.8);
+    --p-effect-shadow-lg: rgba(0,0,0,0.9);
+    --p-effect-glow: rgba(118,185,0,0.6);
+    --p-effect-highlight: rgba(118,185,0,0.1);
+
+    /* UI */
+    --p-ui-selection: rgba(118,185,0,0.3);
+    --p-ui-focus-ring: rgba(118,185,0,0.8);
+}

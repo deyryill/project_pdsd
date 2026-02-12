@@ -1,0 +1,122 @@
+:root {
+    /* BACKGROUNDS - NEON EXTREMES */
+    --p-bg-app: #ff00ff;                 /* Magenta */
+    --p-bg-surface-1: #00ff00;           /* Lime Green */
+    --p-bg-surface-2: #0000ff;           /* Electric Blue */
+    --p-bg-surface-3: #ffff00;           /* Bright Yellow */
+    --p-bg-surface-4: #ff0000;           /* Pure Red */
+    --p-bg-surface-alt: #00ffff;         /* Cyan */
+
+    --p-bg-input: #ffffff;               /* Pure White */
+    --p-bg-input-focus: #000000;         /* Pure Black */
+    --p-bg-overlay: rgba(255, 165, 0, 0.9); /* Bright Orange */
+    --p-bg-tooltip: #4b0082;             /* Indigo */
+
+    /* BORDERS - HIGH CONTRAST PASTELS */
+    --p-border-subtle: #ffc0cb;          /* Pink */
+    --p-border-main: #adff2f;            /* Green Yellow */
+    --p-border-strong: #ff4500;          /* Orange Red */
+    --p-border-focus: #1e90ff;           /* Dodger Blue */
+    --p-border-inverse: rgba(255, 255, 255, 1);
+
+    /* TEXT - SHARP DARK/LIGHT */
+    --p-text-main: #006400;              /* Dark Green */
+    --p-text-muted: #8b0000;             /* Dark Red */
+    --p-text-disabled: #555555;
+    --p-text-inverse: #ffffff;
+    --p-text-link: #ff00ff;              /* Magenta Link */
+    --p-text-link-hover: #00ff00;
+
+    /* PRIMARY BRAND - PURPLE FAMILY */
+    --p-primary-main: #800080;
+    --p-primary-hover: #9932cc;
+    --p-primary-active: #4b0082;
+    --p-primary-subtle: rgba(128, 0, 128, 0.1);
+    --p-primary-text: #ccff00;           /* Neon Lime Text */
+    --p-primary-border: #800080;
+
+    /* PRIMARY ALT - TEAL FAMILY */
+    --p-primary-alt-main: #008080;
+    --p-primary-alt-hover: #20b2aa;
+    --p-primary-alt-active: #00ced1;
+    --p-primary-alt-subtle: rgba(0, 128, 128, 0.3);
+    --p-primary-alt-text: #ffd700;       /* Gold Text */
+    --p-primary-alt-border: #008080;
+
+    /* PRIMARY DEEP - DEEP BROWNS */
+    --p-primary-deep-main: #5d4037;
+    --p-primary-deep-hover: #3e2723;
+    --p-primary-deep-active: #212121;
+    --p-primary-deep-subtle: rgba(93, 64, 55, 0.1);
+    --p-primary-deep-text: #ffffff;
+    --p-primary-deep-border: #5d4037;
+
+    /* SECONDARY - BRIGHT PINK/HOT COLORS */
+    --p-secondary-main: #ff69b4;         /* Hot Pink */
+    --p-secondary-hover: #ff1493;
+    --p-secondary-active: #c71585;
+    --p-secondary-subtle: rgba(255, 105, 180, 0.1);
+    --p-secondary-text: #000000;
+    --p-secondary-border: #ff69b4;
+
+    /* SECONDARY ALT - SKY COLORS */
+    --p-secondary-alt-main: #87ceeb;
+    --p-secondary-alt-hover: #00bfff;
+    --p-secondary-alt-active: #1e90ff;
+    --p-secondary-alt-subtle: rgba(135, 206, 235, 0.1);
+    --p-secondary-alt-text: #000000;
+    --p-secondary-alt-border: #87ceeb;
+
+    /* SECONDARY DEEP - NAVY STARK */
+    --p-secondary-deep-main: #000080;
+    --p-secondary-deep-hover: #00008b;
+    --p-secondary-deep-active: #191970;
+    --p-secondary-deep-subtle: rgba(0, 0, 128, 0.1);
+    --p-secondary-deep-text: #ffffff;
+    --p-secondary-deep-border: #000080;
+
+    /* STATUS COLORS - REMAINS LOGICAL BUT SATURATED */
+    --p-status-error-main: #ff0000;
+    --p-status-error-hover: #cc0000;
+    --p-status-error-active: #990000;
+    --p-status-error-bg: #ffcccc;
+    --p-status-error-text: #660000;
+    --p-status-error-border: #ff0000;
+
+    --p-status-success-main: #00ff00;
+    --p-status-success-hover: #00cc00;
+    --p-status-success-active: #009900;
+    --p-status-success-bg: #ccffcc;
+    --p-status-success-text: #006600;
+    --p-status-success-border: #00ff00;
+
+    --p-status-warning-main: #ffa500;
+    --p-status-warning-hover: #cc8400;
+    --p-status-warning-active: #996300;
+    --p-status-warning-bg: #fff5cc;
+    --p-status-warning-text: #000000;
+    --p-status-warning-border: #ffa500;
+
+    --p-status-info-main: #00ffff;
+    --p-status-info-hover: #00cccc;
+    --p-status-info-active: #009999;
+    --p-status-info-bg: #ccffff;
+    --p-status-info-text: #000000;
+    --p-status-info-border: #00ffff;
+
+    /* STATS - RAINBOW SEPARATION */
+    --p-stat-1: #ff00ff;
+    --p-stat-2: #00ff00;
+    --p-stat-3: #ffff00;
+    --p-stat-4: #00ffff;
+
+    /* EFFECT */
+    --p-effect-shadow: rgba(255, 0, 0, 0.5);   /* Red Shadows */
+    --p-effect-shadow-lg: rgba(0, 255, 0, 0.5); /* Green Shadows */
+    --p-effect-glow: rgba(0, 0, 255, 0.8);     /* Blue Glow */
+    --p-effect-highlight: rgba(255, 255, 0, 0.5); /* Yellow Highlight */
+
+    /* UI */
+    --p-ui-selection: rgba(255, 0, 255, 0.4);
+    --p-ui-focus-ring: rgba(0, 255, 0, 0.9);
+}

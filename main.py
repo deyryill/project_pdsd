@@ -213,7 +213,6 @@ class webserver:
         def index_route():
             if 'username' in session and not session.get('pending_2fa') and not session.get('reg_id'):
                 return redirect(url_for('home'))
-
             req_mode = request.args.get('mode')
             if req_mode in ['login', 'signup']:
                 session.pop('pending_2fa', None)
@@ -226,11 +225,9 @@ class webserver:
                     mode = 'verify'
                 else:
                     mode = 'login'
-
             error = None
             remaining = 0
             target_email = "your email"
-
             if mode == 'verify':
                 reg_id = session.get('reg_id')
                 otp_data = None
@@ -244,7 +241,6 @@ class webserver:
                         temp_user = session.get('temp_user') or session.get('username')
                         if temp_user and temp_user in users:
                             otp_data['email'] = users[temp_user].get('email')
-
                 if not otp_data:
                     session.pop('pending_2fa', None)
                     session.pop('reg_id', None)
@@ -255,7 +251,6 @@ class webserver:
                     target_email = otp_data.get('email', 'your email')
                     elapsed = time.time() - otp_data['time']
                     remaining = max(0, int(300 - elapsed))
-
             if request.method == 'POST':
                 action = request.form.get('action')
 
@@ -277,20 +272,18 @@ class webserver:
                     mode = 'login'
 
                 elif action == 'signup':
-                    username = request.form.get('username', '').lower().strip()
-                    email = request.form.get('email', '').lower().strip()
+                    username = request.form.get('username', '').strip()
+                    email = request.form.get('email', '').strip()
                     password = request.form.get('password')
                     confirm = request.form.get('confirm_password')
                     agree = request.form.get('agree')
                     users = self.sys_man.load_users()
-
                     domain = email.split('@')[1] if '@' in email else ''
-
                     if not agree:
                         error = "You must agree to the Terms & Conditions"
                     elif password != confirm:
                         error = "Passwords do not match"
-                    elif 'unikom' not in domain and 'duck.com' not in domain:
+                    elif 'unikom' not in domain.lower() and 'duck.com' not in domain.lower():
                         error = "Email domain not allowed (unikom or duck.com only)"
                     elif any(u.get('email') == email for u in users.values()):
                         error = "Email already linked"
@@ -311,10 +304,8 @@ class webserver:
                     pending = self.pending_registrations.get(reg_id) if reg_id else None
                     active_otp = session.get('active_otp_data')
                     otp_data = pending if pending else active_otp
-
                     if not otp_data:
                         return redirect(url_for('index_route', mode='login'))
-
                     if remaining <= 0:
                         error = "Code expired. Please resend."
                     elif user_input == otp_data['otp']:
@@ -332,12 +323,10 @@ class webserver:
                             session.pop('pending_2fa', None)
                             session.pop('temp_user', None)
                             session.pop('active_otp_data', None)
-
                         return redirect(url_for('home'))
                     else:
                         error = "Invalid code"
                     mode = 'verify'
-
                 elif action == 'resend':
                     now = time.time()
                     last_time = session.get('last_otp_time', 0)
@@ -347,7 +336,6 @@ class webserver:
                         session['last_otp_time'] = now
                         target_mail = None
                         otp_code = secrets.token_hex(3).upper()
-
                         if 'reg_id' in session and session['reg_id'] in self.pending_registrations:
                             reg_id = session['reg_id']
                             self.pending_registrations[reg_id]['otp'] = otp_code
@@ -362,19 +350,16 @@ class webserver:
                                 user_key = session.get('temp_user') or session.get('username')
                                 if user_key in users:
                                     target_mail = users[user_key]['email']
-
                         if target_mail:
                             threading.Thread(target=self.send_otp, args=(target_mail, otp_code)).start()
                             remaining = 300
                     mode = 'verify'
-
             bg_image = None
             frame_dir = self.sys_man.dir_root / "static" / "res" / "login"
             if frame_dir.exists():
                 images = list(frame_dir.glob("*.jpg"))
                 if images:
                     bg_image = f"res/login/{random.choice(images).name}"
-
             return self.render_page('index.html', use_frame=False, error=error, remaining=remaining, bg_image=bg_image, mode=mode, target_email=target_email)
 
         @self.app.route('/upgrade_account', methods=['POST'])
@@ -416,7 +401,12 @@ class webserver:
                         if session['username'] != 'admin': session['username'] = new_username
                 self.sys_man.save_sysriot(self.sys_man.dir_db / f"{target_user}.sysriot", {"info": u_data})
                 return redirect(url_for('user_settings', edit_user=target_user, content=1))
-            themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
+            themes = {f.stem.lower() for f in (Path(self.app.static_folder) / "themes").glob("*.css")}
+            if 'default' in themes:
+                themes.remove('default')
+            themes = sorted(list(themes))
+            themes.insert(0, 'Default')
+
             return self.render_page('user_settings.html', use_frame=True, themes=themes, target_user=target_user, target_data=users.get(target_user, {}))
 
         @self.app.route('/admin_settings.html')
