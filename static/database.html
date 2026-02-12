@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+    <script src="{{ url_for('static', filename='res/core.js') }}"></script>
+</head>
+<body>
+    <!-- search bar-->
+    <div class="grid" style=" align-items: center; padding: 10px;">
+        <div>
+            <h1>DataBase</h1>
+        </div>
+        <div>
+            <search>
+                <form class="flex" style="align-items: center; flex-direction: row;">
+                    <input type="text" name="cari" placeholder="Cari..." style="width: 250px;">
+                    <button type="submit" class="btn btn-primary" style="width: fit-content;">Cari</button>
+                </form>
+            </search>
+        </div>
+    </div>
+    <div class="page-container">
+        <div class="grid">
+            <div class="card">
+                Jumlah File :
+            </div>
+            <div class="card">
+                Total file/ batas File 
+            </div>
+            <div class="card">
+                Total Penyimpanan: %
+            </div>
+        </div>
+        <!--List Dataset-->
+        <div class="grid">
+            <div>
+                <button class="btn btn-primary">+</button>
+                <button class="btn btn-primary">v</button>
+            </div>
+        </div>
+        <table class="data-table">
+            <tr class="card">
+                <th style="text-align: center;">
+                    Name
+                </th>
+                <th style="text-align: center;">
+                    Note
+                </th>
+                <th style="text-align: center;">
+                    Type
+                </th>
+                <th style="text-align: center;">
+                    Size
+                </th>
+                <th style="text-align: center;">
+                    Uploaded
+                </th>
+                <th style="text-align: center;">
+                    Action
+                </th>
+            </tr>
+            <tr class="card">
+                <td>
+                    <div style="min-width: 200px;">
+                        Data pemakaman di indonesia
+                    </div>
+                </td>
+                <td>
+                    <div style="max-height: 100px; max-width: 400px; overflow-y: scroll;">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum ipsum, exercitationem in quae veniam cumque id doloremque error iure, optio pariatur maiores tempore. Qui architecto suscipit non! Sit, a laborum.
+                    </div>
+                </td>
+                <td>
+                    <div style="min-width: 50px;">
+                        .cvs
+                    </div>
+                </td>
+                <td>
+                    <div style="min-width: 50px;">
+                        8.9 Mb
+                    </div>
+                </td>
+                <td>
+                    <div style="min-width: 100px;">
+                        19/12/2025
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <button class="btn btn-primary " style="margin: 5px;">Edit</button>
+                        <button class="btn btn-primary">hapus</button>
+                    </div>
+                </td>
+            </tr>
+            <tr class="card">
+                <td>
+                    <div style="min-width: 200px;">
+                        Data pemakaman di indonesia
+                    </div>
+                </td>
+                <td>
+                    <div style="max-height: 100px; max-width: 400px; overflow-y: scroll;">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum ipsum, exercitationem in quae veniam cumque id doloremque error iure, optio pariatur maiores tempore. Qui architecto suscipit non! Sit, a laborum.
+                    </div>
+                </td>
+                <td>
+                    <div style="min-width: 50px;">
+                        .cvs
+                    </div>
+                </td>
+                <td>
+                    <div style="min-width: 50px;">
+                        8.9 Mb
+                    </div>
+                </td>
+                <td>
+                    <div style="min-width: 100px;">
+                        19/12/2025
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <button class="btn btn-primary " style="margin: 5px;">Edit</button>
+                        <button class="btn btn-primary">hapus</button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

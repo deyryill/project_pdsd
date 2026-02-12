@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualisasi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
+    <script src="{{ url_for('static', filename='res/core.js') }}"></script>
+    <style>
+        .container {
+        display: flex;
+        }
+
+        .left {
+            width: 30%;
+            margin: 5px 10px;
+        }
+        .right {
+            width: 70%;
+            margin: 5px 10px;
+        }
+        .down{
+            height: 50%;
+        }
+        .center{
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid" style="padding: 10px 10px 0 10px; background-color: aliceblue;">
+        <div class="flex">
+            <button class="btn btn-primary" style="margin: 0;">Apply</button>
+            <button class="btn btn-primary" style="margin: 0;">Reset</button>
+        </div>
+        <div>
+        </div>
+    </div>
+    <div class="page-container">
+        <div class="container">
+            <div class="card left">
+                Konfig
+            </div>
+            <div class="card right">
+                <search>
+                    <form class="flex">
+                        <input type="text" name="cari" placeholder="Cari..." style="width: 250px;">
+                        <button type="submit" class="btn btn-primary" style="width: fit-content;">Cari</button>
+                    </form>
+                </search>
+                <table class="data-table" style="max-height: 100px; overflow-y: auto;">
+                    <tr style="position: sticky;">
+                        <th>Nama</th>
+                        <th>Pilih</th>
+                    </tr>
+                    <tr>
+                        <td>Nama</td>
+                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
+                    </tr>
+                    <tr>
+                        <td>Nama</td>
+                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
+                    </tr>
+                    <tr>
+                        <td>Nama</td>
+                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
+                    </tr>
+                    <tr>
+                        <td>Nama</td>
+                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
+                    </tr>
+                    <tr>
+                        <td>Nama</td>
+                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
+                    </tr>
+                    <tr>
+                        <td>Nama</td>
+                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="container">
+            <div class="container center">
+                <div class="card center" style="margin: 0 5px 0 0;">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis nesciunt reprehenderit accusantium repellat magnam aliquid doloribus. Labore delectus voluptates, eum officiis tenetur nemo aliquam ducimus et, voluptatibus voluptate quos eveniet!
+                </div>
+                <div>
+                    <div class="card" style="margin: 0 0 5px 5px;">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero similique odio nulla debitis. Provident consectetur, quae commodi eveniet ullam quaerat accusantium incidunt a veritatis. Eius corporis at repudiandae placeat ducimus?
+                    </div>
+                    <div class="card" style="margin: 5px 0 0 5px;">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus, necessitatibus. Quod praesentium sunt recusandae ratione. Omnis non fugit, et, blanditiis sapiente consequuntur culpa commodi saepe, maxime laborum molestias eum amet!
+                    </div>
+                </div>
+            </div>
+            <div class="container center">
+                <div class="card" style="margin: 0 5px 0 0;">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis omnis quisquam ad minima rerum ea ipsa neque maxime, dolore sunt explicabo, eaque cum nesciunt vel? Quis cum iure hic quibusdam?
+                </div>
+                <div class="card" style="margin: 0 0 0 5px;">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt quod eos nemo quidem quasi, nam earum quo reprehenderit quam voluptatibus ipsa nulla iste excepturi ex in incidunt aliquid odit cupiditate?
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="left">
+                <div class="card" style="margin-bottom: 10px;">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti porro dolorem laudantium dolorum maiores. Fugiat quod ipsa commodi sint nesciunt neque molestiae blanditiis consequuntur. Rerum laudantium dolorum consectetur iusto consequuntur!
+                </div>
+                <div class="card" style="margin-top: 10px;">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quam doloremque at ad commodi cupiditate impedit veniam qui fugiat voluptatem tempora cumque possimus eveniet officia nulla totam quae hic. Iure.
+                </div>
+            </div>
+            <div class="card right">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quam consectetur hic quis quo, possimus ducimus, nihil id animi consequuntur, expedita repellat cum cupiditate quisquam. Voluptatem optio dolorum magnam repellat! Modi!
+            </div>
+        </div>
+        <div class="container">
+            <div class="card right">
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quam consectetur hic quis quo, possimus ducimus, nihil id animi consequuntur, expedita repellat cum cupiditate quisquam. Voluptatem optio dolorum magnam repellat! Modi!
+            </div>
+            <div class="left">
+                <div class="card" style="margin-bottom: 10px;">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti porro dolorem laudantium dolorum maiores. Fugiat quod ipsa commodi sint nesciunt neque molestiae blanditiis consequuntur. Rerum laudantium dolorum consectetur iusto consequuntur!
+                </div>
+                <div class="card" style="margin-top: 10px;">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quam doloremque at ad commodi cupiditate impedit veniam qui fugiat voluptatem tempora cumque possimus eveniet officia nulla totam quae hic. Iure.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
