@@ -379,11 +379,208 @@ class webserver:
             if 'username' not in session: return redirect(url_for('index_route'))
             return self.render_page('home.html', use_frame=True)
 
+        @self.app.route('/add_data', methods=['POST'])
+        def add_data():
+            if 'username' not in session: return redirect(url_for('index_route'))
+            f = request.files.get('file')
+            note = request.form.get('note', '')
+            if f and f.filename:
+                if not f.filename.lower().endswith('.csv'):
+                    return redirect(url_for('database', content=1))
+
+                filename = secure_filename(f.filename)
+                file_stem = Path(filename).stem
+                if len(file_stem) > 80:
+                    file_stem = file_stem[:80]
+                filename = f"{file_stem}.csv"
+
+                user_path = self.sys_man.dir_db / session['username']
+                user_path.mkdir(parents=True, exist_ok=True)
+                file_path = user_path / filename
+                f.save(file_path)
+
+                index_path = user_path / "indexing.sysriot"
+                index_data = self.sys_man.parse_sysriot(index_path)
+                file_id = secrets.token_hex(8)
+
+                index_data[file_id] = {
+                    "file": filename,
+                    "name": filename,
+                    "note": note,
+                    "size": file_path.stat().st_size,
+                    "uploaded_at": time.strftime("%Y-%m-%d %H:%M")
+                }
+                self.sys_man.save_sysriot(index_path, index_data)
+            return redirect(url_for('database', content=1))
+
+        @self.app.route('/edit_data/<id>', methods=['POST'])
+        def edit_data(id):
+            if 'username' not in session: return redirect(url_for('index_route'))
+
+            user_path = self.sys_man.dir_db / session['username']
+            public_path = self.sys_man.dir_db / "public"
+            index_path = user_path / "indexing.sysriot"
+            public_index_path = public_path / "indexing.sysriot"
+
+            index_data = self.sys_man.parse_sysriot(index_path)
+            target_path = user_path
+            target_index_path = index_path
+
+            if id not in index_data:
+                if session.get('level', 0) >= 2:
+                    index_data = self.sys_man.parse_sysriot(public_index_path)
+                    if id in index_data:
+                        target_path = public_path
+                        target_index_path = public_index_path
+                    else:
+                        return redirect(url_for('database', content=1))
+                else:
+                    return redirect(url_for('database', content=1))
+
+            current_data = index_data[id]
+            new_name = request.form.get('name', '').strip()
+            new_note = request.form.get('note', '')
+
+            if new_name:
+                old_filename = current_data.get('file')
+                safe_new_name = secure_filename(new_name)
+
+                if len(safe_new_name) > 80:
+                    safe_new_name = safe_new_name[:80]
+
+                final_filename = f"{safe_new_name}.csv"
+
+                old_file_path = target_path / old_filename
+                new_file_path = target_path / final_filename
+
+                if old_file_path.exists():
+                    try:
+                        os.rename(old_file_path, new_file_path)
+                        current_data['file'] = final_filename
+                        current_data['name'] = final_filename
+                    except:
+                        pass
+
+            current_data['note'] = new_note
+            index_data[id] = current_data
+            self.sys_man.save_sysriot(target_index_path, index_data)
+            return redirect(url_for('database', content=1))
+
+        @self.app.route('/delete_data/<id>', methods=['POST'])
+        def delete_data(id):
+            if 'username' not in session: return redirect(url_for('index_route'))
+
+            user_path = self.sys_man.dir_db / session['username']
+            public_path = self.sys_man.dir_db / "public"
+            index_path = user_path / "indexing.sysriot"
+            public_index_path = public_path / "indexing.sysriot"
+
+            index_data = self.sys_man.parse_sysriot(index_path)
+            target_path = user_path
+            target_index_path = index_path
+
+            if id not in index_data:
+                if session.get('level', 0) >= 2:
+                    index_data = self.sys_man.parse_sysriot(public_index_path)
+                    if id in index_data:
+                        target_path = public_path
+                        target_index_path = public_index_path
+                    else:
+                        return redirect(url_for('database', content=1))
+                else:
+                    return redirect(url_for('database', content=1))
+
+            file_info = index_data.pop(id)
+            filename = file_info.get('file')
+            if filename:
+                file_path = target_path / filename
+                if file_path.exists():
+                    os.remove(file_path)
+
+            self.sys_man.save_sysriot(target_index_path, index_data)
+            return redirect(url_for('database', content=1))
+
         @self.app.route('/database.html')
         def database():
             if 'username' not in session: return redirect(url_for('index_route'))
-            return self.render_page('database.html', use_frame=True)
 
+            user_path = self.sys_man.dir_db / session['username']
+            public_path = self.sys_man.dir_db / "public"
+            user_path.mkdir(parents=True, exist_ok=True)
+            public_path.mkdir(parents=True, exist_ok=True)
+
+            user_index = self.sys_man.parse_sysriot(user_path / "indexing.sysriot")
+            public_index = self.sys_man.parse_sysriot(public_path / "indexing.sysriot")
+
+            datasets = []
+            user_usage = 0
+            limit_size = 10 * 1024 * 1024
+
+            def format_size(size):
+                if not isinstance(size, (int, float)): return str(size)
+                for unit in ['B', 'KB', 'MB', 'GB']:
+                    if size < 1024:
+                        return f"{size:.1f} {unit}"
+                    size /= 1024
+                return f"{size:.1f} TB"
+
+            existing_files = {f.name: f for f in user_path.iterdir() if f.is_file() and f.name != "indexing.sysriot"}
+
+            for fid, info in user_index.items():
+                fname = info.get('file')
+                if fname in existing_files:
+                    f_size = existing_files[fname].stat().st_size
+                    user_usage += f_size
+                    datasets.append({
+                        "id": fid,
+                        "name": info.get('name', fname),
+                        "note": info.get('note', ''),
+                        "type": Path(fname).suffix,
+                        "size": format_size(f_size),
+                        "uploaded_at": info.get('uploaded_at', ''),
+                        "is_public": False
+                    })
+                    del existing_files[fname]
+
+            for fname, f_obj in existing_files.items():
+                f_size = f_obj.stat().st_size
+                user_usage += f_size
+                datasets.append({
+                    "id": "raw_" + fname,
+                    "name": fname,
+                    "note": "Unindexed File",
+                    "type": f_obj.suffix,
+                    "size": format_size(f_size),
+                    "uploaded_at": time.strftime("%Y-%m-%d %H:%M", time.localtime(f_obj.stat().st_mtime)),
+                    "is_public": False
+                })
+
+            public_files = {f.name: f for f in public_path.iterdir() if f.is_file() and f.name != "indexing.sysriot"}
+            for fid, info in public_index.items():
+                fname = info.get('file')
+                if fname in public_files:
+                    datasets.append({
+                        "id": fid,
+                        "name": info.get('name', fname),
+                        "note": info.get('note', 'Public Resource'),
+                        "type": Path(fname).suffix,
+                        "size": format_size(public_files[fname].stat().st_size),
+                        "uploaded_at": info.get('uploaded_at', ''),
+                        "is_public": True
+                    })
+
+            search_query = request.args.get('cari', '').lower()
+            if search_query:
+                datasets = [d for d in datasets if search_query in d['name'].lower()]
+
+            return self.render_page(
+                'database.html',
+                use_frame=True,
+                datasets=datasets,
+                current_count=format_size(user_usage),
+                limit_count=format_size(limit_size),
+                storage_percent=min(100, int((user_usage / limit_size) * 100))
+            )
         @self.app.route('/analysis.html')
         def analysis():
             if 'username' not in session: return redirect(url_for('index_route'))

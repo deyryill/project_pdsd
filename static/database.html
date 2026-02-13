@@ -5,129 +5,177 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
+    <style>
+        .modal-body label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--p-text-muted);
+        }
+        .modal-body input, .modal-body textarea {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
-    <!-- search bar-->
-    <div class="grid" style=" align-items: center; padding: 10px;">
-        <div>
-            <h1>DataBase</h1>
-        </div>
-        <div>
-            <search>
-                <form class="flex" style="align-items: center; flex-direction: row;">
-                    <input type="text" name="cari" placeholder="Cari..." style="width: 250px;">
-                    <button type="submit" class="btn btn-primary" style="width: fit-content;">Cari</button>
-                </form>
-            </search>
-        </div>
+    <div class="grid" style="align-items: center; padding: 10px;">
+        <h1>DataBase</h1>
+        <search>
+            <form action="{{ url_for('database') }}" method="get" class="flex" style="align-items: center; gap: 10px;">
+                <input type="text" name="cari" placeholder="Cari..." style="width: 250px;" value="{{ request.args.get('cari', '') }}">
+                <button type="submit" class="btn btn-primary">Cari</button>
+            </form>
+        </search>
     </div>
     <div class="page-container">
         <div class="grid">
             <div class="card">
-                Jumlah File :
+                Jumlah File : {{ datasets|length }}
             </div>
             <div class="card">
-                Total file/ batas File 
+                Total : {{ current_count }} / {{ limit_count }}
             </div>
             <div class="card">
-                Total Penyimpanan: %
+                Penyimpanan: {{ storage_percent }}%
             </div>
         </div>
-        <!--List Dataset-->
         <div class="grid">
-            <div>
-                <button class="btn btn-primary">+</button>
-                <button class="btn btn-primary">v</button>
+            <div class="flex" style="gap: 10px;">
+                <button onclick="openModal('uploadModal')" class="btn btn-primary">Tambah</button>
+                <button class="btn btn-primary">Hapus Semua</button>
             </div>
         </div>
         <table class="data-table">
-            <tr class="card">
-                <th style="text-align: center;">
-                    Name
-                </th>
-                <th style="text-align: center;">
-                    Note
-                </th>
-                <th style="text-align: center;">
-                    Type
-                </th>
-                <th style="text-align: center;">
-                    Size
-                </th>
-                <th style="text-align: center;">
-                    Uploaded
-                </th>
-                <th style="text-align: center;">
-                    Action
-                </th>
-            </tr>
-            <tr class="card">
-                <td>
-                    <div style="min-width: 200px;">
-                        Data pemakaman di indonesia
-                    </div>
-                </td>
-                <td>
-                    <div style="max-height: 100px; max-width: 400px; overflow-y: scroll;">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum ipsum, exercitationem in quae veniam cumque id doloremque error iure, optio pariatur maiores tempore. Qui architecto suscipit non! Sit, a laborum.
-                    </div>
-                </td>
-                <td>
-                    <div style="min-width: 50px;">
-                        .cvs
-                    </div>
-                </td>
-                <td>
-                    <div style="min-width: 50px;">
-                        8.9 Mb
-                    </div>
-                </td>
-                <td>
-                    <div style="min-width: 100px;">
-                        19/12/2025
-                    </div>
-                </td>
-                <td>
-                    <div>
-                        <button class="btn btn-primary " style="margin: 5px;">Edit</button>
-                        <button class="btn btn-primary">hapus</button>
-                    </div>
-                </td>
-            </tr>
-            <tr class="card">
-                <td>
-                    <div style="min-width: 200px;">
-                        Data pemakaman di indonesia
-                    </div>
-                </td>
-                <td>
-                    <div style="max-height: 100px; max-width: 400px; overflow-y: scroll;">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum ipsum, exercitationem in quae veniam cumque id doloremque error iure, optio pariatur maiores tempore. Qui architecto suscipit non! Sit, a laborum.
-                    </div>
-                </td>
-                <td>
-                    <div style="min-width: 50px;">
-                        .cvs
-                    </div>
-                </td>
-                <td>
-                    <div style="min-width: 50px;">
-                        8.9 Mb
-                    </div>
-                </td>
-                <td>
-                    <div style="min-width: 100px;">
-                        19/12/2025
-                    </div>
-                </td>
-                <td>
-                    <div>
-                        <button class="btn btn-primary " style="margin: 5px;">Edit</button>
-                        <button class="btn btn-primary">hapus</button>
-                    </div>
-                </td>
-            </tr>
+            <thead>
+                <tr class="card">
+                    <th style="text-align: center;">Name</th>
+                    <th style="text-align: center;">Note</th>
+                    <th style="text-align: center;">Type</th>
+                    <th style="text-align: center;">Size</th>
+                    <th style="text-align: center;">Uploaded</th>
+                    <th style="text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in datasets %}
+                <tr class="card">
+                    <td>
+                        <div style="max-width: 200px; overflow-x: auto; white-space: nowrap; font-weight: 500;">
+                            {{ item.name }}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="max-height: 100px; max-width: 400px; overflow-y: auto;">
+                            {{ item.note }}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="min-width: 50px; text-transform: uppercase;">
+                            {{ item.type|replace('.', '') }}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="min-width: 50px;">
+                            {{ item.size }}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="min-width: 100px;">
+                            {{ item.uploaded_at }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="flex" style="gap: 5px;">
+                            <button class="btn btn-primary"
+                                onclick="openEditModal(this)"
+                                data-id="{{ item.id }}"
+                                data-name="{{ item.name }}"
+                                data-note="{{ item.note }}">
+                                Edit
+                            </button>
+                            <form action="{{ url_for('delete_data', id=item.id) }}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-primary" onclick="return confirm('Hapus data?')">hapus</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
+
+    <div id="uploadModal" class="modal-wrapper">
+        <div class="modal-content" style="max-width: 500px; height: auto;">
+            <div class="modal-header">
+                <h3>Upload File</h3>
+            </div>
+            <form action="{{ url_for('add_data') }}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <label>File (.csv)</label>
+                    <input type="file" name="file" accept=".csv" required>
+
+                    <label>Note</label>
+                    <textarea name="note" style="height: 100px; resize: vertical;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('uploadModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-wrapper">
+        <div class="modal-content" style="max-width: 500px; height: auto;">
+            <div class="modal-header">
+                <h3>Edit File</h3>
+            </div>
+            <form id="editForm" action="" method="post">
+                <div class="modal-body">
+                    <label>File Name</label>
+                    <input type="text" name="name" id="editName" required maxlength="80">
+
+                    <label>Note</label>
+                    <textarea name="note" id="editNote" style="height: 100px; resize: vertical;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function openEditModal(btn) {
+            const id = btn.getAttribute('data-id');
+            let name = btn.getAttribute('data-name');
+            const note = btn.getAttribute('data-note');
+
+            if (name.toLowerCase().endsWith('.csv')) {
+                name = name.slice(0, -4);
+            }
+
+            document.getElementById('editName').value = name;
+            document.getElementById('editNote').value = note;
+            document.getElementById('editForm').action = "/edit_data/" + id;
+
+            openModal('editModal');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-wrapper')) {
+                event.target.classList.remove('show');
+            }
+        }
+    </script>
 </body>
 </html>
