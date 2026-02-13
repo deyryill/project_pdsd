@@ -379,6 +379,16 @@ class webserver:
             if 'username' not in session: return redirect(url_for('index_route'))
             return self.render_page('home.html', use_frame=True)
 
+        @self.app.route('/database.html')
+        def database():
+            if 'username' not in session: return redirect(url_for('index_route'))
+            return self.render_page('database.html', use_frame=True)
+
+        @self.app.route('/analysis.html')
+        def analysis():
+            if 'username' not in session: return redirect(url_for('index_route'))
+            return self.render_page('analysis.html', use_frame=True)
+
         @self.app.route('/user_settings.html', methods=['GET', 'POST'])
         def user_settings():
             if 'username' not in session: return redirect(url_for('index_route'))
