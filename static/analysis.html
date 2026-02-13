@@ -6,28 +6,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
     <style>
-        .container {
-        display: flex;
-        }
-
-        .left {
-            width: 30%;
-            margin: 5px 10px;
-        }
-        .right {
-            width: 70%;
-            margin: 5px 10px;
-        }
-        .down{
-            height: 50%;
-        }
-        .center{
-            width: 50%;
-        }
     </style>
 </head>
 <body>
-    <div class="grid" style="padding: 10px 10px 0 10px; background-color: aliceblue;">
+    <div class="grid navbar">
         <div class="flex">
             <button class="btn btn-primary" style="margin: 0;">Apply</button>
             <button class="btn btn-primary" style="margin: 0;">Reset</button>
@@ -47,57 +29,63 @@
                         <button type="submit" class="btn btn-primary" style="width: fit-content;">Cari</button>
                     </form>
                 </search>
-                <table class="data-table" style="max-height: 100px; overflow-y: auto;">
-                    <tr style="position: sticky;">
-                        <th>Nama</th>
-                        <th>Pilih</th>
-                    </tr>
-                    <tr>
-                        <td>Nama</td>
-                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
-                    </tr>
-                    <tr>
-                        <td>Nama</td>
-                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
-                    </tr>
-                    <tr>
-                        <td>Nama</td>
-                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
-                    </tr>
-                    <tr>
-                        <td>Nama</td>
-                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
-                    </tr>
-                    <tr>
-                        <td>Nama</td>
-                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
-                    </tr>
-                    <tr>
-                        <td>Nama</td>
-                        <td style="width: fit-content;"><button class="btn btn-primary" style="width: fit-content;">Pilih</button></td>
-                    </tr>
-                </table>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Pilih</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Nama</td>
+                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
+                            </tr>
+                            <tr>
+                                <td>Nama</td>
+                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
+                            </tr>
+                            <tr>
+                                <td>Nama</td>
+                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
+                            </tr>
+                            <tr>
+                                <td>Nama</td>
+                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
+                            </tr>
+                            <tr>
+                                <td>Nama</td>
+                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
+                            </tr>
+                            <tr>
+                                <td>Nama</td>
+                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <div class="container">
-            <div class="container center">
-                <div class="card center" style="margin: 0 5px 0 0;">
+            <div class="container center" style="width: 50%; height: 500px;">
+                <div class="card center" style="margin: 0 5px 0 0; width: 100%; overflow-y: auto; overflow-x: hidden;">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis nesciunt reprehenderit accusantium repellat magnam aliquid doloribus. Labore delectus voluptates, eum officiis tenetur nemo aliquam ducimus et, voluptatibus voluptate quos eveniet!
                 </div>
                 <div>
-                    <div class="card" style="margin: 0 0 5px 5px;">
+                    <div class="card data-table" style="margin: 0 0 5px 5px; height: 50%;">
                         Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero similique odio nulla debitis. Provident consectetur, quae commodi eveniet ullam quaerat accusantium incidunt a veritatis. Eius corporis at repudiandae placeat ducimus?
                     </div>
-                    <div class="card" style="margin: 5px 0 0 5px;">
+                    <div class="card data-table" style="margin: 5px 0 0 5px; height: 50%;">
                         Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus, necessitatibus. Quod praesentium sunt recusandae ratione. Omnis non fugit, et, blanditiis sapiente consequuntur culpa commodi saepe, maxime laborum molestias eum amet!
                     </div>
                 </div>
             </div>
-            <div class="container center">
-                <div class="card" style="margin: 0 5px 0 0;">
+            <div class="container center" style="width: 50%; height: 500px;">
+                <div class="card  data-table" style="margin: 0 5px 0 0; overflow: auto;">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis omnis quisquam ad minima rerum ea ipsa neque maxime, dolore sunt explicabo, eaque cum nesciunt vel? Quis cum iure hic quibusdam?
                 </div>
-                <div class="card" style="margin: 0 0 0 5px;">
+                <div class="card  data-table" style="margin: 0 0 0 5px; overflow: auto;">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt quod eos nemo quidem quasi, nam earum quo reprehenderit quam voluptatibus ipsa nulla iste excepturi ex in incidunt aliquid odit cupiditate?
                 </div>
             </div>
@@ -130,4 +118,5 @@
         </div>
     </div>
 </body>
+
 </html>
