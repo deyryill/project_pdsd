@@ -5,45 +5,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
-    <style>
-        .log-box {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 15px;
-            border-radius: 4px;
-            height: 300px;
-            overflow-y: auto;
-            font-family: 'Consolas', monospace;
-            font-size: 0.85rem;
-            line-height: 1.4;
-        }
-        .log-line {
-            border-bottom: 1px solid #333;
-            padding: 4px 0;
-            display: flex;
-        }
-        .config-section {
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid var(--p-border-subtle);
-            border-radius: 4px;
-            background: var(--p-bg-surface-1);
-        }
-        .config-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--p-primary-main);
-            border-bottom: 1px solid var(--p-border-subtle);
-            padding-bottom: 5px;
-        }
-        .stat-table td { padding: 8px; border-bottom: 1px solid var(--p-border-subtle); }
-        .config-scroll-area {
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 5px;
-            margin-bottom: 10px;
-        }
-    </style>
 </head>
 <body>
     <div class="page-container">
@@ -59,7 +20,7 @@
                 <div class="stat-label">Total Database Size</div>
 
                 <div style="margin-top: 20px; max-height: 250px; overflow-y: auto;">
-                    <table class="data-table stat-table">
+                    <table class="data-table admin-stat-table">
                         <thead>
                             <tr>
                                 <th>Category</th>
@@ -91,10 +52,10 @@
             </div>
             <div class="card">
             <h3>Configuration</h3>
-            <div class="config-scroll-area">
+            <div class="admin-config-scroll-area">
             <form id="configForm">
-                <div class="config-section">
-                    <div class="config-title">Server Settings</div>
+                <div class="admin-config-section">
+                    <div class="admin-config-title">Server Settings</div>
                     {% if level != -1 %}
                     <div class="alert alert-info">These settings are read-only for your level.</div>
                     {% endif %}
@@ -118,8 +79,8 @@
                     </div>
                 </div>
 
-                    <div class="config-section">
-                        <div class="config-title">Security</div>
+                    <div class="admin-config-section">
+                        <div class="admin-config-title">Security</div>
                         <label>Block Common Usernames</label>
                         <input type="text" class="input" id="conf-sec-block" value="{{ config.security.block_common_usernames }}">
 
@@ -131,8 +92,8 @@
                         <input type="text" class="input" id="conf-sec-deny" value="{{ config.security.get('blocked_email_domains', '') }}" placeholder="e.g. tempmail.com">
                     </div>
 
-                    <div class="config-section">
-                        <div class="config-title">Mail Settings (Superuser Only)</div>
+                    <div class="admin-config-section">
+                        <div class="admin-config-title">Mail Settings (Superuser Only)</div>
                         {% if level != -1 %}
                         <div class="alert alert-info">These settings are read-only for your level.</div>
                         {% endif %}
@@ -280,10 +241,10 @@
             </div>
             <div class="card">
                 <h3>System Logs</h3>
-                <div class="log-box">
+                <div class="admin-log-box">
                     {% if logs %}
                         {% for log in logs %}
-                        <div class="log-line">
+                        <div class="admin-log-line">
                             <span style="width: 100%;">{{ log }}</span>
                         </div>
                         {% endfor %}
