@@ -133,7 +133,6 @@
             </form>
         </div>
     </div>
-    
     <div id="deleteAllModal" class="modal-wrapper">
         <div class="modal-content" style="max-width: 400px; height: auto;">
             <div class="modal-header">
@@ -150,7 +149,6 @@
             </div>
         </div>
     </div>
-
     <div id="notificationModal" class="modal-wrapper {% if request.args.get('notify_title') %}show{% endif %}">
         <div class="modal-content" style="max-width: 400px; height: auto;">
             <div class="modal-header">
@@ -206,7 +204,7 @@
 
             document.getElementById('editName').value = name;
             document.getElementById('editNote').value = note;
-            document.getElementById('editForm').action = "/edit_data/" + id;
+            document.getElementById('editForm').action = "/API/db/edit_data/" + id;
 
             openModal('editModal');
         }

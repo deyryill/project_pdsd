@@ -165,7 +165,7 @@ class webserver:
                 <div style="margin: 30px 0; padding: 20px; background-color: #f8fafc; border-radius: 8px; border: 2px dashed #cbd5e0;">
                     <span style="font-size: 38px; font-weight: 800; color: #2563eb; letter-spacing: 6px; font-family: monospace;">{code}</span>
                 </div>
-                <p style="color: #a0aec0; font-size: 11px; margin: 0;">&copy; {time.strftime("%Y")} RIOT System.</p>
+                <p style="color: #a0aec0; font-size: 11px; margin: 0;">&copy; {time.strftime("%Y")} RIOT Management System.</p>
             </div>
         </div>
         """
@@ -233,7 +233,7 @@ class webserver:
                     if c_user in self.active_sessions:
                         del self.active_sessions[c_user]
                     session.clear()
-                    return redirect(url_for('index_route', content=1, notify_title="Session Expired", notify_msg="Your session has expired."))
+                    return redirect(url_for('index_route', content=1, notify_title="Session Expired", notify_msg="Your session has expired"))
 
         @self.app.route('/', methods=['GET', 'POST'])
         @self.app.route('/index.html', methods=['GET', 'POST'])
@@ -416,25 +416,13 @@ class webserver:
                     bg_image = f"res/login/{random.choice(images).name}"
             return self.render_page('index.html', use_frame=False, error=error, remaining=remaining, bg_image=bg_image, mode=mode, target_email=target_email)
 
-        @self.app.route('/upgrade_account', methods=['POST'])
-        def upgrade_account():
-            if 'username' not in session or session.get('level') > 0:
-                return redirect(url_for('home'))
-            users = self.sys_man.load_users()
-            user_data = users.get(session['username'])
-            otp_code = secrets.token_hex(3).upper()
-            session['active_otp_data'] = {"otp": otp_code, "time": time.time()}
-            if self.send_otp(user_data['email'], otp_code):
-                return redirect(url_for('index_route'))
-            return "Failed to send OTP", 500
-
         @self.app.route('/home.html')
         def home():
             if 'username' not in session:
                 return redirect(url_for('index_route'))
             return self.render_page('home.html', use_frame=True)
 
-        @self.app.route('/add_data', methods=['POST'])
+        @self.app.route('/API/db/add_data', methods=['POST'])
         def add_data():
             if 'username' not in session:
                 return redirect(url_for('index_route'))
@@ -442,7 +430,7 @@ class webserver:
             note = request.form.get('note', '')
             if f and f.filename:
                 if not f.filename.lower().endswith('.csv'):
-                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Invalid file type. Please Upload Only CSV file."))
+                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Invalid file type. Please upload only a .CSV file"))
 
                 user_path = self.sys_man.dir_db / session['username']
                 user_path.mkdir(parents=True, exist_ok=True)
@@ -457,7 +445,7 @@ class webserver:
                 f.seek(0)
 
                 if current_usage + file_size > 10 * 1024 * 1024:
-                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Sorry!. But Not Enough Storage To Upload This File. Please Clean up your storage and try again."))
+                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Sorry, there is not enough storage to upload this file. Please clean up your storage and try again"))
 
                 filename = secure_filename(f.filename)
                 file_stem = Path(filename).stem
@@ -491,7 +479,7 @@ class webserver:
                 self.sys_man.save_sysriot(index_path, index_data)
             return redirect(url_for('database', content=1))
 
-        @self.app.route('/edit_data/<data_id>', methods=['POST'])
+        @self.app.route('/API/db/edit_data/<data_id>', methods=['POST'])
         def edit_data(data_id):
             if 'username' not in session:
                 return redirect(url_for('index_route'))
@@ -513,9 +501,9 @@ class webserver:
                         target_path = public_path
                         target_index_path = public_index_path
                     else:
-                        return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry. there a problem while trying to find the file"))
+                        return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Sorry, there is not enough storage to upload this file. Please clean up your storage and try again"))
                 else:
-                    return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry there a problem while editing your file. please try again later"))
+                    return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry, there is a problem while editing your file. Please try again later"))
 
             current_data = index_data[data_id]
             new_name = request.form.get('name', '').strip()
@@ -539,16 +527,16 @@ class webserver:
                         current_data['file'] = final_filename
                         current_data['name'] = final_filename
                     except:
-                        return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry there a problem while renaming your file. please try again later"))
+                        return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry, there is a problem while renaming your file. Please try again later"))
 
             current_data['note'] = new_note
             index_data[data_id] = current_data
             self.sys_man.save_sysriot(target_index_path, index_data)
             return redirect(url_for('database', content=1))
 
-        @self.app.route('/delete_data/<data_id>', methods=['POST'])
+        @self.app.route('/API/db/delete_data/<data_id>', methods=['POST'])
         def delete_data(data_id):
-            if 'username' not in session: 
+            if 'username' not in session:
                 return redirect(url_for('index_route'))
 
             user_path = self.sys_man.dir_db / session['username']
@@ -568,9 +556,9 @@ class webserver:
                         target_path = public_path
                         target_index_path = public_index_path
                     else:
-                        return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry. there a problem while trying to find the file"))
+                        return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry, there is a problem while trying to find the file"))
                 else:
-                    return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry there a problem while deleting your file. please try again later"))
+                    return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry, there is a problem while deleting your file. Please try again later"))
 
             file_info = index_data.pop(data_id)
             filename = file_info.get('file')
@@ -582,7 +570,7 @@ class webserver:
             self.sys_man.save_sysriot(target_index_path, index_data)
             return redirect(url_for('database', content=1))
 
-        @self.app.route('/delete_all_data', methods=['POST'])
+        @self.app.route('/API/db/delete_all_data', methods=['POST'])
         def delete_all_data():
             if 'username' not in session:
                 return redirect(url_for('index_route'))
@@ -816,17 +804,21 @@ class webserver:
             username = data.get('username', '').lower().strip()
             email = data.get('email', '').lower().strip()
             password = data.get('password')
-            level = data.get('level', 0)
+            level = int(data.get('level', 0))
+
+            if user_level != -1 and level == -1:
+                return jsonify({"status": "error"}), 403
+
             if not username or not password or not email:
                 return jsonify({"status": "error"}), 400
             if (self.sys_man.dir_db / f"{username}.sysriot").exists():
                 return jsonify({"status": "exists"}), 400
-            new_user_data = {"info": {"password": password, "email": email, "level": int(level), "theme": "default"}}
+            new_user_data = {"info": {"password": password, "email": email, "level": level, "theme": "default"}}
             self.sys_man.save_sysriot(self.sys_man.dir_db / f"{username}.sysriot", new_user_data)
             self.sys_man.write_log(session['username'], "create_user", f"Created: {username}")
             return jsonify({"status": "success"})
-
         @self.app.route('/API/admin/save_config', methods=['POST'])
+
         def api_save_config():
             user_level = session.get('level', 0)
             if user_level != -1 and user_level != 2:
@@ -870,7 +862,11 @@ class webserver:
             if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
             usernames = request.json.get('users', [])
-            new_level = request.json.get('level')
+            new_level = int(request.json.get('level'))
+
+            if user_level != -1 and new_level == -1:
+                return jsonify({"status": "error"}), 403
+
             if new_level is None:
                 return jsonify({"status": "error"}), 400
             users = self.sys_man.load_users()
@@ -882,7 +878,7 @@ class webserver:
                     target_level = users[u].get('level', 0)
                     if target_level == -1:
                         continue
-                    users[u]['level'] = int(new_level)
+                    users[u]['level'] = new_level
                     self.sys_man.save_sysriot(self.sys_man.dir_db / f"{u}.sysriot", {"info": users[u]})
                     updated.append(u)
             if updated:
@@ -915,6 +911,10 @@ class webserver:
             elif category == 'public':
                 target_path = self.sys_man.dir_db / "public"
             elif category == 'user':
+                if user_level == 2:
+                    users = self.sys_man.load_users()
+                    if identifier in users and users[identifier].get('level', 0) == -1:
+                        return jsonify({"status": "error"}), 403
                 target_path = self.sys_man.dir_db / identifier
             if target_path and target_path.exists() and target_path.is_dir():
                 for f in target_path.iterdir():
@@ -938,13 +938,32 @@ class webserver:
             path_id = request.json.get('path_id')
             if not path_id:
                 return jsonify({"status": "error"}), 400
+
+            path_id = path_id.replace('\\', '/')
             file_path = self.sys_man.dir_db / path_id
+
             try:
-                file_path.relative_to(self.sys_man.dir_db)
-            except ValueError:
+                file_path.resolve().relative_to(self.sys_man.dir_db.resolve())
+            except (ValueError, RuntimeError):
                 return jsonify({"status": "error"}), 403
+
+            if user_level == 2:
+                target_user = Path(path_id).parts[0]
+                users = self.sys_man.load_users()
+                if target_user in users and users[target_user].get('level', 0) == -1:
+                    return jsonify({"status": "error"}), 403
+
             if file_path.exists() and file_path.name != "indexing.sysriot":
                 os.remove(file_path)
+
+                parent_dir = file_path.parent
+                index_path = parent_dir / "indexing.sysriot"
+                if index_path.exists():
+                    index_data = self.sys_man.parse_sysriot(index_path)
+                    new_index = {k: v for k, v in index_data.items() if v.get('file') != file_path.name}
+                    if len(new_index) != len(index_data):
+                        self.sys_man.save_sysriot(index_path, new_index)
+
                 self.sys_man.write_log(session['username'], "stat_delete", f"Deleted: {path_id}")
                 return jsonify({"status": "success"})
             return jsonify({"status": "error"}), 400
@@ -962,7 +981,41 @@ class webserver:
                     return jsonify({"status": "success"})
             return jsonify({"status": "error"}), 400
 
-        @self.app.route('/logout')
+        @self.app.route('/API/admin/upload_public', methods=['POST'])
+        def api_upload_public():
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
+                return jsonify({"status": "error"}), 403
+            f = request.files.get('file')
+            if f and f.filename and f.filename.endswith('.csv'):
+                public_path = self.sys_man.dir_db / "public"
+                filename = secure_filename(f.filename)
+                file_path = public_path / filename
+                if file_path.exists():
+                    file_stem = Path(filename).stem
+                    file_suffix = Path(filename).suffix
+                    counter = 1
+                    while file_path.exists():
+                        filename = f"{file_stem}-{counter}{file_suffix}"
+                        file_path = public_path / filename
+                        counter += 1
+                f.save(file_path)
+                index_path = public_path / "indexing.sysriot"
+                index_data = self.sys_man.parse_sysriot(index_path)
+                file_id = secrets.token_hex(8)
+                index_data[file_id] = {
+                    "file": filename,
+                    "name": filename,
+                    "note": "Public Resource",
+                    "size": file_path.stat().st_size,
+                    "uploaded_at": time.strftime("%Y-%m-%d %H:%M")
+                }
+                self.sys_man.save_sysriot(index_path, index_data)
+                self.sys_man.write_log(session['username'], "upload_public", f"Uploaded: {filename}")
+                return jsonify({"status": "success"})
+            return jsonify({"status": "error"}), 400
+
+        @self.app.route('/API/logout')
         def logout():
             user = session.get('username')
             if user in self.active_sessions:

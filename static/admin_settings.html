@@ -68,18 +68,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <tr onclick="openStatModal('config', 'system')" class="stat-row">
+                        <tr onclick="openStatModal('config', 'system'); togglePublicUpload(false)" class="stat-row">
                                 <td><strong>System Config</strong></td>
                                 <td>-</td>
                                 <td>{{ stats.system_config }}</td>
                             </tr>
-                            <tr onclick="openStatModal('public', 'public')" class="stat-row">
+                            <tr onclick="openStatModal('public', 'public'); togglePublicUpload(true)" class="stat-row">
                                 <td><strong>Public Resources</strong></td>
                                 <td>{{ stats.public.count }}</td>
                                 <td>{{ stats.public.size }}</td>
                             </tr>
                             {% for u, data in stats.users.items() %}
-                            <tr onclick="openStatModal('user', '{{ u }}')" class="stat-row">
+                            <tr onclick="openStatModal('user', '{{ u }}'); togglePublicUpload(false)" class="stat-row">
                                 <td>User: {{ u }}</td>
                                 <td>{{ data.count }}</td>
                                 <td>{{ data.size }}</td>
@@ -301,8 +301,12 @@
             <h3 id="statModalTitle">File Details</h3>
         </div>
         <div class="modal-body">
-            <div style="margin-bottom: 15px; display: flex; justify-content: space-between;">
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
                 <span id="statModalSubtitle" class="text-muted"></span>
+                <div id="public-upload-area" style="display: none; gap: 10px;">
+                    <input type="file" id="public-file-upload" accept=".csv" class="input" style="padding: 4px;">
+                    <button class="btn btn-primary btn-sm" onclick="uploadPublicFile()">Upload</button>
+                </div>
                 <button class="btn btn-secondary btn-sm" onclick="closeStatModal()">Close</button>
             </div>
             <table class="data-table">
@@ -322,56 +326,3 @@
 
 </body>
 </html>
-<script>
-    function saveNewConfig() {
-        const config = {
-            server: {
-                port: parseInt(document.getElementById('conf-server-port').value),
-                debug_mode: document.getElementById('conf-server-debug').value,
-                session_timeout_minutes: parseInt(document.getElementById('conf-server-timeout').value)
-            },
-            security: {
-                block_common_usernames: document.getElementById('conf-sec-block').value,
-                allowed_email_domains: document.getElementById('conf-sec-allow').value,
-                blocked_emails: document.getElementById('conf-sec-deny').value
-            },
-            mail: {}
-        };
-
-        const mailHost = document.getElementById('conf-mail-host');
-        if (mailHost) {
-            config.mail = {
-                host: mailHost.value,
-                port: parseInt(document.getElementById('conf-mail-port').value),
-                user: document.getElementById('conf-mail-user').value,
-                pass: document.getElementById('conf-mail-pass').value
-            };
-        }
-
-        fetch('/API/admin/save_config', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(config)
-        }).then(() => alert('Configuration Saved'));
-    }
-
-    function batchSetLevel(lvl) {
-        const users = getSelectedUsers();
-        if (!users.length) return alert('Select users first');
-
-        const currentUser = "{{ username }}";
-        if(users.includes(currentUser)) {
-            alert("You cannot modify your own privilege level.");
-            return;
-        }
-
-        let actionName = lvl == 0 ? "BAN" : (lvl == 1 ? "SET USER" : "SET ADMIN");
-        if (confirm(`${actionName} ${users.length} users?`)) {
-            fetch('/API/admin/batch_level', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({users, level: lvl})
-            }).then(() => location.reload());
-        }
-    }
-</script>

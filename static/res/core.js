@@ -9,7 +9,12 @@ function filterUsers(){const query=document.getElementById('user-search').value.
 function toggleAll(master){document.querySelectorAll('.user-checkbox').forEach(cb=>{if(cb.closest('tr').style.display!=='none'){cb.checked=master.checked}})}
 function getSelectedUsers(){return Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb=>cb.value)}
 function batchDelete(){const users=getSelectedUsers();if(!users.length)return alert('Select users first');if(confirm(`Permanently delete ${users.length} users?`)){fetch('/API/admin/batch_delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({users})}).then(res=>{if(res.ok){location.reload()}else{alert('Server error during deletion')}}).catch(err=>alert('Network error: '+err.message))}}
+function batchSetLevel(lvl){const users=getSelectedUsers();if(!users.length)return alert('Select users first');let actionName=lvl==0?"BAN":(lvl==1?"SET USER":"SET ADMIN");if(confirm(`${actionName} ${users.length} users?`)){fetch('/API/admin/batch_level',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({users,level:lvl})}).then(()=>location.reload())}}
 function saveSysConfig(){try{const config=JSON.parse(document.getElementById('sys-config').value);fetch('/API/admin/save_config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)}).then(()=>alert('System Updated'))}catch(e){alert('Invalid JSON format')}}
+function saveNewConfig(){const config={server:{port:parseInt(document.getElementById('conf-server-port').value),debug_mode:document.getElementById('conf-server-debug').value,session_timeout_minutes:parseInt(document.getElementById('conf-server-timeout').value)},security:{block_common_usernames:document.getElementById('conf-sec-block').value,allowed_email_domains:document.getElementById('conf-sec-allow').value,blocked_emails:document.getElementById('conf-sec-deny').value},mail:{}};const mailHost=document.getElementById('conf-mail-host');if(mailHost){config.mail={host:mailHost.value,port:parseInt(document.getElementById('conf-mail-port').value),user:document.getElementById('conf-mail-user').value,pass:document.getElementById('conf-mail-pass').value}}
+fetch('/API/admin/save_config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(config)}).then(()=>alert('Configuration Saved'))}
+function openStatModal(category,identifier){currentModalCategory=category;currentModalId=identifier;document.getElementById('statModalTitle').innerText=category==='user'?'User Files: '+identifier:'System Files';document.getElementById('statModalSubtitle').innerText=category.toUpperCase();const tbody=document.getElementById('statModalList');tbody.innerHTML='<tr><td colspan="3" class="text-center">Loading...</td></tr>';const modal=document.getElementById('statDetailModal');if(modal)modal.style.display='flex';fetch('/API/admin/stat_details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category,identifier})}).then(r=>r.json()).then(res=>{tbody.innerHTML='';if(res.status==='success'){res.files.forEach(f=>{const tr=document.createElement('tr');let actionBtn='';if(f.can_delete){const safePath=f.path_id.replace(/\\/g,'/');actionBtn=`<button class="btn btn-danger btn-sm" onclick="deleteStatFile('${safePath}')">Delete</button>`}else{actionBtn='<span class="badge badge-info">Protected</span>'}
+tr.innerHTML=`<td>${f.name}</td><td>${(f.size/1024).toFixed(2)} KB</td><td>${actionBtn}</td>`;tbody.appendChild(tr)});if(res.files.length===0){tbody.innerHTML='<tr><td colspan="3" class="text-muted text-center">No files found</td></tr>'}}else{tbody.innerHTML='<tr><td colspan="3" class="text-error">Failed to load</td></tr>'}})}
 function uploadTheme(){const file=document.getElementById('theme-upload').files[0];if(!file)return alert('Select a CSS file');const formData=new FormData();formData.append('theme_file',file);fetch('/API/admin/upload_theme',{method:'POST',body:formData}).then(()=>location.reload())}
 function deleteTheme(name){if(confirm('Delete theme '+name+'?')){fetch('/API/admin/delete_theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({theme:name})}).then(()=>location.reload())}}
 function showLoading(){const overlay=document.getElementById('loadingOverlay');if(overlay)overlay.style.display='flex'}
@@ -28,84 +33,13 @@ update();const firstBox=document.querySelector('.otp-box');if(firstBox)firstBox.
 document.addEventListener("DOMContentLoaded",function(){const logBox=document.getElementById('log-container');if(logBox)logBox.scrollTop=logBox.scrollHeight;const timerDisplay=document.getElementById('timer');if(timerDisplay){const remaining=parseInt(timerDisplay.getAttribute('data-remaining')||0);startTimer(remaining,'timer')}
 const frameBody=document.querySelector('.frame-body');if(frameBody){const initTarget=frameBody.getAttribute('data-init-target');const navItems=document.querySelectorAll('.nav-links .nav-item');if(initTarget){navItems.forEach(item=>{const page=item.getAttribute('data-page');if(page&&initTarget.indexOf(page)!==-1){item.classList.add('active')}})}
 navItems.forEach(item=>{item.addEventListener('click',function(e){const href=this.getAttribute('href');if(!href||href==='#'||href==='javascript:void(0)'){e.preventDefault();return}
-navItems.forEach(nav=>nav.classList.remove('active'));this.classList.add('active')})})}})
-
-function openStatModal(category, identifier) {
-    const modal = document.getElementById('statDetailModal');
-    const title = document.getElementById('statModalTitle');
-    const subtitle = document.getElementById('statModalSubtitle');
-    const list = document.getElementById('statModalList');
-
-    if(!modal) return;
-
-    title.textContent = category === 'user' ? 'User Files' : (category === 'public' ? 'Public Resources' : 'System Configuration');
-    subtitle.textContent = identifier;
-    list.innerHTML = '<tr><td colspan="3" class="text-center">Loading...</td></tr>';
-
-    modal.classList.add('show');
-
-    fetch('/API/admin/stat_details', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({category, identifier})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if(data.status === 'success') {
-            renderStatFiles(data.files);
-        } else {
-            list.innerHTML = '<tr><td colspan="3" class="text-error">Error loading files</td></tr>';
-        }
-    });
-}
-
-function renderStatFiles(files) {
-    const list = document.getElementById('statModalList');
-    list.innerHTML = '';
-
-    if(files.length === 0) {
-        list.innerHTML = '<tr><td colspan="3" class="text-muted text-center">No files found</td></tr>';
-        return;
-    }
-
-    files.forEach(f => {
-        const sizeStr = (f.size / 1024).toFixed(1) + ' KB';
-        const deleteBtn = f.can_delete ?
-            `<button class="btn btn-danger btn-sm" onclick="deleteStatFile('${f.path_id}')">Delete</button>` :
-            '<span class="badge badge-info">Protected</span>';
-
-        const row = `
-            <tr>
-                <td>${f.name}</td>
-                <td>${sizeStr}</td>
-                <td>${deleteBtn}</td>
-            </tr>
-        `;
-        list.innerHTML += row;
-    });
-}
-
-function deleteStatFile(pathId) {
-    if(!confirm('Permanently delete this file?')) return;
-
-    fetch('/API/admin/stat_delete', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({path_id: pathId})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if(data.status === 'success') {
-            const subtitle = document.getElementById('statModalSubtitle').textContent;
-            const category = subtitle === 'public' ? 'public' : 'user';
-            openStatModal(category, subtitle);
-        } else {
-            alert('Failed to delete file');
-        }
-    });
-}
-
-function closeStatModal() {
-    const modal = document.getElementById('statDetailModal');
-    if(modal) modal.classList.remove('show');
-}
+navItems.forEach(nav=>nav.classList.remove('active'));this.classList.add('active')})})}});let currentModalCategory='';let currentModalId='';function openStatModal(category,identifier){currentModalCategory=category;currentModalId=identifier;document.getElementById('statModalTitle').innerText=category==='user'?'User Files: '+identifier:'System Files';document.getElementById('statModalSubtitle').innerText=category.toUpperCase();const tbody=document.getElementById('statModalList');tbody.innerHTML='<tr><td colspan="3" class="text-center">Loading...</td></tr>';const modal=document.getElementById('statDetailModal');if(modal)modal.style.display='flex';fetch('/API/admin/stat_details',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category,identifier})}).then(r=>r.json()).then(res=>{tbody.innerHTML='';if(res.status==='success'){res.files.forEach(f=>{const tr=document.createElement('tr');let actionBtn='';if(f.can_delete){const safePath=f.path_id.replace(/\\/g,'/');actionBtn=`<button class="btn btn-danger btn-sm" onclick="deleteStatFile('${safePath}')">Delete</button>`}else{actionBtn='<span class="badge badge-info">Protected</span>'}
+tr.innerHTML=`
+                    <td>${f.name}</td>
+                    <td>${(f.size / 1024).toFixed(2)} KB</td>
+                    <td>${actionBtn}</td>
+                `;tbody.appendChild(tr)});if(res.files.length===0){tbody.innerHTML='<tr><td colspan="3" class="text-muted text-center">No files found</td></tr>'}}else{tbody.innerHTML='<tr><td colspan="3" class="text-error">Failed to load</td></tr>'}})}
+function closeStatModal(){const modal=document.getElementById('statDetailModal');if(modal)modal.style.display='none'}
+function deleteStatFile(pathId){if(!confirm('Are you sure you want to delete this file?'))return;fetch('/API/admin/stat_delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path_id:pathId})}).then(r=>r.json()).then(res=>{if(res.status==='success'){openStatModal(currentModalCategory,currentModalId)}else{alert('Delete failed')}})}
+function togglePublicUpload(show){const area=document.getElementById('public-upload-area');if(area)area.style.display=show?'flex':'none'}
+function uploadPublicFile(){const fileInput=document.getElementById('public-file-upload');if(!fileInput||!fileInput.files.length)return alert('Please select a file');const formData=new FormData();formData.append('file',fileInput.files[0]);fetch('/API/admin/upload_public',{method:'POST',body:formData}).then(r=>r.json()).then(res=>{if(res.status==='success'){alert('Uploaded successfully');location.reload()}else{alert('Upload failed')}})}
