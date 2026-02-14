@@ -262,3 +262,17 @@ function runAllAnalysis() {
         });
     }
 }
+
+
+function filterData(){
+    const query = document.getElementById('data-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.data-row');
+
+    rows.forEach(row=>{
+        const name = row.querySelector('.file-name').textContent.toLowerCase();
+
+        const matchesSearch = name.includes(query);
+
+        row.style.display = (matchesSearch) ? "" : "none";
+    });
+}
