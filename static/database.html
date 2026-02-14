@@ -9,12 +9,6 @@
 <body>
     <div class="grid" style="align-items: center; padding: 10px;">
         <h1>DataBase</h1>
-        <search>
-            <form action="{{ url_for('database') }}" method="get" class="flex" style="align-items: center; gap: 10px;">
-                <input type="text" name="cari" placeholder="Cari..." style="width: 250px;" value="{{ request.args.get('cari', '') }}">
-                <button type="submit" class="btn btn-primary">Cari</button>
-            </form>
-        </search>
     </div>
     <div class="page-container">
         <div class="grid">
@@ -41,6 +35,9 @@
         </div>
 
         <div class="card" style="height: 600px; overflow-y: auto;">
+            <search style="flex-shrink: 0;">
+                    <input type="text" name="cari" placeholder="find database" style="width: 100%;" class="input-sm" id="data-search" oninput="filterData()">
+            </search>
             <table class="data-table" style="width: 100%; border-collapse: collapse;">
                 <thead style="position: sticky; top: 0; background-color: var(--bg-card, #252525); z-index: 10;">
                     <tr>
@@ -54,9 +51,9 @@
                 </thead>
                 <tbody>
                     {% for item in datasets %}
-                    <tr style="border-bottom: 1px solid rgba(128, 128, 128, 0.2);">
+                    <tr class="data-row" style="border-bottom: 1px solid rgba(128, 128, 128, 0.2);">
                         <td style="padding: 10px;">
-                            <div style="max-width: 200px; overflow-x: auto; white-space: nowrap; font-weight: 500;">
+                            <div class="file-name" style="max-width: 200px; overflow-x: auto; white-space: nowrap; font-weight: 500;">
                                 {{ item.name }}
                             </div>
                         </td>
@@ -176,3 +173,4 @@
     </div>
 </body>
 </html>
+
