@@ -44,3 +44,618 @@ document.getElementById('editName').value=name;document.getElementById('editNote
 window.onclick=function(event){if(event.target.classList.contains('modal-wrapper')){event.target.classList.remove('show')}}
 function initDeleteAccount(){closeModal('deleteConfirmModal');showLoading();fetch('/API/user/init_delete',{method:'POST'}).then(r=>r.json()).then(res=>{document.getElementById('loadingOverlay').style.display='none';if(res.status==='success'){openModal('deleteOtpModal')}else{alert('Failed to initiate deletion')}}).catch(e=>{document.getElementById('loadingOverlay').style.display='none';alert('Error')})}
 function confirmDeleteAccount(){const otp=document.getElementById('delete_otp_input').value;if(!otp)return alert('Enter OTP');showLoading();fetch('/API/user/confirm_delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({otp:otp})}).then(r=>r.json()).then(res=>{if(res.status==='success'){window.top.location.href='/'}else{document.getElementById('loadingOverlay').style.display='none';alert(res.msg||'Failed')}})}
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.location.pathname.includes('analysis.html')) {
+        initAnalysisPage();
+    }
+});
+let analysisSources = [];
+function initAnalysisPage() {
+    fetch('/API/analysis/get_sources')
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                analysisSources = res.sources;
+                renderConfigForm(res.config);
+                loadTablePreview(res.sources);
+            }
+        });
+    document.getElementById('applyAnalysisBtn').addEventListener('click', runAllAnalysis);
+    document.getElementById('saveAnalysisBtn').addEventListener('click', saveAnalysisConfig);
+}
+
+function loadTablePreview(sources) {
+    const tbody = document.querySelector('.data-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (sources.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No databases found</td></tr>';
+        return;
+    }
+
+    sources.forEach(src => {
+        const tr = document.createElement('tr');
+        const badge = src.origin === 'public' ? '<span class="badge badge-info badge-sm">Public</span>' : '';
+        tr.innerHTML = `
+            <td>${src.name} ${badge}</td>
+            <td class="text-center">
+                <button class="btn btn-secondary-alt btn-sm badge-sm" onclick="copyToClipboard('${src.id}')">Copy ID</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+    alert('ID Copied: ' + text);
+}
+
+function renderConfigForm(savedConfig) {
+    const container = document.getElementById('config-form-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    for (let i = 1; i <= 11; i++) {
+        const slotId = `data${i}`;
+        const config = savedConfig[slotId] || {};
+        const isTextOnly = i <= 3;
+
+        const div = document.createElement('div');
+        div.className = 'analysis-config-item';
+
+        let sourceOptions = '<option value="">Select Source...</option>';
+        analysisSources.forEach(src => {
+            const selected = config.source === src.id ? 'selected' : '';
+            sourceOptions += `<option value="${src.id}" ${selected}>${src.name}</option>`;
+        });
+
+        let typeOptions = '<option value="">Select Analysis...</option>';
+        const textTypes = [
+            {v:'summary', l:'Summary Stats'},
+            {v:'head', l:'First 5 Rows'},
+            {v:'missing', l:'Missing Data Check'}
+        ];
+        const chartTypes = [
+            {v:'bar', l:'Bar Chart'},
+            {v:'line', l:'Line Chart'},
+            {v:'scatter', l:'Scatter Plot'},
+            {v:'hist', l:'Histogram'},
+            {v:'pie', l:'Pie Chart'}
+        ];
+
+        const types = isTextOnly ? textTypes : chartTypes;
+        types.forEach(t => {
+            const selected = config.type === t.v ? 'selected' : '';
+            typeOptions += `<option value="${t.v}" ${selected}>${t.l}</option>`;
+        });
+
+        const colAVal = config.col_a || '';
+        const colBVal = config.col_b || '';
+
+        div.innerHTML = `
+            <h4>Data ${i} <span class="badge badge-sm ${isTextOnly?'badge-warning':'badge-success'}">${isTextOnly?'TEXT':'CHART'}</span></h4>
+            <div class="analysis-config-row">
+                <select class="input input-sm" id="conf-src-${i}">${sourceOptions}</select>
+            </div>
+            <div class="analysis-config-row">
+                <select class="input input-sm" id="conf-type-${i}">${typeOptions}</select>
+            </div>
+            ${!isTextOnly ? `
+            <div class="analysis-config-row">
+                <input type="text" class="input input-sm" id="conf-col-a-${i}" placeholder="Column X / Cat" value="${colAVal}">
+                <input type="text" class="input input-sm" id="conf-col-b-${i}" placeholder="Column Y / Val" value="${colBVal}">
+            </div>` : ''}
+        `;
+        container.appendChild(div);
+    }
+}
+
+function getCurrentConfig() {
+    const config = {};
+    for (let i = 1; i <= 11; i++) {
+        const id = `data${i}`;
+        const isChart = i > 3;
+        config[id] = {
+            source: document.getElementById(`conf-src-${i}`).value,
+            type: document.getElementById(`conf-type-${i}`).value,
+            col_a: isChart ? document.getElementById(`conf-col-a-${i}`).value : null,
+            col_b: isChart ? document.getElementById(`conf-col-b-${i}`).value : null
+        };
+    }
+    return config;
+}
+
+function saveAnalysisConfig() {
+    const config = getCurrentConfig();
+    fetch('/API/analysis/save_config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(config)
+    }).then(r => r.json()).then(res => {
+        if(res.status === 'success') alert('Configuration Saved');
+    });
+}
+
+function runAllAnalysis() {
+    const config = getCurrentConfig();
+    for (let i = 1; i <= 11; i++) {
+        const slotId = `data${i}`;
+        const cfg = config[slotId];
+        const outputDiv = document.getElementById(`${slotId}-output`);
+
+        if (!cfg.source || !cfg.type) {
+            if(outputDiv) outputDiv.innerHTML = '<span class="text-muted" style="font-size:0.8rem">Not Configured</span>';
+            continue;
+        }
+
+        if(outputDiv) outputDiv.innerHTML = '<div class="loader" style="width:20px;height:20px;border-width:3px"></div>';
+
+        fetch('/API/analysis/execute', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({slot_id: slotId, ...cfg})
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                if (res.is_image) {
+                    outputDiv.innerHTML = `<img src="data:image/png;base64,${res.data}" style="width:100%;height:100%;object-fit:contain">`;
+                } else {
+                    outputDiv.innerHTML = res.data;
+                }
+            } else {
+                outputDiv.innerHTML = `<span class="text-error" style="font-size:0.8rem">${res.msg}</span>`;
+            }
+        })
+        .catch(err => {
+            if(outputDiv) outputDiv.innerHTML = '<span class="text-error">Error</span>';
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.location.pathname.includes('analysis.html')) {
+        initAnalysisPage();
+    }
+});
+
+let analysisSources = [];
+let fileAssignments = {};
+
+function initAnalysisPage() {
+    fetch('/API/analysis/get_sources')
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                analysisSources = res.sources;
+                for(let i=1; i<=11; i++) fileAssignments[`data${i}`] = [];
+                if (res.config) {
+                    for (let key in res.config) {
+                        if (res.config[key].assigned_files) {
+                            fileAssignments[key] = res.config[key].assigned_files;
+                        }
+                    }
+                }
+                renderConfigForm(res.config);
+                loadTablePreview(res.sources);
+            }
+        });
+
+    document.getElementById('applyAnalysisBtn').addEventListener('click', runAllAnalysis);
+    document.getElementById('saveAnalysisBtn').addEventListener('click', saveAnalysisConfig);
+}
+
+function loadTablePreview(sources) {
+    const tbody = document.querySelector('.data-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (sources.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No databases found</td></tr>';
+        return;
+    }
+
+    sources.forEach(src => {
+        const tr = document.createElement('tr');
+        const badge = src.origin === 'public' ? '<span class="badge badge-info badge-sm">Public</span>' : '';
+        tr.innerHTML = `
+            <td>${src.name} ${badge}</td>
+            <td class="text-center">
+                <button class="btn btn-primary-alt btn-sm badge-sm" onclick="openAssignModal('${src.id}', '${src.name}')">Assign</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+let currentAssignFile = null;
+
+function openAssignModal(fileId, fileName) {
+    currentAssignFile = fileId;
+    document.getElementById('assignModalTitle').innerText = 'Assign: ' + fileName;
+    for (let i = 1; i <= 11; i++) {
+        const slot = `data${i}`;
+        const cb = document.getElementById(`assign-chk-${i}`);
+        if(cb) cb.checked = fileAssignments[slot].includes(fileId);
+    }
+    document.getElementById('assignModal').classList.add('show');
+}
+
+function saveAssignment() {
+    if (!currentAssignFile) return;
+    for (let i = 1; i <= 11; i++) {
+        const slot = `data${i}`;
+        const cb = document.getElementById(`assign-chk-${i}`);
+        const idx = fileAssignments[slot].indexOf(currentAssignFile);
+        if (cb.checked) {
+            if (idx === -1) fileAssignments[slot].push(currentAssignFile);
+        } else {
+            if (idx !== -1) fileAssignments[slot].splice(idx, 1);
+        }
+    }
+    document.getElementById('assignModal').classList.remove('show');
+    renderConfigForm(getCurrentConfig());
+}
+
+function renderConfigForm(savedConfig) {
+    const container = document.getElementById('config-form-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    savedConfig = savedConfig || {};
+
+    for (let i = 1; i <= 11; i++) {
+        const slotId = `data${i}`;
+        const config = savedConfig[slotId] || {};
+        const isTextOnly = i <= 3;
+        const assigned = fileAssignments[slotId] || [];
+
+        const div = document.createElement('div');
+        div.className = 'analysis-config-item';
+
+        let fileTags = '';
+        if (assigned.length > 0) {
+            assigned.forEach(f => {
+                fileTags += `<div class="analysis-file-tag"><span>${f}</span></div>`;
+            });
+        } else {
+            fileTags = '<span class="text-muted" style="font-style:italic">No files assigned</span>';
+        }
+
+        let typeOptions = '<option value="">Select Logic...</option>';
+        const textTypes = [
+            {v:'summary', l:'Summary Stats'},
+            {v:'head', l:'Data Preview'},
+            {v:'missing', l:'Missing Check'}
+        ];
+        const chartTypes = [
+            {v:'bar', l:'Bar Chart (Multi)'},
+            {v:'line', l:'Line Chart (Multi)'},
+            {v:'scatter', l:'Scatter Plot'},
+            {v:'hist', l:'Histogram'},
+            {v:'pie', l:'Pie Chart (First)'}
+        ];
+
+        const types = isTextOnly ? textTypes : chartTypes;
+        types.forEach(t => {
+            const selected = config.type === t.v ? 'selected' : '';
+            typeOptions += `<option value="${t.v}" ${selected}>${t.l}</option>`;
+        });
+
+        const colAVal = config.col_a || '';
+        const colBVal = config.col_b || '';
+
+        div.innerHTML = `
+            <div class="analysis-config-header">
+                <h4>Data ${i}</h4>
+                <span class="badge badge-sm ${isTextOnly?'badge-warning':'badge-success'}">${isTextOnly?'TEXT':'CHART'}</span>
+            </div>
+            <div class="analysis-assigned-list">${fileTags}</div>
+
+            <div class="analysis-config-row">
+                <select class="input input-sm" id="conf-type-${i}" ${assigned.length===0 ? 'disabled' : ''}>${typeOptions}</select>
+            </div>
+            ${!isTextOnly ? `
+            <div class="analysis-config-row">
+                <input type="text" class="input input-sm" id="conf-col-a-${i}" placeholder="X Axis / Cat" value="${colAVal}" ${assigned.length===0 ? 'disabled' : ''}>
+                <input type="text" class="input input-sm" id="conf-col-b-${i}" placeholder="Y Axis / Val" value="${colBVal}" ${assigned.length===0 ? 'disabled' : ''}>
+            </div>` : ''}
+        `;
+        container.appendChild(div);
+    }
+}
+
+function getCurrentConfig() {
+    const config = {};
+    for (let i = 1; i <= 11; i++) {
+        const id = `data${i}`;
+        const isChart = i > 3;
+        const typeEl = document.getElementById(`conf-type-${i}`);
+        config[id] = {
+            assigned_files: fileAssignments[id],
+            type: typeEl ? typeEl.value : '',
+            col_a: isChart ? document.getElementById(`conf-col-a-${i}`).value : null,
+            col_b: isChart ? document.getElementById(`conf-col-b-${i}`).value : null
+        };
+    }
+    return config;
+}
+
+function saveAnalysisConfig() {
+    const config = getCurrentConfig();
+    fetch('/API/analysis/save_config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(config)
+    }).then(r => r.json()).then(res => {
+        if(res.status === 'success') alert('Configuration Saved');
+    });
+}
+
+function runAllAnalysis() {
+    const config = getCurrentConfig();
+    for (let i = 1; i <= 11; i++) {
+        const slotId = `data${i}`;
+        const cfg = config[slotId];
+        const outputDiv = document.getElementById(`${slotId}-output`);
+
+        if (!cfg.assigned_files || cfg.assigned_files.length === 0 || !cfg.type) {
+            if(outputDiv) outputDiv.innerHTML = '<span class="text-muted" style="font-size:0.8rem">Empty</span>';
+            continue;
+        }
+
+        if(outputDiv) outputDiv.innerHTML = '<div class="loader" style="width:20px;height:20px;border-width:3px"></div>';
+
+        fetch('/API/analysis/execute', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                slot_id: slotId,
+                sources: cfg.assigned_files,
+                type: cfg.type,
+                col_a: cfg.col_a,
+                col_b: cfg.col_b
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                if (res.is_image) {
+                    outputDiv.innerHTML = `<img src="data:image/png;base64,${res.data}" style="width:100%;height:100%;object-fit:contain">`;
+                } else {
+                    outputDiv.innerHTML = `<div style="width:100%;height:100%;overflow-y:auto;padding:5px;">${res.data}</div>`;
+                }
+            } else {
+                outputDiv.innerHTML = `<span class="text-error" style="font-size:0.8rem">${res.msg}</span>`;
+            }
+        })
+        .catch(err => {
+            if(outputDiv) outputDiv.innerHTML = '<span class="text-error">Error</span>';
+        });
+    }
+}
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.location.pathname.includes('analysis.html')) {
+        initAnalysisPage();
+    }
+});
+
+let analysisSources = [];
+let fileAssignments = {};
+
+function initAnalysisPage() {
+    fetch('/API/analysis/get_sources')
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                analysisSources = res.sources;
+                for(let i=1; i<=11; i++) fileAssignments[`data${i}`] = [];
+                if (res.config) {
+                    for (let key in res.config) {
+                        if (res.config[key].assigned_files) {
+                            fileAssignments[key] = res.config[key].assigned_files;
+                        }
+                    }
+                }
+                renderConfigForm(res.config);
+                loadTablePreview(res.sources);
+            }
+        });
+
+    document.getElementById('applyAnalysisBtn').addEventListener('click', runAllAnalysis);
+    document.getElementById('saveAnalysisBtn').addEventListener('click', saveAnalysisConfig);
+}
+
+function loadTablePreview(sources) {
+    const tbody = document.querySelector('.data-table tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (sources.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted">No databases found</td></tr>';
+        return;
+    }
+
+    sources.forEach(src => {
+        const tr = document.createElement('tr');
+        const badge = src.origin === 'public' ? '<span class="badge badge-info badge-sm">Public</span>' : '';
+        tr.innerHTML = `
+            <td>${src.name} ${badge}</td>
+            <td class="text-center">
+                <button class="btn btn-primary-alt btn-sm badge-sm" onclick="openAssignModal('${src.id}', '${src.name}')">Assign</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+let currentAssignFile = null;
+
+function openAssignModal(fileId, fileName) {
+    currentAssignFile = fileId;
+    document.getElementById('assignModalTitle').innerText = 'Assign: ' + fileName;
+    for (let i = 1; i <= 11; i++) {
+        const slot = `data${i}`;
+        const cb = document.getElementById(`assign-chk-${i}`);
+        if(cb) cb.checked = fileAssignments[slot].includes(fileId);
+    }
+    document.getElementById('assignModal').classList.add('show');
+}
+
+function saveAssignment() {
+    if (!currentAssignFile) return;
+    for (let i = 1; i <= 11; i++) {
+        const slot = `data${i}`;
+        const cb = document.getElementById(`assign-chk-${i}`);
+        const idx = fileAssignments[slot].indexOf(currentAssignFile);
+        if (cb.checked) {
+            if (idx === -1) fileAssignments[slot].push(currentAssignFile);
+        } else {
+            if (idx !== -1) fileAssignments[slot].splice(idx, 1);
+        }
+    }
+    document.getElementById('assignModal').classList.remove('show');
+    renderConfigForm(getCurrentConfig());
+}
+
+function renderConfigForm(savedConfig) {
+    const container = document.getElementById('config-form-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    savedConfig = savedConfig || {};
+
+    for (let i = 1; i <= 11; i++) {
+        const slotId = `data${i}`;
+        const config = savedConfig[slotId] || {};
+        const isTextOnly = i <= 3;
+        const assigned = fileAssignments[slotId] || [];
+
+        const div = document.createElement('div');
+        div.className = 'analysis-config-item';
+
+        let fileTags = '';
+        if (assigned.length > 0) {
+            assigned.forEach(f => {
+                fileTags += `<div class="analysis-file-tag"><span>${f}</span></div>`;
+            });
+        } else {
+            fileTags = '<span class="text-muted" style="font-style:italic">No files assigned</span>';
+        }
+
+        let typeOptions = '<option value="">Select Logic...</option>';
+        const textTypes = [
+            {v:'summary', l:'Summary Stats'},
+            {v:'head', l:'Data Preview'},
+            {v:'missing', l:'Missing Check'}
+        ];
+        const chartTypes = [
+            {v:'bar', l:'Bar Chart (Multi)'},
+            {v:'line', l:'Line Chart (Multi)'},
+            {v:'scatter', l:'Scatter Plot'},
+            {v:'hist', l:'Histogram'},
+            {v:'pie', l:'Pie Chart (First)'}
+        ];
+
+        const types = isTextOnly ? textTypes : chartTypes;
+        types.forEach(t => {
+            const selected = config.type === t.v ? 'selected' : '';
+            typeOptions += `<option value="${t.v}" ${selected}>${t.l}</option>`;
+        });
+
+        const colAVal = config.col_a || '';
+        const colBVal = config.col_b || '';
+
+        div.innerHTML = `
+            <div class="analysis-config-header">
+                <h4>Data ${i}</h4>
+                <span class="badge badge-sm ${isTextOnly?'badge-warning':'badge-success'}">${isTextOnly?'TEXT':'CHART'}</span>
+            </div>
+            <div class="analysis-assigned-list">${fileTags}</div>
+
+            <div class="analysis-config-row">
+                <select class="input input-sm" id="conf-type-${i}" ${assigned.length===0 ? 'disabled' : ''}>${typeOptions}</select>
+            </div>
+            ${!isTextOnly ? `
+            <div class="analysis-config-row">
+                <input type="text" class="input input-sm" id="conf-col-a-${i}" placeholder="X Axis / Cat" value="${colAVal}" ${assigned.length===0 ? 'disabled' : ''}>
+                <input type="text" class="input input-sm" id="conf-col-b-${i}" placeholder="Y Axis / Val" value="${colBVal}" ${assigned.length===0 ? 'disabled' : ''}>
+            </div>` : ''}
+        `;
+        container.appendChild(div);
+    }
+}
+
+function getCurrentConfig() {
+    const config = {};
+    for (let i = 1; i <= 11; i++) {
+        const id = `data${i}`;
+        const isChart = i > 3;
+        const typeEl = document.getElementById(`conf-type-${i}`);
+        config[id] = {
+            assigned_files: fileAssignments[id],
+            type: typeEl ? typeEl.value : '',
+            col_a: isChart ? document.getElementById(`conf-col-a-${i}`).value : null,
+            col_b: isChart ? document.getElementById(`conf-col-b-${i}`).value : null
+        };
+    }
+    return config;
+}
+
+function saveAnalysisConfig() {
+    const config = getCurrentConfig();
+    fetch('/API/analysis/save_config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(config)
+    }).then(r => r.json()).then(res => {
+        if(res.status === 'success') alert('Configuration Saved');
+    });
+}
+
+function runAllAnalysis() {
+    const config = getCurrentConfig();
+    for (let i = 1; i <= 11; i++) {
+        const slotId = `data${i}`;
+        const cfg = config[slotId];
+        const outputDiv = document.getElementById(`${slotId}-output`);
+
+        if (!cfg.assigned_files || cfg.assigned_files.length === 0 || !cfg.type) {
+            if(outputDiv) outputDiv.innerHTML = '<span class="text-muted" style="font-size:0.8rem">Empty</span>';
+            continue;
+        }
+
+        if(outputDiv) outputDiv.innerHTML = '<div class="analysis-loader"></div>';
+
+        fetch('/API/analysis/execute', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                slot_id: slotId,
+                sources: cfg.assigned_files,
+                type: cfg.type,
+                col_a: cfg.col_a,
+                col_b: cfg.col_b
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.status === 'success') {
+                if (res.is_image) {
+                    outputDiv.innerHTML = `<img src="data:image/png;base64,${res.data}" style="width:100%;height:100%;object-fit:contain">`;
+                } else {
+                    outputDiv.innerHTML = `<div style="width:100%;height:100%;overflow-y:auto;padding:5px;">${res.data}</div>`;
+                }
+            } else {
+                outputDiv.innerHTML = `<span class="text-error" style="font-size:0.8rem">${res.msg}</span>`;
+            }
+        })
+        .catch(err => {
+            if(outputDiv) outputDiv.innerHTML = '<span class="text-error">Error</span>';
+        });
+    }
+}
+

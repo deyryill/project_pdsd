@@ -9,29 +9,32 @@
 <body style="background: var(--p-bg-surface-1);">
     <div class="analysis-navbar">
         <div class="flex" style="gap: 10px;">
-            <button class="btn btn-primary-alt btn-sm">Apply</button>
-            <button class="btn btn-secondary btn-sm">Reset</button>
+            <button class="btn btn-primary-alt btn-sm" id="applyAnalysisBtn">Apply Analysis</button>
+            <button class="btn btn-secondary btn-sm" id="saveAnalysisBtn">Save Config</button>
         </div>
     </div>
 
     <div class="page-container">
         <div class="analysis-container" style="height: 600px;">
-            <div class="card analysis-left analysis-relative">
-                <h3 class="text-muted">Config</h3>
-                <div class="analysis-plot-area" id="config-output"></div>
+            <div class="card analysis-left analysis-relative" style="display: flex; flex-direction: column; overflow: hidden;">
+                <h3 class="text-muted" style="flex-shrink: 0;">Data Logic</h3>
+                <div class="analysis-config-wrapper" id="config-form-container">
+                    <div class="flex-center text-muted">Loading Configuration...</div>
+                </div>
             </div>
-            <div class="card analysis-right analysis-relative" style="display: flex; flex-direction: column;">
-                <search>
+
+            <div class="card analysis-right analysis-relative" style="display: flex; flex-direction: column; overflow: hidden;">
+                <search style="flex-shrink: 0;">
                     <form class="flex" style="margin-bottom: 15px;">
                         <input type="text" name="cari" placeholder="find database" style="width: 100%;" class="input-sm">
                     </form>
                 </search>
-                <div class="analysis-table-container" style="flex: 1; overflow-y: auto; border: 1px solid var(--p-border-subtle); margin-top: 0;">
+                <div class="analysis-table-fill">
                     <table class="data-table" style="width: 100%; table-layout: fixed;">
                         <thead>
                             <tr>
                                 <th style="width: 80%;">Name</th>
-                                <th style="width: 20%; text-align: center;">Action</th>
+                                <th style="width: 20%; text-align: center;">Assignment</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,6 +102,29 @@
                     <span class="analysis-data-label">Data 11</span>
                     <div class="analysis-plot-area" id="data11-output"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="analysis-modal-overlay" id="assignModal">
+        <div class="analysis-assign-modal">
+            <h3 id="assignModalTitle">Assign File</h3>
+            <div class="analysis-assign-grid">
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-1"> Data 1</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-2"> Data 2</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-3"> Data 3</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-4"> Data 4</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-5"> Data 5</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-6"> Data 6</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-7"> Data 7</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-8"> Data 8</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-9"> Data 9</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-10"> Data 10</label>
+                <label class="analysis-assign-option"><input type="checkbox" id="assign-chk-11"> Data 11</label>
+            </div>
+            <div class="flex" style="justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('assignModal').classList.remove('show')">Cancel</button>
+                <button class="btn btn-primary btn-sm" onclick="saveAssignment()">Save Assignment</button>
             </div>
         </div>
     </div>

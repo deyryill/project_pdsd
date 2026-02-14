@@ -5,11 +5,17 @@ import time
 import threading
 import smtplib
 import random
+import io
+import base64
+import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
 from flask import Flask, request, redirect, url_for, session, render_template, jsonify
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from email.message import EmailMessage
-
 
 class man_system:
     def __init__(self):
@@ -21,6 +27,7 @@ class man_system:
         self.system_dir = self.dir_db / "system"
         self.user_db_path = self.system_dir / "user.sysriot"
         self.system_conf_path = self.system_dir / "system.sysriot"
+        self.analysis_conf_path = self.system_dir / "analysis.sysriot"
         self.master_check()
         self.master_init()
 
@@ -1046,6 +1053,201 @@ class webserver:
                 logs.reverse()
 
             return self.render_page('admin_settings.html', use_frame=True, users_list=users, stats=stats, themes=themes, logs=logs)
+
+        @self.app.route('/API/analysis/get_sources', methods=['GET'])
+        def api_get_sources():
+            if 'username' not in session:
+                return jsonify({"status": "error"}), 403
+
+            user_path = self.sys_man.dir_db / session['username']
+            public_path = self.sys_man.dir_db / "public"
+
+            sources = []
+
+            if user_path.exists():
+                for f in user_path.glob("*.csv"):
+                    sources.append({"id": f.name, "name": f.name, "origin": "user"})
+
+            if public_path.exists():
+                for f in public_path.glob("*.csv"):
+                    sources.append({"id": f.name, "name": f"[Public] {f.name}", "origin": "public"})
+
+            config = {}
+            if self.sys_man.analysis_conf_path.exists():
+                full_conf = self.sys_man.parse_sysriot(self.sys_man.analysis_conf_path)
+                if session['username'] in full_conf:
+                    import json
+                    try:
+                        config = json.loads(full_conf[session['username']].get('data', '{}'))
+                    except:
+                        pass
+
+            return jsonify({"status": "success", "sources": sources, "config": config})
+
+        @self.app.route('/API/analysis/save_config', methods=['POST'])
+        def api_save_analysis_config():
+            if 'username' not in session:
+                return jsonify({"status": "error"}), 403
+
+            import json
+            data_config = request.json
+            user = session['username']
+
+            full_conf = self.sys_man.parse_sysriot(self.sys_man.analysis_conf_path)
+
+            if user not in full_conf:
+                full_conf[user] = {}
+
+            full_conf[user]['data'] = json.dumps(data_config)
+            self.sys_man.save_sysriot(self.sys_man.analysis_conf_path, full_conf)
+
+            return jsonify({"status": "success"})
+
+        @self.app.route('/API/analysis/execute', methods=['POST'])
+        def api_execute_analysis():
+            if 'username' not in session:
+                return jsonify({"status": "error"}), 403
+
+            req = request.json
+            slot_id = req.get('slot_id')
+            sources = req.get('sources', [])
+            atype = req.get('type')
+            col_a = req.get('col_a')
+            col_b = req.get('col_b')
+
+            if not sources or not isinstance(sources, list):
+                return jsonify({"status": "error", "msg": "No Sources Assigned"})
+
+            dfs = []
+            for src in sources:
+                user_file = self.sys_man.dir_db / session['username'] / src
+                public_file = self.sys_man.dir_db / "public" / src
+
+                target = None
+                if user_file.exists():
+                    target = user_file
+                elif public_file.exists():
+                    target = public_file
+
+                if target:
+                    try:
+                        dfs.append((src, pd.read_csv(target)))
+                    except:
+                        pass
+
+            if not dfs:
+                return jsonify({"status": "error", "msg": "Files not found"})
+
+            try:
+                result = ""
+                is_image = False
+
+                if slot_id in ['data1', 'data2', 'data3']:
+                    primary_name, df = dfs[0]
+
+                    if atype == 'summary':
+                        desc = df.describe()
+                        html = f"<div class='analysis-text-header'>Source: {primary_name}</div>"
+                        html += "<div class='analysis-text-grid'>"
+                        for col in desc.columns:
+                            stats = desc[col]
+                            html += f"<div class='analysis-text-card'><strong>{col}</strong>"
+                            for stat_name, val in stats.items():
+                                html += f"<div class='analysis-text-row'><span>{stat_name}</span><span>{val:.2f}</span></div>"
+                            html += "</div>"
+                        html += "</div>"
+                        result = html
+
+                    elif atype == 'head':
+                        head = df.head(3)
+                        html = f"<div class='analysis-text-header'>Source: {primary_name} (First 3)</div>"
+                        html += "<div class='analysis-text-list'>"
+                        for idx, row in head.iterrows():
+                            html += "<div class='analysis-text-item'>"
+                            items = []
+                            for c, v in row.items():
+                                items.append(f"<b>{c}:</b> {v}")
+                            html += ", ".join(items)
+                            html += "</div>"
+                        html += "</div>"
+                        result = html
+
+                    elif atype == 'missing':
+                        missing = df.isnull().sum()
+                        total_rows = len(df)
+                        if missing.sum() > 0:
+                            html = f"<div class='analysis-text-header'>Missing Data ({primary_name})</div><ul class='analysis-text-clean-list'>"
+                            for col, val in missing.items():
+                                if val > 0:
+                                    pct = (val / total_rows) * 100
+                                    html += f"<li><span class='analysis-text-label'>{col}</span> <span class='analysis-text-val-bad'>{val} ({pct:.1f}%)</span></li>"
+                            html += "</ul>"
+                            result = html
+                        else:
+                            result = "<div class='analysis-text-success'>✓ Data Clean<br><small>No missing values found</small></div>"
+                    else:
+                        result = "<div class='text-muted'>Select analysis logic</div>"
+
+                else:
+                    fig, ax = plt.subplots(figsize=(6, 4))
+                    is_image = True
+
+                    if atype == 'bar' and col_a and col_b:
+                        for name, df in dfs:
+                            if col_a in df.columns and col_b in df.columns:
+                                data = df.groupby(col_a)[col_b].mean()
+                                ax.bar(data.index.astype(str), data.values, alpha=0.7, label=name)
+                        ax.set_title(f'{col_b} by {col_a}')
+                        ax.legend()
+                        plt.setp(ax.get_xticklabels(), rotation=45)
+                        fig.tight_layout()
+
+                    elif atype == 'line' and col_a and col_b:
+                        for name, df in dfs:
+                            if col_a in df.columns and col_b in df.columns:
+                                df_sorted = df.sort_values(by=col_a)
+                                ax.plot(df_sorted[col_a], df_sorted[col_b], marker='o', label=name)
+                        ax.set_title(f'{col_a} vs {col_b}')
+                        ax.grid(True, linestyle='--', alpha=0.6)
+                        ax.legend()
+                        fig.tight_layout()
+
+                    elif atype == 'scatter' and col_a and col_b:
+                        for name, df in dfs:
+                            if col_a in df.columns and col_b in df.columns:
+                                ax.scatter(df[col_a], df[col_b], alpha=0.5, label=name)
+                        ax.set_xlabel(col_a)
+                        ax.set_ylabel(col_b)
+                        ax.legend()
+                        ax.grid(True)
+                        fig.tight_layout()
+
+                    elif atype == 'hist' and col_a:
+                        for name, df in dfs:
+                            if col_a in df.columns:
+                                ax.hist(df[col_a].dropna(), bins=20, alpha=0.5, label=name, edgecolor='black')
+                        ax.set_title(f'Distribution of {col_a}')
+                        ax.legend()
+                        fig.tight_layout()
+
+                    elif atype == 'pie' and col_a:
+                        name, df = dfs[0]
+                        if col_a in df.columns:
+                            counts = df[col_a].value_counts().head(5)
+                            ax.pie(counts, labels=counts.index, autopct='%1.1f%%')
+                            ax.set_title(f'Top 5 {col_a} ({name})')
+
+                    buf = io.BytesIO()
+                    fig.savefig(buf, format='png', bbox_inches='tight')
+                    buf.seek(0)
+                    result = base64.b64encode(buf.getvalue()).decode('utf-8')
+                    plt.close(fig)
+
+                return jsonify({"status": "success", "data": result, "is_image": is_image})
+
+            except Exception as e:
+                plt.close('all')
+                return jsonify({"status": "error", "msg": str(e)})
 
         @self.app.route('/API/logout')
         def logout():
