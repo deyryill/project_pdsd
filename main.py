@@ -120,6 +120,26 @@ class man_system:
                 total_size += f.stat().st_size
         return total_size
 
+    def get_total_usage_formatted(self):
+        total_size = 0
+        for f in self.dir_db.rglob('*'):
+            if f.is_file():
+                total_size += f.stat().st_size
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if total_size < 1024:
+                return f"{total_size:.2f} {unit}"
+            total_size /= 1024
+        return f"{total_size:.2f} TB"
+
+    def delete_user_data(self, username):
+        u_path = self.dir_db / f"{username}.sysriot"
+        if u_path.exists():
+            os.remove(u_path)
+        user_dir = self.dir_db / username
+        if user_dir.exists() and user_dir.is_dir():
+            import shutil
+            shutil.rmtree(user_dir)
+
 
 class webserver:
     def __init__(self):
@@ -718,68 +738,39 @@ class webserver:
 
             return self.render_page('user_settings.html', use_frame=True, themes=themes, target_user=target_user, target_data=users.get(target_user, {}))
 
-        @self.app.route('/admin_settings.html')
-        def admin_settings():
+        @self.app.route('/API/user/init_delete', methods=['POST'])
+        def api_init_delete():
             if 'username' not in session:
-                return redirect(url_for('index_route'))
+                return jsonify({"status": "error"}), 403
+            user = session['username']
+            users = self.sys_man.load_users()
+            if user not in users:
+                return jsonify({"status": "error"}), 400
 
-            user_level = session.get('level', 0)
-            if user_level != -1 and user_level != 2:
-                return "Unauthorized", 403
-            logs = []
-            log_path = self.sys_man.system_dir / "logs.sysriot"
-            if log_path.exists():
-                with open(log_path, "r") as f:
-                    logs = [line.strip() for line in f.readlines()[-50:]]
-            themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
+            otp_code = secrets.token_hex(3).upper()
+            session['delete_otp'] = {"code": otp_code, "time": time.time()}
+            threading.Thread(target=self.send_otp, args=(users[user]['email'], otp_code)).start()
+            return jsonify({"status": "success"})
 
-            users_list = self.sys_man.load_users()
-            stats = {"users": {}, "public": {"count": 0, "size": "0 B", "raw_size": 0}, "total_size": "0 B", "system_config": "0 B"}
+        @self.app.route('/API/user/confirm_delete', methods=['POST'])
+        def api_confirm_delete():
+            if 'username' not in session:
+                return jsonify({"status": "error"}), 403
+            otp_input = request.json.get('otp', '').upper()
+            otp_data = session.get('delete_otp')
 
-            def format_size(size):
-                if not isinstance(size, (int, float)):
-                    return str(size)
-                for unit in ['B', 'KB', 'MB', 'GB']:
-                    if size < 1024:
-                        return f"{size:.2f} {unit}"
-                    size /= 1024
-                return f"{size:.2f} TB"
+            if not otp_data or time.time() - otp_data['time'] > 300:
+                return jsonify({"status": "error", "msg": "OTP Expired"}), 400
 
-            total_system_bytes = 0
+            if otp_input != otp_data['code']:
+                return jsonify({"status": "error", "msg": "Invalid OTP"}), 400
 
-            sys_conf_size = 0
-            for f in self.sys_man.system_dir.rglob('*'):
-                if f.is_file():
-                    sys_conf_size += f.stat().st_size
-            stats["system_config"] = format_size(sys_conf_size)
-            total_system_bytes += sys_conf_size
+            user = session['username']
+            self.sys_man.delete_user_data(user)
+            self.sys_man.write_log("SYSTEM", "account_delete", f"User {user} deleted their account")
 
-            for item in self.sys_man.dir_db.iterdir():
-                if item.is_dir():
-                    folder_size = 0
-                    file_count = 0
-                    for f in item.rglob('*'):
-                        if f.is_file():
-                            folder_size += f.stat().st_size
-                            file_count += 1
-
-                    if item.name == "public":
-                        stats["public"] = {"count": file_count, "size": format_size(folder_size), "raw_size": folder_size}
-                        total_system_bytes += folder_size
-                    elif item.name in users_list:
-                        stats["users"][item.name] = {"count": file_count, "size": format_size(folder_size), "raw_size": folder_size}
-                        total_system_bytes += folder_size
-
-            stats["total_size"] = format_size(total_system_bytes)
-
-            return self.render_page(
-                'admin_settings.html',
-                use_frame=True,
-                users_list=users_list,
-                themes=themes,
-                logs=logs,
-                stats=stats
-            )
+            session.clear()
+            return jsonify({"status": "success"})
 
         @self.app.route('/API/admin/system_status', methods=['GET'])
         def api_system_status():
@@ -955,7 +946,6 @@ class webserver:
 
             if file_path.exists() and file_path.name != "indexing.sysriot":
                 os.remove(file_path)
-
                 parent_dir = file_path.parent
                 index_path = parent_dir / "indexing.sysriot"
                 if index_path.exists():
@@ -965,7 +955,7 @@ class webserver:
                         self.sys_man.save_sysriot(index_path, new_index)
 
                 self.sys_man.write_log(session['username'], "stat_delete", f"Deleted: {path_id}")
-                return jsonify({"status": "success"})
+                return jsonify({"status": "success", "new_size": self.sys_man.get_total_usage_formatted()})
             return jsonify({"status": "error"}), 400
 
         @self.app.route('/API/admin/delete_theme', methods=['POST'])
@@ -1006,15 +996,55 @@ class webserver:
                 index_data[file_id] = {
                     "file": filename,
                     "name": filename,
-                    "note": "Public Resource",
+                    "note": "This File Is provided by Us and wont eat your storage",
                     "size": file_path.stat().st_size,
                     "uploaded_at": time.strftime("%Y-%m-%d %H:%M")
                 }
                 self.sys_man.save_sysriot(index_path, index_data)
                 self.sys_man.write_log(session['username'], "upload_public", f"Uploaded: {filename}")
-                return jsonify({"status": "success"})
+                return jsonify({"status": "success", "new_size": self.sys_man.get_total_usage_formatted()})
             return jsonify({"status": "error"}), 400
 
+        @self.app.route('/admin_settings.html')
+        def admin_settings():
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
+                return redirect(url_for('home'))
+
+            users = self.sys_man.load_users()
+            stats = {
+                "total_size": self.sys_man.get_total_usage_formatted(),
+                "system_config": "0 B",
+                "public": {"count": 0, "size": "0 B"},
+                "users": {}
+            }
+
+            sc_path = self.sys_man.system_conf_path
+            if sc_path.exists():
+                stats["system_config"] = f"{sc_path.stat().st_size / 1024:.2f} KB"
+
+            pb_path = self.sys_man.dir_db / "public"
+            if pb_path.exists():
+                p_fs = list(pb_path.glob("*.csv"))
+                p_sz = sum(f.stat().st_size for f in p_fs)
+                stats["public"] = {"count": len(p_fs), "size": f"{p_sz / 1024:.2f} KB"}
+
+            for u in users:
+                u_d = self.sys_man.dir_db / u
+                if u_d.exists():
+                    u_fs = [f for f in u_d.iterdir() if f.is_file() and f.name != "indexing.sysriot"]
+                    u_sz = sum(f.stat().st_size for f in u_fs)
+                    stats["users"][u] = {"count": len(u_fs), "size": f"{u_sz / 1024:.2f} KB"}
+
+            themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
+            logs = []
+            l_path = self.sys_man.system_dir / "logs.sysriot"
+            if l_path.exists():
+                with open(l_path, "r") as f:
+                    logs = f.readlines()[-100:]
+                logs.reverse()
+
+            return self.render_page('admin_settings.html', use_frame=True, users_list=users, stats=stats, themes=themes, logs=logs)
         @self.app.route('/API/logout')
         def logout():
             user = session.get('username')

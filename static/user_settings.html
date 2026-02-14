@@ -63,6 +63,31 @@
 
                 <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
             </form>
+            <div class="divider"></div>
+            <button onclick="openModal('deleteConfirmModal')" class="btn btn-danger btn-block">Delete Account</button>
+        </div>
+    </div>
+    <div id="deleteConfirmModal" class="modal-wrapper">
+        <div class="modal-content" style="max-width: 400px; height: auto;">
+            <div class="modal-header"><h3>Warning</h3></div>
+            <div class="modal-body"><p>Are you sure you want to delete your account? All data will be lost permanently.</p></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">Cancel</button>
+                <button class="btn btn-danger" onclick="initDeleteAccount()">Continue</button>
+            </div>
+        </div>
+    </div>
+    <div id="deleteOtpModal" class="modal-wrapper">
+        <div class="modal-content" style="max-width: 400px; height: auto;">
+            <div class="modal-header"><h3>Security Verification</h3></div>
+            <div class="modal-body">
+                <label>Enter OTP sent to your email</label>
+                <input type="text" id="delete_otp_input" class="input" style="text-align: center; font-size: 1.5rem; letter-spacing: 5px; text-transform: uppercase;">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('deleteOtpModal')">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDeleteAccount()">Verify & Delete</button>
+            </div>
         </div>
     </div>
 </body>

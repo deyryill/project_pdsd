@@ -37,9 +37,9 @@
             </div>
             <div class="card" style="display: flex; align-items: center; gap: 10px;">
                 <span>Storage: {{ storage_percent }}%</span>
-                {% if storage_percent >= 99 %}
+                {% if storage_percent >= 95 %}
                     <span class="badge badge-error">Storage is full</span>
-                {% elif storage_percent >= 90 %}
+                {% elif storage_percent >= 75 %}
                     <span class="badge badge-warning">Storage Almost Full</span>
                 {% endif %}
             </div>
@@ -50,67 +50,70 @@
                 <button onclick="openModal('deleteAllModal')" class="btn btn-danger">Delete All</button>
             </div>
         </div>
-        <table class="data-table">
-            <thead>
-                <tr class="card">
-                    <th style="text-align: center;">Name</th>
-                    <th style="text-align: center;">Note</th>
-                    <th style="text-align: center;">Type</th>
-                    <th style="text-align: center;">Size</th>
-                    <th style="text-align: center;">Uploaded</th>
-                    <th style="text-align: center;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in datasets %}
-                <tr class="card">
-                    <td>
-                        <div style="max-width: 200px; overflow-x: auto; white-space: nowrap; font-weight: 500;">
-                            {{ item.name }}
-                        </div>
-                    </td>
-                    <td>
-                        <div style="max-height: 100px; max-width: 400px; overflow-y: auto;">
-                            {{ item.note }}
-                        </div>
-                    </td>
-                    <td>
-                        <div style="min-width: 50px; text-transform: uppercase;">
-                            {{ item.type|replace('.', '') }}
-                        </div>
-                    </td>
-                    <td>
-                        <div style="min-width: 50px;">
-                            {{ item.size }}
-                        </div>
-                    </td>
-                    <td>
-                        <div style="min-width: 100px;">
-                            {{ item.uploaded_at }}
-                        </div>
-                    </td>
-                    <td>
-                        <div class="flex" style="gap: 5px;">
-                            {% if not item.is_public %}
-                            <button class="btn btn-primary"
-                                onclick="openEditModal(this)"
-                                data-id="{{ item.data_id }}"
-                                data-name="{{ item.name }}"
-                                data-note="{{ item.note }}">
-                                Edit
-                            </button>
-                            <form action="{{ url_for('delete_data', data_id=item.data_id) }}" method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-primary" onclick="return confirm('Delete data?')">Delete</button>
-                            </form>
-                            {% else %}
-                            <span class="badge badge-info">Public</span>
-                            {% endif %}
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+        <div class="card" style="height: 600px; overflow-y: auto;">
+            <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                <thead style="position: sticky; top: 0; background-color: var(--bg-card, #252525); z-index: 10;">
+                    <tr>
+                        <th style="text-align: center; padding: 15px;">Name</th>
+                        <th style="text-align: center; padding: 15px;">Note</th>
+                        <th style="text-align: center; padding: 15px;">Type</th>
+                        <th style="text-align: center; padding: 15px;">Size</th>
+                        <th style="text-align: center; padding: 15px;">Uploaded</th>
+                        <th style="text-align: center; padding: 15px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in datasets %}
+                    <tr style="border-bottom: 1px solid rgba(128, 128, 128, 0.2);">
+                        <td style="padding: 10px;">
+                            <div style="max-width: 200px; overflow-x: auto; white-space: nowrap; font-weight: 500;">
+                                {{ item.name }}
+                            </div>
+                        </td>
+                        <td style="padding: 10px;">
+                            <div style="max-height: 100px; max-width: 400px; overflow-y: auto;">
+                                {{ item.note }}
+                            </div>
+                        </td>
+                        <td style="padding: 10px;">
+                            <div style="min-width: 50px; text-transform: uppercase;">
+                                {{ item.type|replace('.', '') }}
+                            </div>
+                        </td>
+                        <td style="padding: 10px;">
+                            <div style="min-width: 50px;">
+                                {{ item.size }}
+                            </div>
+                        </td>
+                        <td style="padding: 10px;">
+                            <div style="min-width: 100px;">
+                                {{ item.uploaded_at }}
+                            </div>
+                        </td>
+                        <td style="padding: 10px;">
+                            <div class="flex" style="gap: 5px;">
+                                {% if not item.is_public %}
+                                <button class="btn btn-primary"
+                                    onclick="openEditModal(this)"
+                                    data-id="{{ item.data_id }}"
+                                    data-name="{{ item.name }}"
+                                    data-note="{{ item.note }}">
+                                    Edit
+                                </button>
+                                <form action="{{ url_for('delete_data', data_id=item.data_id) }}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-primary" onclick="return confirm('Delete data?')">Delete</button>
+                                </form>
+                                {% else %}
+                                <span class="badge badge-info">Demo File</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div id="uploadModal" class="modal-wrapper">
@@ -162,7 +165,6 @@
             </div>
         </div>
     </div>
-    
     <div id="editModal" class="modal-wrapper">
         <div class="modal-content" style="max-width: 500px; height: auto;">
             <div class="modal-header">
@@ -183,38 +185,5 @@
             </form>
         </div>
     </div>
-
-    <script>
-        function openModal(id) {
-            document.getElementById(id).classList.add('show');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('show');
-        }
-
-        function openEditModal(btn) {
-            const id = btn.getAttribute('data-id');
-            let name = btn.getAttribute('data-name');
-            const note = btn.getAttribute('data-note');
-
-            if (name.toLowerCase().endsWith('.csv')) {
-                name = name.slice(0, -4);
-            }
-
-            document.getElementById('editName').value = name;
-            document.getElementById('editNote').value = note;
-            document.getElementById('editForm').action = "/API/db/edit_data/" + id;
-
-            openModal('editModal');
-        }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-wrapper')) {
-                event.target.classList.remove('show');
-            }
-        }
-    </script>
 </body>
-
 </html>
