@@ -204,7 +204,6 @@ class webserver:
         except:
             return False
 
-
     def render_page(self, template_name, use_frame=True, **kwargs):
         users = self.sys_man.load_users()
         current_theme = 'default'
@@ -627,7 +626,7 @@ class webserver:
             limit_size = 10 * 1024 * 1024
 
             def format_size(size):
-                if not isinstance(size, (int, float)): 
+                if not isinstance(size, (int, float)):
                     return str(size)
                 for unit in ['B', 'KB', 'MB', 'GB']:
                     if size < 1024:
@@ -692,6 +691,7 @@ class webserver:
                 limit_count=format_size(limit_size),
                 storage_percent=min(100, int((user_usage / limit_size) * 100))
             )
+
         @self.app.route('/analysis.html')
         def analysis():
             if 'username' not in session:
@@ -808,8 +808,8 @@ class webserver:
             self.sys_man.save_sysriot(self.sys_man.dir_db / f"{username}.sysriot", new_user_data)
             self.sys_man.write_log(session['username'], "create_user", f"Created: {username}")
             return jsonify({"status": "success"})
-        @self.app.route('/API/admin/save_config', methods=['POST'])
 
+        @self.app.route('/API/admin/save_config', methods=['POST'])
         def api_save_config():
             user_level = session.get('level', 0)
             if user_level != -1 and user_level != 2:
@@ -824,6 +824,7 @@ class webserver:
             self.sys_man.save_config(new_config)
             self.sys_man.write_log(session['username'], "config_update", "Config changed")
             return jsonify({"status": "success"})
+
         @self.app.route('/API/admin/batch_delete', methods=['POST'])
         def api_batch_delete():
             user_level = session.get('level', 0)
@@ -1045,6 +1046,7 @@ class webserver:
                 logs.reverse()
 
             return self.render_page('admin_settings.html', use_frame=True, users_list=users, stats=stats, themes=themes, logs=logs)
+
         @self.app.route('/API/logout')
         def logout():
             user = session.get('username')
