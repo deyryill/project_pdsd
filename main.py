@@ -1199,7 +1199,7 @@ class webserver:
                                 ax.bar(data.index.astype(str), data.values, alpha=0.7, label=name)
                         ax.set_title(f'{col_b} by {col_a}')
                         ax.legend()
-                        plt.setp(ax.get_xticklabels(), rotation=45)
+                        ax.tick_params(axis='x', rotation=45)
                         fig.tight_layout()
 
                     elif atype == 'line' and col_a and col_b:
