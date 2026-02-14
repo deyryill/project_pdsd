@@ -12,6 +12,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.linear_model import LinearRegression
 from flask import Flask, request, redirect, url_for, session, render_template, jsonify
 from pathlib import Path
 from werkzeug.utils import secure_filename
@@ -1114,6 +1116,7 @@ class webserver:
             atype = req.get('type')
             col_a = req.get('col_a')
             col_b = req.get('col_b')
+            param = req.get('param')
 
             if not sources or not isinstance(sources, list):
                 return jsonify({"status": "error", "msg": "No Sources Assigned"})
@@ -1192,7 +1195,80 @@ class webserver:
                     fig, ax = plt.subplots(figsize=(6, 4))
                     is_image = True
 
-                    if atype == 'bar' and col_a and col_b:
+                    if atype == 'kmeans' and col_a and col_b:
+                        primary_name, df = dfs[0]
+                        if col_a in df.columns and col_b in df.columns:
+                            k = 3
+                            if param and str(param).isdigit():
+                                k = int(param)
+
+                            X = df[[col_a, col_b]].dropna()
+                            kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+                            labels = kmeans.fit_predict(X)
+
+                            scatter = ax.scatter(X[col_a], X[col_b], c=labels, cmap='viridis', alpha=0.6)
+                            ax.set_xlabel(col_a)
+                            ax.set_ylabel(col_b)
+                            ax.set_title(f'K-Means Clustering (k={k})')
+                            fig.colorbar(scatter, ax=ax, label='Cluster')
+                            fig.tight_layout()
+
+                    elif atype == 'regression' and col_a and col_b:
+                        primary_name, df = dfs[0]
+                        if col_a in df.columns and col_b in df.columns:
+                            data = df[[col_a, col_b]].dropna()
+                            X = data[col_a].values.reshape(-1, 1)
+                            y = data[col_b].values.reshape(-1, 1)
+
+                            reg = LinearRegression().fit(X, y)
+                            y_pred = reg.predict(X)
+
+                            ax.scatter(X, y, alpha=0.5, label='Data')
+                            ax.plot(X, y_pred, color='red', linewidth=2, label='Regression Line')
+                            ax.set_xlabel(col_a)
+                            ax.set_ylabel(col_b)
+                            ax.set_title(f'Linear Regression: {col_a} vs {col_b}')
+                            ax.legend()
+                            fig.tight_layout()
+
+                    elif atype == 'geo' and col_a and col_b:
+                        for name, df in dfs:
+                            if col_a in df.columns and col_b in df.columns:
+                                c = None
+                                if param and param in df.columns:
+                                    c = df[param]
+
+                                scatter = ax.scatter(df[col_b], df[col_a], c=c, cmap='coolwarm', alpha=0.5, label=name)
+                                if c is not None:
+                                    fig.colorbar(scatter, ax=ax, label=param)
+
+                        ax.set_xlabel('Longitude (' + col_b + ')')
+                        ax.set_ylabel('Latitude (' + col_a + ')')
+                        ax.set_title(f'Geo Scatter (Lat/Lon)')
+                        ax.grid(True, linestyle='--', alpha=0.5)
+                        fig.tight_layout()
+
+                    elif atype == 'corr':
+                        primary_name, df = dfs[0]
+                        cols = [col_a, col_b]
+                        if param: cols.append(param)
+                        valid_cols = [c for c in cols if c in df.columns]
+
+                        if not valid_cols:
+                            valid_cols = df.select_dtypes(include=[np.number]).columns.tolist()[:5]
+
+                        if valid_cols:
+                            corr = df[valid_cols].corr()
+                            im = ax.imshow(corr, cmap='coolwarm', vmin=-1, vmax=1)
+                            ax.set_xticks(np.arange(len(valid_cols)))
+                            ax.set_yticks(np.arange(len(valid_cols)))
+                            ax.set_xticklabels(valid_cols, rotation=45)
+                            ax.set_yticklabels(valid_cols)
+                            fig.colorbar(im, ax=ax)
+                            ax.set_title('Correlation Matrix')
+                            fig.tight_layout()
+
+                    elif atype == 'bar' and col_a and col_b:
                         for name, df in dfs:
                             if col_a in df.columns and col_b in df.columns:
                                 data = df.groupby(col_a)[col_b].mean()

@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
         initAnalysisPage();
     }
 });
+
 let analysisSources = [];
 let fileAssignments = {};
 
@@ -146,7 +147,17 @@ function renderConfigForm(savedConfig) {
 
         let typeOptions = '<option value="">Select Logic...</option>';
         const textTypes = [{v:'summary', l:'Summary Stats'},{v:'head', l:'Data Preview'},{v:'missing', l:'Missing Check'}];
-        const chartTypes = [{v:'bar', l:'Bar Chart (Multi)'},{v:'line', l:'Line Chart (Multi)'},{v:'scatter', l:'Scatter Plot'},{v:'hist', l:'Histogram'},{v:'pie', l:'Pie Chart (First)'}];
+        const chartTypes = [
+            {v:'bar', l:'Bar Chart (Multi)'},
+            {v:'line', l:'Line Chart (Multi)'},
+            {v:'scatter', l:'Scatter Plot'},
+            {v:'hist', l:'Histogram'},
+            {v:'pie', l:'Pie Chart (First)'},
+            {v:'kmeans', l:'K-Means Clustering'},
+            {v:'regression', l:'Linear Regression'},
+            {v:'geo', l:'Geo Scatter (Lat/Lon)'},
+            {v:'corr', l:'Correlation Matrix'}
+        ];
         const types = isTextOnly ? textTypes : chartTypes;
 
         types.forEach(t => {
@@ -156,6 +167,7 @@ function renderConfigForm(savedConfig) {
 
         const colAVal = config.col_a || '';
         const colBVal = config.col_b || '';
+        const paramVal = config.param || '';
 
         div.innerHTML = `
             <div class="analysis-config-header">
@@ -168,8 +180,11 @@ function renderConfigForm(savedConfig) {
             </div>
             ${!isTextOnly ? `
             <div class="analysis-config-row">
-                <input type="text" class="input input-sm" id="conf-col-a-${i}" placeholder="X Axis / Cat" value="${colAVal}" ${assigned.length===0 ? 'disabled' : ''}>
-                <input type="text" class="input input-sm" id="conf-col-b-${i}" placeholder="Y Axis / Val" value="${colBVal}" ${assigned.length===0 ? 'disabled' : ''}>
+                <input type="text" class="input input-sm" id="conf-col-a-${i}" placeholder="X Axis / Lat / Cat" value="${colAVal}" ${assigned.length===0 ? 'disabled' : ''}>
+                <input type="text" class="input input-sm" id="conf-col-b-${i}" placeholder="Y Axis / Lon / Val" value="${colBVal}" ${assigned.length===0 ? 'disabled' : ''}>
+            </div>
+            <div class="analysis-config-row">
+                <input type="text" class="input input-sm" id="conf-param-${i}" placeholder="Param (K / Color)" value="${paramVal}" ${assigned.length===0 ? 'disabled' : ''}>
             </div>` : ''}
         `;
         container.appendChild(div);
@@ -186,7 +201,8 @@ function getCurrentConfig() {
             assigned_files: fileAssignments[id],
             type: typeEl ? typeEl.value : '',
             col_a: isChart ? document.getElementById(`conf-col-a-${i}`).value : null,
-            col_b: isChart ? document.getElementById(`conf-col-b-${i}`).value : null
+            col_b: isChart ? document.getElementById(`conf-col-b-${i}`).value : null,
+            param: isChart ? document.getElementById(`conf-param-${i}`).value : null
         };
     }
     return config;
@@ -225,7 +241,8 @@ function runAllAnalysis() {
                 sources: cfg.assigned_files,
                 type: cfg.type,
                 col_a: cfg.col_a,
-                col_b: cfg.col_b
+                col_b: cfg.col_b,
+                param: cfg.param
             })
         })
         .then(r => r.json())
