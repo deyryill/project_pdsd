@@ -48,7 +48,7 @@
                     <span>Settings</span>
                 </a>
 
-                {% if session.get('level', 0) >= 2 %}
+                {% if session.get('level', 0) == 2 or session.get('level', 0) == -1 %}
                 <a href="admin_settings.html?content=1" target="content_frame" class="nav-item" data-page="admin_settings.html">
                     <svg width="20" height="20"><use href="#icon-settings"/></svg>
                     <span>Admin Settings</span>

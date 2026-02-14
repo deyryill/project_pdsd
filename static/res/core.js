@@ -29,3 +29,83 @@ document.addEventListener("DOMContentLoaded",function(){const logBox=document.ge
 const frameBody=document.querySelector('.frame-body');if(frameBody){const initTarget=frameBody.getAttribute('data-init-target');const navItems=document.querySelectorAll('.nav-links .nav-item');if(initTarget){navItems.forEach(item=>{const page=item.getAttribute('data-page');if(page&&initTarget.indexOf(page)!==-1){item.classList.add('active')}})}
 navItems.forEach(item=>{item.addEventListener('click',function(e){const href=this.getAttribute('href');if(!href||href==='#'||href==='javascript:void(0)'){e.preventDefault();return}
 navItems.forEach(nav=>nav.classList.remove('active'));this.classList.add('active')})})}})
+
+function openStatModal(category, identifier) {
+    const modal = document.getElementById('statDetailModal');
+    const title = document.getElementById('statModalTitle');
+    const subtitle = document.getElementById('statModalSubtitle');
+    const list = document.getElementById('statModalList');
+
+    if(!modal) return;
+
+    title.textContent = category === 'user' ? 'User Files' : (category === 'public' ? 'Public Resources' : 'System Configuration');
+    subtitle.textContent = identifier;
+    list.innerHTML = '<tr><td colspan="3" class="text-center">Loading...</td></tr>';
+
+    modal.classList.add('show');
+
+    fetch('/API/admin/stat_details', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({category, identifier})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.status === 'success') {
+            renderStatFiles(data.files);
+        } else {
+            list.innerHTML = '<tr><td colspan="3" class="text-error">Error loading files</td></tr>';
+        }
+    });
+}
+
+function renderStatFiles(files) {
+    const list = document.getElementById('statModalList');
+    list.innerHTML = '';
+
+    if(files.length === 0) {
+        list.innerHTML = '<tr><td colspan="3" class="text-muted text-center">No files found</td></tr>';
+        return;
+    }
+
+    files.forEach(f => {
+        const sizeStr = (f.size / 1024).toFixed(1) + ' KB';
+        const deleteBtn = f.can_delete ?
+            `<button class="btn btn-danger btn-sm" onclick="deleteStatFile('${f.path_id}')">Delete</button>` :
+            '<span class="badge badge-info">Protected</span>';
+
+        const row = `
+            <tr>
+                <td>${f.name}</td>
+                <td>${sizeStr}</td>
+                <td>${deleteBtn}</td>
+            </tr>
+        `;
+        list.innerHTML += row;
+    });
+}
+
+function deleteStatFile(pathId) {
+    if(!confirm('Permanently delete this file?')) return;
+
+    fetch('/API/admin/stat_delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({path_id: pathId})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.status === 'success') {
+            const subtitle = document.getElementById('statModalSubtitle').textContent;
+            const category = subtitle === 'public' ? 'public' : 'user';
+            openStatModal(category, subtitle);
+        } else {
+            alert('Failed to delete file');
+        }
+    });
+}
+
+function closeStatModal() {
+    const modal = document.getElementById('statDetailModal');
+    if(modal) modal.classList.remove('show');
+}

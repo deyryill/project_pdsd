@@ -5,6 +5,45 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
+    <style>
+        .log-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        .log-line {
+            border-bottom: 1px solid #333;
+            padding: 4px 0;
+            display: flex;
+        }
+        .config-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--p-border-subtle);
+            border-radius: 4px;
+            background: var(--p-bg-surface-1);
+        }
+        .config-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--p-primary-main);
+            border-bottom: 1px solid var(--p-border-subtle);
+            padding-bottom: 5px;
+        }
+        .stat-table td { padding: 8px; border-bottom: 1px solid var(--p-border-subtle); }
+        .config-scroll-area {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div class="page-container">
@@ -13,16 +52,114 @@
             <div class="badge badge-sys">ADMIN</div>
         </div>
 
-        <div class="grid">
+        <div class="grid" style="margin-top: 20px;">
             <div class="card">
-                <h3>System Status</h3>
-                <div class="stat-number">{{ (db_usage / 1024) | round(2) }} KB</div>
-                <div class="stat-label">Database Size</div>
+                <h3>Database manager</h3>
+                <div class="stat-number">{{ stats.total_size }}</div>
+                <div class="stat-label">Total Database Size</div>
+
+                <div style="margin-top: 20px; max-height: 250px; overflow-y: auto;">
+                    <table class="data-table stat-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Files</th>
+                                <th>Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <tr onclick="openStatModal('config', 'system')" class="stat-row">
+                                <td><strong>System Config</strong></td>
+                                <td>-</td>
+                                <td>{{ stats.system_config }}</td>
+                            </tr>
+                            <tr onclick="openStatModal('public', 'public')" class="stat-row">
+                                <td><strong>Public Resources</strong></td>
+                                <td>{{ stats.public.count }}</td>
+                                <td>{{ stats.public.size }}</td>
+                            </tr>
+                            {% for u, data in stats.users.items() %}
+                            <tr onclick="openStatModal('user', '{{ u }}')" class="stat-row">
+                                <td>User: {{ u }}</td>
+                                <td>{{ data.count }}</td>
+                                <td>{{ data.size }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="card">
-                <h3>Configuration</h3>
-                <textarea id="sys-config" class="input" style="height:100px; font-family:monospace;">{{ config | tojson(indent=4) }}</textarea>
-                <button class="btn btn-primary btn-sm" onclick="saveSysConfig()" style="margin-top:10px;">Save Config</button>
+            <h3>Configuration</h3>
+            <div class="config-scroll-area">
+            <form id="configForm">
+                <div class="config-section">
+                    <div class="config-title">Server Settings</div>
+                    {% if level != -1 %}
+                    <div class="alert alert-info">These settings are read-only for your level.</div>
+                    {% endif %}
+                    <div class="grid-2" style="margin-bottom: 0;">
+                        <div>
+                            <label>Port</label>
+                            <input type="number" class="input" id="conf-server-port" value="{{ config.server.port }}" {% if level != -1 %}readonly style="opacity: 0.7; cursor: not-allowed;"{% endif %}>
+                        </div>
+                        <div>
+                            <label>Debug Mode</label>
+                            <select class="input" id="conf-server-debug" {% if level != -1 %}disabled style="opacity: 0.7; cursor: not-allowed;"{% endif %}>
+                                <option value="true" {% if config.server.debug_mode %}selected{% endif %}>True</option>
+                                <option value="false" {% if not config.server.debug_mode %}selected{% endif %}>False</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label>Default Session Timeout (Minutes)</label>
+                        <input type="number" class="input" id="conf-server-timeout" value="{{ config.server.get('session_timeout_minutes', 60) }}" min="1" max="10080" {% if level != -1 %}readonly style="opacity: 0.7; cursor: not-allowed;"{% endif %}>
+                        <small class="text">Max 10080 (7 days)</small>
+                    </div>
+                </div>
+
+                    <div class="config-section">
+                        <div class="config-title">Security</div>
+                        <label>Block Common Usernames</label>
+                        <input type="text" class="input" id="conf-sec-block" value="{{ config.security.block_common_usernames }}">
+
+                        <label style="margin-top: 10px;">Allowed Email Domains (Whitelist)</label>
+                        <input type="text" class="input" id="conf-sec-allow" value="{{ config.security.get('allowed_email_domains', '') }}" placeholder="e.g. unikom, duck.com">
+                        <small class="text">Leave empty to allow all. Comma separated.</small>
+                        <br>
+                        <label style="margin-top: 10px;">Blocked Email Domains (Blacklist)</label>
+                        <input type="text" class="input" id="conf-sec-deny" value="{{ config.security.get('blocked_email_domains', '') }}" placeholder="e.g. tempmail.com">
+                    </div>
+
+                    <div class="config-section">
+                        <div class="config-title">Mail Settings (Superuser Only)</div>
+                        {% if level != -1 %}
+                        <div class="alert alert-info">These settings are read-only for your level.</div>
+                        {% endif %}
+                        <div class="grid-2">
+                            <div>
+                                <label>SMTP Host</label>
+                                <input type="text" class="input" id="conf-mail-host" value="{{ config.mail.get('host', '') }}" {% if level != -1 %}readonly style="opacity: 0.7; cursor: not-allowed;"{% endif %}>
+                            </div>
+                            <div>
+                                <label>SMTP Port</label>
+                                <input type="number" class="input" id="conf-mail-port" value="{{ config.mail.get('port', 465) }}" {% if level != -1 %}readonly style="opacity: 0.7; cursor: not-allowed;"{% endif %}>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div>
+                                <label>Email User</label>
+                                <input type="text" class="input" id="conf-mail-user" value="{{ config.mail.get('user', '') }}" {% if level != -1 %}readonly style="opacity: 0.7; cursor: not-allowed;"{% endif %}>
+                            </div>
+                            <div>
+                                <label>Email Password</label>
+                                <input type="password" class="input" id="conf-mail-pass" value="{{ config.mail.get('pass', '') }}" {% if level != -1 %}readonly style="opacity: 0.7; cursor: not-allowed;"{% endif %}>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="saveNewConfig()">Save Configuration</button>
             </div>
         </div>
 
@@ -34,7 +171,7 @@
                     <input type="email" id="new-user-email" class="input" placeholder="Email" style="flex:1;">
                     <input type="password" id="new-user-pass" class="input" placeholder="Password" style="flex:1;">
                     <select id="new-user-level" class="input" style="width: auto;">
-                        <option value="0">Guest (0)</option>
+                        <option value="0">Banned (0)</option>
                         <option value="1">User (1)</option>
                         <option value="2">Admin (2)</option>
                     </select>
@@ -42,71 +179,113 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
                 <input type="text" id="user-search" class="input" placeholder="Search users..." onkeyup="filterUsers()" style="flex:2;">
                 <select id="level-filter" class="input" onchange="filterUsers()" style="flex:1;">
                     <option value="">All Levels</option>
-                    <option value="0">Level 0</option>
-                    <option value="1">Level 1</option>
-                    <option value="2">Level 2</option>
+                    <option value="0">Banned</option>
+                    <option value="1">User</option>
+                    <option value="2">Admin</option>
+                    <option value="-1">Superuser (ROOT)</option>
                 </select>
             </div>
 
             <div style="margin-bottom: 15px; display: flex; gap: 10px;">
                 <button class="btn btn-danger btn-sm" onclick="batchDelete()">Delete Selected</button>
-                <button class="btn btn-secondary btn-sm" onclick="batchSetLevel(0)">Set Guest</button>
+                <button class="btn btn-warning btn-sm" onclick="batchSetLevel(0)">Set Banned</button>
                 <button class="btn btn-secondary btn-sm" onclick="batchSetLevel(1)">Set User</button>
                 <button class="btn btn-secondary btn-sm" onclick="batchSetLevel(2)">Set Admin</button>
             </div>
 
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;"><input type="checkbox" id="master-select" onclick="toggleAll(this)"></th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Level</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u, data in users_list.items() %}
-                    <tr class="user-row">
-                        <td><input type="checkbox" class="user-checkbox" value="{{ u }}"></td>
-                        <td class="user-name"><strong>{{ u }}</strong></td>
-                        <td class="user-email">{{ data.email }}</td>
-                        <td class="user-level"><span class="badge badge-info">{{ data.level }}</span></td>
-                        <td><a href="user_settings.html?edit_user={{ u }}&content=1" class="btn btn-secondary btn-sm">Edit</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;"><input type="checkbox" id="master-select" onclick="toggleAll(this)"></th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Privilege</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u, data in users_list.items() %}
+                        <tr class="user-row">
+                            <td>
+                                {% if data.level != -1 and u != username %}
+                                <input type="checkbox" class="user-checkbox" value="{{ u }}">
+                                {% endif %}
+                            </td>
+                            <td class="user-name"><strong>{{ u }}</strong></td>
+                            <td class="user-email">{{ data.email }}</td>
+                            <td class="user-level">
+                                {% if data.level == -1 %}
+                                    <span class="badge badge-error">ROOT</span>
+                                {% elif data.level == 0 %}
+                                    <span class="badge badge-warning">BANNED</span>
+                                {% elif data.level == 1 %}
+                                    <span class="badge badge-info">USER</span>
+                                {% elif data.level == 2 %}
+                                    <span class="badge badge-success">ADMIN</span>
+                                {% else %}
+                                    <span class="badge badge-info">{{ data.level }}</span>
+                                {% endif %}
+                                <span style="display:none;">{{ data.level }}</span>
+                            </td>
+                            <td>
+                                {% if data.level != -1 or level == -1 %}
+                                <a href="user_settings.html?edit_user={{ u }}&content=1" class="btn btn-secondary btn-sm">Edit</a>
+                                {% else %}
+                                <span class="text-muted">Protected</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="grid">
+        <div class="grid" style="margin-top: 20px;">
             <div class="card">
                 <h3>Themes</h3>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                     <input type="file" id="theme-upload" accept=".css" class="input">
                     <button class="btn btn-primary btn-sm" onclick="uploadTheme()">Upload</button>
                 </div>
-                <ul class="theme-select-list">
-                    {% for t in themes %}
-                    <li class="theme-option">
-                        <span>{{ t }}.css</span>
-                        {% if t != 'default' %}
-                        <button class="btn btn-danger btn-sm" onclick="deleteTheme('{{ t }}')">Delete</button>
-                        {% endif %}
-                    </li>
-                    {% endfor %}
-                </ul>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in themes %}
+                            <tr>
+                                <td>{{ t }}.css</td>
+                                <td>
+                                    {% if t != 'default' %}
+                                    <button class="btn btn-danger btn-sm" onclick="deleteTheme('{{ t }}')">Delete</button>
+                                    {% else %}
+                                    <span class="badge badge-info">System</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="card">
                 <h3>System Logs</h3>
-                <div id="log-container">
+                <div class="log-box">
                     {% if logs %}
                         {% for log in logs %}
-                        <div class="log-entry">{{ log }}</div>
+                        <div class="log-line">
+                            <span style="width: 100%;">{{ log }}</span>
+                        </div>
                         {% endfor %}
                     {% else %}
                         <div class="text-muted">No logs available.</div>
@@ -115,5 +294,84 @@
             </div>
         </div>
     </div>
+
+    <div id="statDetailModal" class="modal-wrapper">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="statModalTitle">File Details</h3>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between;">
+                <span id="statModalSubtitle" class="text-muted"></span>
+                <button class="btn btn-secondary btn-sm" onclick="closeStatModal()">Close</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Size</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="statModalList">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
+<script>
+    function saveNewConfig() {
+        const config = {
+            server: {
+                port: parseInt(document.getElementById('conf-server-port').value),
+                debug_mode: document.getElementById('conf-server-debug').value,
+                session_timeout_minutes: parseInt(document.getElementById('conf-server-timeout').value)
+            },
+            security: {
+                block_common_usernames: document.getElementById('conf-sec-block').value,
+                allowed_email_domains: document.getElementById('conf-sec-allow').value,
+                blocked_emails: document.getElementById('conf-sec-deny').value
+            },
+            mail: {}
+        };
+
+        const mailHost = document.getElementById('conf-mail-host');
+        if (mailHost) {
+            config.mail = {
+                host: mailHost.value,
+                port: parseInt(document.getElementById('conf-mail-port').value),
+                user: document.getElementById('conf-mail-user').value,
+                pass: document.getElementById('conf-mail-pass').value
+            };
+        }
+
+        fetch('/API/admin/save_config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(config)
+        }).then(() => alert('Configuration Saved'));
+    }
+
+    function batchSetLevel(lvl) {
+        const users = getSelectedUsers();
+        if (!users.length) return alert('Select users first');
+
+        const currentUser = "{{ username }}";
+        if(users.includes(currentUser)) {
+            alert("You cannot modify your own privilege level.");
+            return;
+        }
+
+        let actionName = lvl == 0 ? "BAN" : (lvl == 1 ? "SET USER" : "SET ADMIN");
+        if (confirm(`${actionName} ${users.length} users?`)) {
+            fetch('/API/admin/batch_level', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({users, level: lvl})
+            }).then(() => location.reload());
+        }
+    }
+</script>

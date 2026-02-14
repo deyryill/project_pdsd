@@ -47,7 +47,7 @@ class man_system:
                 elif "=" in line and current_section:
                     k, v = line.split("=", 1)
                     val = v.strip()
-                    if val.isdigit():
+                    if val.lstrip('-').isdigit():
                         val = int(val)
                     elif val.lower() == "true":
                         val = True
@@ -67,13 +67,21 @@ class man_system:
     def master_init(self):
         if not self.system_conf_path.exists():
             default_config = {
-                "security": {"block_common_usernames": "root,system"},
-                "server": {"port": 5000, "debug_mode": "false"}
+                "security": {
+                    "block_common_usernames": "root,system,admin",
+                    "allowed_email_domains": "unikom,duck.com",
+                    "blocked_emails": ""
+                },
+                "server": {
+                    "port": 5000,
+                    "debug_mode": "false",
+                    "session_timeout_minutes": 60
+                }
             }
             self.save_sysriot(self.system_conf_path, default_config)
         if not list(self.dir_db.glob("*.sysriot")):
             defaults = {
-                "admin": {"info": {"password": "admin", "level": 2, "theme": "default", "email": ""}},
+                "admin": {"info": {"password": "Perkumpulan@adminbersama007", "level": 2, "theme": "default", "email": ""}},
             }
             for u, cfg in defaults.items():
                 self.save_sysriot(self.dir_db / f"{u}.sysriot", cfg)
@@ -177,7 +185,6 @@ class webserver:
             return False
 
 
-
     def render_page(self, template_name, use_frame=True, **kwargs):
         users = self.sys_man.load_users()
         current_theme = 'default'
@@ -203,6 +210,7 @@ class webserver:
     def create_session(self, username, level):
         session['username'] = username
         session['level'] = int(level)
+        session['login_time'] = time.time()
         token = secrets.token_hex(16)
         session['token'] = token
         self.active_sessions[username] = token
@@ -218,6 +226,14 @@ class webserver:
                 if c_user not in self.active_sessions or self.active_sessions[c_user] != c_token:
                     session.clear()
                     return redirect(url_for('index_route'))
+                config = self.sys_man.load_config()
+                timeout_minutes = int(config.get('server', {}).get('session_timeout_minutes', 60))
+                login_time = session.get('login_time', 0)
+                if time.time() - login_time > (timeout_minutes * 60):
+                    if c_user in self.active_sessions:
+                        del self.active_sessions[c_user]
+                    session.clear()
+                    return redirect(url_for('index_route', content=1, notify_title="Session Expired", notify_msg="Your session has expired."))
 
         @self.app.route('/', methods=['GET', 'POST'])
         @self.app.route('/index.html', methods=['GET', 'POST'])
@@ -242,7 +258,6 @@ class webserver:
             if mode == 'verify':
                 reg_id = session.get('reg_id')
                 otp_data = None
-
                 if reg_id:
                     otp_data = self.pending_registrations.get(reg_id)
                 else:
@@ -264,24 +279,39 @@ class webserver:
                     remaining = max(0, int(300 - elapsed))
             if request.method == 'POST':
                 action = request.form.get('action')
-
                 if action == 'login':
                     username = request.form.get('username')
                     password = request.form.get('password')
                     users = self.sys_man.load_users()
-                    if username in users and str(users[username]['password']) == str(password):
-                        if users[username].get('2fa', True):
-                            otp_code = secrets.token_hex(3).upper()
-                            session['pending_2fa'] = True
-                            session['temp_user'] = username
-                            session['active_otp_data'] = {"otp": otp_code, "time": time.time(), "type": "2fa", "email": users[username].get('email')}
-                            threading.Thread(target=self.send_otp, args=(users[username]['email'], otp_code)).start()
-                            return redirect(url_for('index_route'))
-                        self.create_session(username, users[username].get('level', 0))
-                        return redirect(url_for('home'))
-                    error = "Invalid Credentials"
-                    mode = 'login'
+                    if username in users:
+                        u_level = users[username].get('level', 0)
+                        conf_sec = self.sys_man.load_config().get('security', {})
+                        blocked_emails = [e.strip().lower() for e in conf_sec.get('blocked_emails', '').split(',') if e.strip()]
+                        user_email = users[username].get('email', '').lower()
 
+                        if user_email in blocked_emails and u_level != 0 and u_level != -1:
+                            users[username]['level'] = 0
+                            self.sys_man.save_sysriot(self.sys_man.dir_db / f"{username}.sysriot", {"info": users[username]})
+                            u_level = 0
+                            self.sys_man.write_log("SYSTEM", "auto_ban", f"Banned user {username} (Blocked Email)")
+
+                        if u_level == 0 and username != 'admin':
+                            error = "Account Banned"
+                        elif str(users[username]['password']) == str(password):
+                            if users[username].get('2fa', True):
+                                otp_code = secrets.token_hex(3).upper()
+                                session['pending_2fa'] = True
+                                session['temp_user'] = username
+                                session['active_otp_data'] = {"otp": otp_code, "time": time.time(), "type": "2fa", "email": users[username].get('email')}
+                                threading.Thread(target=self.send_otp, args=(users[username]['email'], otp_code)).start()
+                                return redirect(url_for('index_route'))
+                            self.create_session(username, u_level)
+                            return redirect(url_for('home'))
+                        else:
+                            error = "Invalid Credentials"
+                    else:
+                        error = "Invalid Credentials"
+                    mode = 'login'
                 elif action == 'signup':
                     username = request.form.get('username', '').strip()
                     email = request.form.get('email', '').strip()
@@ -289,13 +319,27 @@ class webserver:
                     confirm = request.form.get('confirm_password')
                     agree = request.form.get('agree')
                     users = self.sys_man.load_users()
-                    domain = email.split('@')[1] if '@' in email else ''
+                    conf_sec = self.sys_man.load_config().get('security', {})
+                    allowed_domains = [d.strip().lower() for d in conf_sec.get('allowed_email_domains', '').split(',') if d.strip()]
+                    blocked_emails = [e.strip().lower() for e in conf_sec.get('blocked_emails', '').split(',') if e.strip()]
+                    domain = email.split('@')[1].lower() if '@' in email else ''
+                    domain_allowed = False
+                    if not allowed_domains:
+                        domain_allowed = True
+                    else:
+                        for d in allowed_domains:
+                            if d in domain:
+                                domain_allowed = True
+                                break
+
                     if not agree:
                         error = "You must agree to the Terms & Conditions"
                     elif password != confirm:
                         error = "Passwords do not match"
-                    elif 'unikom' not in domain.lower() and 'duck.com' not in domain.lower():
-                        error = "Email domain not allowed (unikom or duck.com only)"
+                    elif not domain_allowed:
+                        error = "Email domain not allowed by system policy"
+                    elif email.lower() in blocked_emails:
+                        error = "This email address is banned"
                     elif any(u.get('email') == email for u in users.values()):
                         error = "Email already linked"
                     elif (self.sys_man.dir_db / f"{username}.sysriot").exists():
@@ -308,7 +352,6 @@ class webserver:
                         threading.Thread(target=self.send_otp, args=(email, otp_code)).start()
                         return redirect(url_for('index_route'))
                     mode = 'signup'
-
                 elif action == 'verify':
                     user_input = request.form.get('otp', '').upper()
                     reg_id = session.get('reg_id')
@@ -463,7 +506,8 @@ class webserver:
             target_index_path = index_path
 
             if data_id not in index_data:
-                if session.get('level', 0) >= 2:
+                user_level = session.get('level', 0)
+                if user_level == 2 or user_level == -1:
                     index_data = self.sys_man.parse_sysriot(public_index_path)
                     if data_id in index_data:
                         target_path = public_path
@@ -517,7 +561,8 @@ class webserver:
             target_index_path = index_path
 
             if data_id not in index_data:
-                if session.get('level', 0) >= 2:
+                user_level = session.get('level', 0)
+                if user_level == 2 or user_level == -1:
                     index_data = self.sys_man.parse_sysriot(public_index_path)
                     if data_id in index_data:
                         target_path = public_path
@@ -651,8 +696,15 @@ class webserver:
                 return redirect(url_for('index_route'))
             users = self.sys_man.load_users()
             target_user = request.args.get('edit_user', session['username'])
-            if session.get('level') < 2:
-                target_user = session['username']
+            user_level = session.get('level', 0)
+
+            if user_level != -1:
+                target_level = users.get(target_user, {}).get('level', 0)
+                if user_level != 2:
+                    target_user = session['username']
+                elif target_level == -1:
+                    return redirect(url_for('admin_settings', content=1))
+
             if request.method == 'POST':
                 new_username = request.form.get('new_username', '').strip().lower()
                 new_email = request.form.get('email', '').strip().lower()
@@ -682,7 +734,9 @@ class webserver:
         def admin_settings():
             if 'username' not in session:
                 return redirect(url_for('index_route'))
-            if session.get('level', 0) < 2:
+
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return "Unauthorized", 403
             logs = []
             log_path = self.sys_man.system_dir / "logs.sysriot"
@@ -690,11 +744,59 @@ class webserver:
                 with open(log_path, "r") as f:
                     logs = [line.strip() for line in f.readlines()[-50:]]
             themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
-            return self.render_page('admin_settings.html', use_frame=True, users_list=self.sys_man.load_users(), themes=themes, logs=logs)
+
+            users_list = self.sys_man.load_users()
+            stats = {"users": {}, "public": {"count": 0, "size": "0 B", "raw_size": 0}, "total_size": "0 B", "system_config": "0 B"}
+
+            def format_size(size):
+                if not isinstance(size, (int, float)):
+                    return str(size)
+                for unit in ['B', 'KB', 'MB', 'GB']:
+                    if size < 1024:
+                        return f"{size:.2f} {unit}"
+                    size /= 1024
+                return f"{size:.2f} TB"
+
+            total_system_bytes = 0
+
+            sys_conf_size = 0
+            for f in self.sys_man.system_dir.rglob('*'):
+                if f.is_file():
+                    sys_conf_size += f.stat().st_size
+            stats["system_config"] = format_size(sys_conf_size)
+            total_system_bytes += sys_conf_size
+
+            for item in self.sys_man.dir_db.iterdir():
+                if item.is_dir():
+                    folder_size = 0
+                    file_count = 0
+                    for f in item.rglob('*'):
+                        if f.is_file():
+                            folder_size += f.stat().st_size
+                            file_count += 1
+
+                    if item.name == "public":
+                        stats["public"] = {"count": file_count, "size": format_size(folder_size), "raw_size": folder_size}
+                        total_system_bytes += folder_size
+                    elif item.name in users_list:
+                        stats["users"][item.name] = {"count": file_count, "size": format_size(folder_size), "raw_size": folder_size}
+                        total_system_bytes += folder_size
+
+            stats["total_size"] = format_size(total_system_bytes)
+
+            return self.render_page(
+                'admin_settings.html',
+                use_frame=True,
+                users_list=users_list,
+                themes=themes,
+                logs=logs,
+                stats=stats
+            )
 
         @self.app.route('/API/admin/system_status', methods=['GET'])
         def api_system_status():
-            if session.get('level', 0) < 2:
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
             files = []
             for path in self.sys_man.dir_root.rglob('*'):
@@ -707,7 +809,8 @@ class webserver:
 
         @self.app.route('/API/admin/create_user', methods=['POST'])
         def api_create_user():
-            if session.get('level', 0) < 2:
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
             data = request.json
             username = data.get('username', '').lower().strip()
@@ -725,21 +828,33 @@ class webserver:
 
         @self.app.route('/API/admin/save_config', methods=['POST'])
         def api_save_config():
-            if session.get('level', 0) < 2: 
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
-            self.sys_man.save_config(request.json)
+            new_config = request.json
+            current_config = self.sys_man.load_config()
+            if user_level != -1:
+                if 'mail' in new_config:
+                    del new_config['mail']
+                if 'server' in new_config:
+                    new_config['server'] = current_config.get('server', {})
+            self.sys_man.save_config(new_config)
             self.sys_man.write_log(session['username'], "config_update", "Config changed")
             return jsonify({"status": "success"})
-
         @self.app.route('/API/admin/batch_delete', methods=['POST'])
         def api_batch_delete():
-            if session.get('level', 0) < 2:
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
             usernames = request.json.get('users', [])
             current_admin = session.get('username')
             deleted = []
+            users = self.sys_man.load_users()
             for u in usernames:
                 if u == current_admin or u == 'admin':
+                    continue
+                target_level = users.get(u, {}).get('level', 0)
+                if target_level == -1:
                     continue
                 u_path = self.sys_man.dir_db / f"{u}.sysriot"
                 if u_path.exists():
@@ -751,7 +866,8 @@ class webserver:
 
         @self.app.route('/API/admin/batch_level', methods=['POST'])
         def api_batch_level():
-            if session.get('level', 0) < 2:
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
             usernames = request.json.get('users', [])
             new_level = request.json.get('level')
@@ -760,7 +876,12 @@ class webserver:
             users = self.sys_man.load_users()
             updated = []
             for u in usernames:
+                if u == session['username']:
+                    continue
                 if u in users:
+                    target_level = users[u].get('level', 0)
+                    if target_level == -1:
+                        continue
                     users[u]['level'] = int(new_level)
                     self.sys_man.save_sysriot(self.sys_man.dir_db / f"{u}.sysriot", {"info": users[u]})
                     updated.append(u)
@@ -770,7 +891,8 @@ class webserver:
 
         @self.app.route('/API/admin/upload_theme', methods=['POST'])
         def api_upload_theme():
-            if session.get('level', 0) < 2:
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
             file = request.files.get('theme_file')
             if file and file.filename.endswith('.css'):
@@ -779,9 +901,58 @@ class webserver:
                 return jsonify({"status": "success"})
             return jsonify({"status": "error"}), 400
 
+        @self.app.route('/API/admin/stat_details', methods=['POST'])
+        def api_stat_details():
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
+                return jsonify({"status": "error"}), 403
+            category = request.json.get('category')
+            identifier = request.json.get('identifier')
+            files = []
+            target_path = None
+            if category == 'config':
+                target_path = self.sys_man.system_dir
+            elif category == 'public':
+                target_path = self.sys_man.dir_db / "public"
+            elif category == 'user':
+                target_path = self.sys_man.dir_db / identifier
+            if target_path and target_path.exists() and target_path.is_dir():
+                for f in target_path.iterdir():
+                    if f.is_file():
+                        can_delete = True
+                        if category == 'config' or f.name == 'indexing.sysriot':
+                            can_delete = False
+                        files.append({
+                            "name": f.name,
+                            "size": f.stat().st_size,
+                            "can_delete": can_delete,
+                            "path_id": str(f.relative_to(self.sys_man.dir_db)) if category != 'config' else ''
+                        })
+            return jsonify({"status": "success", "files": files})
+
+        @self.app.route('/API/admin/stat_delete', methods=['POST'])
+        def api_stat_delete():
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
+                return jsonify({"status": "error"}), 403
+            path_id = request.json.get('path_id')
+            if not path_id:
+                return jsonify({"status": "error"}), 400
+            file_path = self.sys_man.dir_db / path_id
+            try:
+                file_path.relative_to(self.sys_man.dir_db)
+            except ValueError:
+                return jsonify({"status": "error"}), 403
+            if file_path.exists() and file_path.name != "indexing.sysriot":
+                os.remove(file_path)
+                self.sys_man.write_log(session['username'], "stat_delete", f"Deleted: {path_id}")
+                return jsonify({"status": "success"})
+            return jsonify({"status": "error"}), 400
+
         @self.app.route('/API/admin/delete_theme', methods=['POST'])
         def api_delete_theme():
-            if session.get('level', 0) < 2:
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
                 return jsonify({"status": "error"}), 403
             theme_name = request.json.get('theme')
             if theme_name and theme_name != 'default':
