@@ -1,20 +1,20 @@
 :root {
     /* BACKGROUND */
     --p-bg-app: #000000;
-    --p-bg-surface-1: radial-gradient(circle,rgba(51, 232, 126, 1) 0%, rgba(28, 115, 214, 1) 100%);
+    --p-bg-surface-1: radial-gradient(circle,rgba(230, 204, 67) 0%, rgba(6, 40, 79) 100%);
     --p-bg-surface-2: #1a1a1a;
     --p-bg-surface-3: #222222;
     --p-bg-surface-4: #2a2a2a;
     --p-bg-surface-alt: #151515;
-    --p-bg-input: #050505;
-    --p-bg-input-focus: #111111;
+    --p-bg-input: #ffffff;
+    --p-bg-input-focus: #ffffff;
     --p-bg-overlay: rgba(0,0,0,0.9);
     --p-bg-tooltip: #0a0a0a;
 
     /* BORDER */
     --p-border-subtle: #333333;
     --p-border-main: #444444;
-    --p-border-strong: #76b900;
+    --p-border-strong: #e1d465;
     --p-border-focus: #8edb00;
     --p-border-inverse: #ffffff;
 
@@ -22,24 +22,24 @@
     --p-text-main: #ffffff;
     --p-text-muted: #999999;
     --p-text-disabled: #555555;
-    --p-text-inverse: #000000;
-    --p-text-link: #76b900;
+    --p-text-inverse: #ffffff;
+    --p-text-link: #e1d465;
     --p-text-link-hover: #8edb00;
 
     /* PRIMARY */
-    --p-primary-main: #76b900;
+    --p-primary-main: #e1d465;
     --p-primary-hover: #5e9400;
     --p-primary-active: #4a7500;
     --p-primary-subtle: rgba(118,185,0,0.15);
-    --p-primary-text: #000000;
-    --p-primary-border: #76b900;
+    --p-primary-text: #ffffff;
+    --p-primary-border: #e1d45;
 
     /* PRIMARY ALT */
     --p-primary-alt-main: #8edb00;
-    --p-primary-alt-hover: #76b900;
+    --p-primary-alt-hover: #e1d465;
     --p-primary-alt-active: #5e9400;
     --p-primary-alt-subtle: rgba(142,219,0,0.15);
-    --p-primary-alt-text: #000000;
+    --p-primary-alt-text: #ffffff;
     --p-primary-alt-border: #8edb00;
 
     /* PRIMARY DEEP */
@@ -55,7 +55,7 @@
     --p-secondary-hover: #e0e0e0;
     --p-secondary-active: #cccccc;
     --p-secondary-subtle: rgba(255,255,255,0.1);
-    --p-secondary-text: #000000;
+    --p-secondary-text: #ffffff;
     --p-secondary-border: #ffffff;
 
     /* SECONDARY ALT */
@@ -82,29 +82,29 @@
     --p-status-error-text: #ffffff;
     --p-status-error-border: #ff3333;
 
-    --p-status-success-main: #76b900;
+    --p-status-success-main: #e1d465;
     --p-status-success-hover: #5e9400;
     --p-status-success-active: #4a7500;
     --p-status-success-bg: rgba(118,185,0,0.1);
-    --p-status-success-text: #000000;
+    --p-status-success-text: #ffffff;
     --p-status-success-border: #76b900;
 
     --p-status-warning-main: #ffcc00;
     --p-status-warning-hover: #e6b800;
     --p-status-warning-active: #cc9900;
     --p-status-warning-bg: rgba(255,204,0,0.1);
-    --p-status-warning-text: #000000;
+    --p-status-warning-text: #ffffff;
     --p-status-warning-border: #ffcc00;
 
     --p-status-info-main: #00aeff;
     --p-status-info-hover: #0096db;
     --p-status-info-active: #007bb5;
     --p-status-info-bg: rgba(0,174,255,0.1);
-    --p-status-info-text: #000000;
+    --p-status-info-text: #ffffff;
     --p-status-info-border: #00aeff;
 
     /* STAT */
-    --p-stat-1: #76b900;
+    --p-stat-1: #e1d465;
     --p-stat-2: #00aeff;
     --p-stat-3: #ffcc00;
     --p-stat-4: #ff3333;

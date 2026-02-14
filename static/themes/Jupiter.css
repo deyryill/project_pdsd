@@ -1,7 +1,7 @@
 :root {
     /* BACKGROUND */
     --p-bg-app: #000000;
-    --p-bg-surface-1: radial-gradient(circle,rgba(255, 204, 223) 0%, rgba(193, 118, 255) 100%);
+    --p-bg-surface-1: radial-gradient(circle,rgba(213, 157, 97) 0%, rgba(85, 58, 7) 100%);
     --p-bg-surface-2: #1a1a1a;
     --p-bg-surface-3: #222222;
     --p-bg-surface-4: #2a2a2a;
@@ -14,8 +14,8 @@
     /* BORDER */
     --p-border-subtle: #333333;
     --p-border-main: #444444;
-    --p-border-strong: #ffa4d3;
-    --p-border-focus: #9963d9;
+    --p-border-strong: #E27F33;
+    --p-border-focus: #E27F34;
     --p-border-inverse: #ffffff;
 
     /* TEXT */
@@ -23,24 +23,24 @@
     --p-text-muted: #999999;
     --p-text-disabled: #555555;
     --p-text-inverse: #000000;
-    --p-text-link: #ffa4d3;
-    --p-text-link-hover: #9963d9;
+    --p-text-link: #E27F35;
+    --p-text-link-hover: #d9c100;
 
     /* PRIMARY */
-    --p-primary-main: #ffa4d3;
+    --p-primary-main: #E27F35;
     --p-primary-hover: #5e9400;
     --p-primary-active: #4a7500;
     --p-primary-subtle: rgba(118,185,0,0.15);
     --p-primary-text: #000000;
-    --p-primary-border: #ffa4d3;
+    --p-primary-border: #E27F35;
 
     /* PRIMARY ALT */
-    --p-primary-alt-main: #9963d9;
-    --p-primary-alt-hover: #ffa4d3;
+    --p-primary-alt-main: #d9c100;
+    --p-primary-alt-hover: #E27F35;
     --p-primary-alt-active: #5e9400;
     --p-primary-alt-subtle: rgba(142,219,0,0.15);
     --p-primary-alt-text: #000000;
-    --p-primary-alt-border: #9963d9;
+    --p-primary-alt-border: #8edb00;
 
     /* PRIMARY DEEP */
     --p-primary-deep-main: #4a7500;
@@ -82,12 +82,12 @@
     --p-status-error-text: #ffffff;
     --p-status-error-border: #ff3333;
 
-    --p-status-success-main: #ffa4d3;
+    --p-status-success-main: #E27F35;
     --p-status-success-hover: #5e9400;
     --p-status-success-active: #4a7500;
     --p-status-success-bg: rgba(118,185,0,0.1);
     --p-status-success-text: #000000;
-    --p-status-success-border: #ffa4d3;
+    --p-status-success-border: #76b900;
 
     --p-status-warning-main: #ffcc00;
     --p-status-warning-hover: #e6b800;
@@ -104,7 +104,7 @@
     --p-status-info-border: #00aeff;
 
     /* STAT */
-    --p-stat-1: #ffa4d3;
+    --p-stat-1: #E27F35;
     --p-stat-2: #00aeff;
     --p-stat-3: #ffcc00;
     --p-stat-4: #ff3333;

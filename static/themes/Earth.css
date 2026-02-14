@@ -1,21 +1,17 @@
 :root {
     /* BACKGROUND */
     --p-bg-app: #000000;
-    --p-bg-surface-1: radial-gradient(circle,rgba(51, 232, 126, 1) 0%, rgba(28, 115, 214, 1) 100%);
-    --p-bg-surface-2: #1a1a1a;
-    --p-bg-surface-3: #222222;
-    --p-bg-surface-4: #2a2a2a;
-    --p-bg-surface-alt: #151515;
+    --p-bg-surface-1: radial-gradient(circle,rgba(40, 108, 168) 0%, rgba(17, 100, 65) 100%);
     --p-bg-input: #050505;
     --p-bg-input-focus: #111111;
     --p-bg-overlay: rgba(0,0,0,0.9);
     --p-bg-tooltip: #0a0a0a;
 
     /* BORDER */
-    --p-border-subtle: #333333;
+    --p-border-subtle: #616852;
     --p-border-main: #444444;
-    --p-border-strong: #76b900;
-    --p-border-focus: #8edb00;
+    --p-border-strong: #a99041;
+    --p-border-focus: #465b20;
     --p-border-inverse: #ffffff;
 
     /* TEXT */
@@ -23,24 +19,24 @@
     --p-text-muted: #999999;
     --p-text-disabled: #555555;
     --p-text-inverse: #000000;
-    --p-text-link: #76b900;
-    --p-text-link-hover: #8edb00;
+    --p-text-link: #a99041;
+    --p-text-link-hover: #465b20;
 
     /* PRIMARY */
-    --p-primary-main: #76b900;
+    --p-primary-main: #a99041;
     --p-primary-hover: #5e9400;
     --p-primary-active: #4a7500;
     --p-primary-subtle: rgba(118,185,0,0.15);
     --p-primary-text: #000000;
-    --p-primary-border: #76b900;
+    --p-primary-border: #798f6f;
 
     /* PRIMARY ALT */
-    --p-primary-alt-main: #8edb00;
-    --p-primary-alt-hover: #76b900;
+    --p-primary-alt-main: #465b20;
+    --p-primary-alt-hover: #798f6f;
     --p-primary-alt-active: #5e9400;
     --p-primary-alt-subtle: rgba(142,219,0,0.15);
     --p-primary-alt-text: #000000;
-    --p-primary-alt-border: #8edb00;
+    --p-primary-alt-border: #465b20;
 
     /* PRIMARY DEEP */
     --p-primary-deep-main: #4a7500;
@@ -82,7 +78,7 @@
     --p-status-error-text: #ffffff;
     --p-status-error-border: #ff3333;
 
-    --p-status-success-main: #76b900;
+    --p-status-success-main: #a99041;
     --p-status-success-hover: #5e9400;
     --p-status-success-active: #4a7500;
     --p-status-success-bg: rgba(118,185,0,0.1);

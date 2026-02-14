@@ -1,39 +1,39 @@
 :root {
     /* BACKGROUNDS - NEON EXTREMES */
-    --p-bg-app: #ff00ff;                 /* Magenta */
-    --p-bg-surface-1: #00ff00;           /* Lime Green */
-    --p-bg-surface-2: #0000ff;           /* Electric Blue */
+    --p-bg-app: #2051ae;                 /* Magenta */
+    --p-bg-surface-1: #0087ffb0;           /* Lime Green */
+    --p-bg-surface-2: #161655;           /* Electric Blue */
     --p-bg-surface-3: #ffff00;           /* Bright Yellow */
-    --p-bg-surface-4: #ff4242;           /* Pure Red */
+    --p-bg-surface-4: #ff0000;           /* Pure Red */
     --p-bg-surface-alt: #00ffff;         /* Cyan */
 
-    --p-bg-input: #ffffff;               /* Pure White */
+    --p-bg-input: #000;               /* Pure White */
     --p-bg-input-focus: #000000;         /* Pure Black */
     --p-bg-overlay: rgba(255, 165, 0, 0.9); /* Bright Orange */
     --p-bg-tooltip: #4b0082;             /* Indigo */
 
     /* BORDERS - HIGH CONTRAST PASTELS */
-    --p-border-subtle: #ffc0cb;          /* Pink */
+    --p-border-subtle: #75f9ff;          /* Pink */
     --p-border-main: #adff2f;            /* Green Yellow */
     --p-border-strong: #ff4500;          /* Orange Red */
     --p-border-focus: #1e90ff;           /* Dodger Blue */
     --p-border-inverse: rgba(255, 255, 255, 1);
 
     /* TEXT - SHARP DARK/LIGHT */
-    --p-text-main: #006400;              /* Dark Green */
-    --p-text-muted: #8b0000;             /* Dark Red */
+    --p-text-main: #1edbee;              /* Dark Green */
+    --p-text-muted: #008080;             /* Dark Red */
     --p-text-disabled: #555555;
     --p-text-inverse: #ffffff;
-    --p-text-link: #ff00ff;              /* Magenta Link */
-    --p-text-link-hover: #00ff00;
+    --p-text-link: #2051ae;              /* Magenta Link */
+    --p-text-link-hover: #224484;
 
     /* PRIMARY BRAND - PURPLE FAMILY */
-    --p-primary-main: #800080;
+    --p-primary-main: #3286d0;
     --p-primary-hover: #9932cc;
     --p-primary-active: #4b0082;
     --p-primary-subtle: rgba(128, 0, 128, 0.1);
     --p-primary-text: #ccff00;           /* Neon Lime Text */
-    --p-primary-border: #800080;
+    --p-primary-border: #3286d;
 
     /* PRIMARY ALT - TEAL FAMILY */
     --p-primary-alt-main: #008080;
@@ -83,12 +83,12 @@
     --p-status-error-text: #660000;
     --p-status-error-border: #ff0000;
 
-    --p-status-success-main: #00ff00;
+    --p-status-success-main: #224484;
     --p-status-success-hover: #00cc00;
     --p-status-success-active: #009900;
     --p-status-success-bg: #ccffcc;
     --p-status-success-text: #006600;
-    --p-status-success-border: #00ff00;
+    --p-status-success-border: #224484;
 
     --p-status-warning-main: #ffa500;
     --p-status-warning-hover: #cc8400;
@@ -105,13 +105,13 @@
     --p-status-info-border: #00ffff;
 
     /* STATS - RAINBOW SEPARATION */
-    --p-stat-1: #ff00ff;
-    --p-stat-2: #00ff00;
+    --p-stat-1: #2051ae;
+    --p-stat-2: #224484;
     --p-stat-3: #ffff00;
     --p-stat-4: #00ffff;
 
     /* EFFECT */
-    --p-effect-shadow: rgba(255, 0, 0, 0.5);   /* Red Shadows */
+    --p-effect-shadow: rgba(40, 170, 170, 0.5);   /* Red Shadows */
     --p-effect-shadow-lg: rgba(0, 255, 0, 0.5); /* Green Shadows */
     --p-effect-glow: rgba(0, 0, 255, 0.8);     /* Blue Glow */
     --p-effect-highlight: rgba(255, 255, 0, 0.5); /* Yellow Highlight */
