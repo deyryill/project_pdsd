@@ -1,122 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Visualisasi</title>
+    <title>Visualization</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='res/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='themes/' ~ theme ~ '.css') }}">
     <script src="{{ url_for('static', filename='res/core.js') }}"></script>
-    <style>
-    </style>
 </head>
-<body>
-    <div class="grid analysis-navbar">
-        <div class="flex">
-            <button class="btn btn-primary" style="margin: 0;">Apply</button>
-            <button class="btn btn-primary" style="margin: 0;">Reset</button>
-        </div>
-        <div>
+<body style="background: var(--p-bg-surface-1);">
+    <div class="analysis-navbar">
+        <div class="flex" style="gap: 10px;">
+            <button class="btn btn-primary-alt btn-sm">Apply</button>
+            <button class="btn btn-secondary btn-sm">Reset</button>
         </div>
     </div>
+
     <div class="page-container">
-        <div class="analysis-container">
-            <div class="card analysis-left">
-                Konfig
+        <div class="analysis-container" style="height: 600px;">
+            <div class="card analysis-left analysis-relative">
+                <h3 class="text-muted">Config</h3>
+                <div class="analysis-plot-area" id="config-output"></div>
             </div>
-            <div class="card analysis-right">
+            <div class="card analysis-right analysis-relative" style="display: flex; flex-direction: column;">
                 <search>
-                    <form class="flex">
-                        <input type="text" name="cari" placeholder="Cari..." style="width: 250px;">
-                        <button type="submit" class="btn btn-primary" style="width: fit-content;">Cari</button>
+                    <form class="flex" style="margin-bottom: 15px;">
+                        <input type="text" name="cari" placeholder="find database" style="width: 100%;" class="input-sm">
                     </form>
                 </search>
-                <div class="table-wrapper">
-                    <table class="data-table">
+                <div class="analysis-table-container" style="flex: 1; overflow-y: auto; border: 1px solid var(--p-border-subtle); margin-top: 0;">
+                    <table class="data-table" style="width: 100%; table-layout: fixed;">
                         <thead>
                             <tr>
-                                <th>Nama</th>
-                                <th>Pilih</th>
+                                <th style="width: 80%;">Name</th>
+                                <th style="width: 20%; text-align: center;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Nama</td>
-                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
-                            </tr>
-                            <tr>
-                                <td>Nama</td>
-                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
-                            </tr>
-                            <tr>
-                                <td>Nama</td>
-                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
-                            </tr>
-                            <tr>
-                                <td>Nama</td>
-                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
-                            </tr>
-                            <tr>
-                                <td>Nama</td>
-                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
-                            </tr>
-                            <tr>
-                                <td>Nama</td>
-                                <td class="fit"><button class="btn btn-primary fit">Pilih</button></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="analysis-container">
-            <div class="analysis-container analysis-center" style="height: 500px;">
-                <div class="card analysis-center" style="margin: 0 5px 0 0; width: 100%; overflow-y: auto; overflow-x: hidden;">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis nesciunt reprehenderit accusantium repellat magnam aliquid doloribus. Labore delectus voluptates, eum officiis tenetur nemo aliquam ducimus et, voluptatibus voluptate quos eveniet!
-                </div>
-                <div>
-                    <div class="card analysis-down" style="margin: 0 0 5px 5px; height: 50%;">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Libero similique odio nulla debitis. Provident consectetur, quae commodi eveniet ullam quaerat accusantium incidunt a veritatis. Eius corporis at repudiandae placeat ducimus?
-                    </div>
-                    <div class="card analysis-down" style="margin: 5px 0 0 5px; height: 50%;">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus, necessitatibus. Quod praesentium sunt recusandae ratione. Omnis non fugit, et, blanditiis sapiente consequuntur culpa commodi saepe, maxime laborum molestias eum amet!
-                    </div>
-                </div>
+
+        <div class="analysis-container" style="height: 300px;">
+            <div class="card analysis-left analysis-relative">
+                <span class="analysis-data-label">Data 1</span>
+                <div class="analysis-plot-area" id="data1-output"></div>
             </div>
-            <div class="analysis-container analysis-center" style="height: 500px;">
-                <div class="card analysis-center" style="margin: 0 5px 0 0; overflow: auto;">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis omnis quisquam ad minima rerum ea ipsa neque maxime, dolore sunt explicabo, eaque cum nesciunt vel? Quis cum iure hic quibusdam?
+            <div class="analysis-right analysis-row">
+                <div class="analysis-flex-fill">
+                    <div class="card analysis-card-half analysis-relative">
+                        <span class="analysis-data-label">Data 2</span>
+                        <div class="analysis-plot-area" id="data2-output"></div>
+                    </div>
+                    <div class="card analysis-card-half analysis-relative" style="margin-top: 15px;">
+                        <span class="analysis-data-label">Data 3</span>
+                        <div class="analysis-plot-area" id="data3-output"></div>
+                    </div>
                 </div>
-                <div class="card analysis-center" style="margin: 0 0 0 5px; overflow: auto;">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deserunt quod eos nemo quidem quasi, nam earum quo reprehenderit quam voluptatibus ipsa nulla iste excepturi ex in incidunt aliquid odit cupiditate?
+                <div class="card analysis-flex-fill analysis-relative">
+                    <span class="analysis-data-label">Data 4</span>
+                    <div class="analysis-plot-area" id="data4-output"></div>
+                </div>
+                <div class="card analysis-flex-fill analysis-relative">
+                    <span class="analysis-data-label">Data 5</span>
+                    <div class="analysis-plot-area" id="data5-output"></div>
                 </div>
             </div>
         </div>
-        <div class="analysis-container">
-            <div class="analysis-left">
-                <div class="card" style="margin-bottom: 10px;">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti porro dolorem laudantium dolorum maiores. Fugiat quod ipsa commodi sint nesciunt neque molestiae blanditiis consequuntur. Rerum laudantium dolorum consectetur iusto consequuntur!
+
+        <div class="analysis-container" style="height: 500px;">
+            <div class="analysis-col-30">
+                <div class="card analysis-card-half analysis-relative">
+                    <span class="analysis-data-label">Data 6</span>
+                    <div class="analysis-plot-area" id="data6-output"></div>
                 </div>
-                <div class="card" style="margin-top: 10px;">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quam doloremque at ad commodi cupiditate impedit veniam qui fugiat voluptatem tempora cumque possimus eveniet officia nulla totam quae hic. Iure.
+                <div class="card analysis-card-half analysis-relative">
+                    <span class="analysis-data-label">Data 7</span>
+                    <div class="analysis-plot-area" id="data7-output"></div>
                 </div>
             </div>
-            <div class="card analysis-right">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quam consectetur hic quis quo, possimus ducimus, nihil id animi consequuntur, expedita repellat cum cupiditate quisquam. Voluptatem optio dolorum magnam repellat! Modi!
+            <div class="card analysis-col-70 analysis-relative">
+                <span class="analysis-data-label">Data 8</span>
+                <div class="analysis-plot-area" id="data8-output"></div>
             </div>
         </div>
-        <div class="analysis-container">
-            <div class="card analysis-right">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quam consectetur hic quis quo, possimus ducimus, nihil id animi consequuntur, expedita repellat cum cupiditate quisquam. Voluptatem optio dolorum magnam repellat! Modi!
+
+        <div class="analysis-container" style="height: 500px;">
+            <div class="card analysis-col-70 analysis-relative">
+                <span class="analysis-data-label">Data 9</span>
+                <div class="analysis-plot-area" id="data9-output"></div>
             </div>
-            <div class="analysis-left">
-                <div class="card" style="margin-bottom: 10px;">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti porro dolorem laudantium dolorum maiores. Fugiat quod ipsa commodi sint nesciunt neque molestiae blanditiis consequuntur. Rerum laudantium dolorum consectetur iusto consequuntur!
+            <div class="analysis-col-30">
+                <div class="card analysis-card-half analysis-relative">
+                    <span class="analysis-data-label">Data 10</span>
+                    <div class="analysis-plot-area" id="data10-output"></div>
                 </div>
-                <div class="card" style="margin-top: 10px;">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quam doloremque at ad commodi cupiditate impedit veniam qui fugiat voluptatem tempora cumque possimus eveniet officia nulla totam quae hic. Iure.
+                <div class="card analysis-card-half analysis-relative">
+                    <span class="analysis-data-label">Data 11</span>
+                    <div class="analysis-plot-area" id="data11-output"></div>
                 </div>
             </div>
         </div>
     </div>
 </body>
-
 </html>
