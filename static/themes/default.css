@@ -31,7 +31,7 @@
     --p-primary-hover: #0842a0;
     --p-primary-active: #062e6f;
     --p-primary-subtle: rgba(11, 87, 208, 0.1);
-    --p-primary-text: #000000;           /* White text on Primary Button */
+    --p-primary-text: #d4e2ff;           /* White text on Primary Button */
     --p-primary-border: #0b57d0;
 
     /* PRIMARY ALT (Lighter Blue) */
@@ -79,28 +79,28 @@
     --p-status-error-hover: #8c1d18;
     --p-status-error-active: #601410;
     --p-status-error-bg: #f9dedc;
-    --p-status-error-text: #410e0b;
+    --p-status-error-text: #ffefef;
     --p-status-error-border: #b3261e;
 
     --p-status-success-main: #146c2e;
     --p-status-success-hover: #0f5223;
     --p-status-success-active: #0a3818;
     --p-status-success-bg: #c4eed0;
-    --p-status-success-text: #04210b;
+    --p-status-success-text: #e2ffd4;
     --p-status-success-border: #146c2e;
 
     --p-status-warning-main: #e09f1f;
     --p-status-warning-hover: #bc820f;
     --p-status-warning-active: #8e6205;
     --p-status-warning-bg: #ffeec9;
-    --p-status-warning-text: #1f1f1f;
+    --p-status-warning-text: #ffecd4;
     --p-status-warning-border: #e09f1f;
 
     --p-status-info-main: #0b57d0;
     --p-status-info-hover: #0842a0;
     --p-status-info-active: #062e6f;
     --p-status-info-bg: #d3e3fd;
-    --p-status-info-text: #041e49;
+    --p-status-info-text: #d4e2ff;
     --p-status-info-border: #0b57d0;
 
     /* STATS */

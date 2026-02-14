@@ -30,19 +30,24 @@
     <div class="page-container">
         <div class="grid">
             <div class="card">
-                Jumlah File : {{ datasets|length }}
+                Total File : {{ datasets|length }}
             </div>
             <div class="card">
                 Total : {{ current_count }} / {{ limit_count }}
             </div>
-            <div class="card">
-                Penyimpanan: {{ storage_percent }}%
+            <div class="card" style="display: flex; align-items: center; gap: 10px;">
+                <span>Storage: {{ storage_percent }}%</span>
+                {% if storage_percent >= 99 %}
+                    <span class="badge badge-error">Storage is full</span>
+                {% elif storage_percent >= 90 %}
+                    <span class="badge badge-warning">Storage Almost Full</span>
+                {% endif %}
             </div>
         </div>
         <div class="grid">
             <div class="flex" style="gap: 10px;">
-                <button onclick="openModal('uploadModal')" class="btn btn-primary">Tambah</button>
-                <button class="btn btn-primary">Hapus Semua</button>
+                <button onclick="openModal('uploadModal')" class="btn btn-primary">Add</button>
+                <button onclick="openModal('deleteAllModal')" class="btn btn-danger">Delete All</button>
             </div>
         </div>
         <table class="data-table">
@@ -86,16 +91,20 @@
                     </td>
                     <td>
                         <div class="flex" style="gap: 5px;">
+                            {% if not item.is_public %}
                             <button class="btn btn-primary"
                                 onclick="openEditModal(this)"
-                                data-id="{{ item.id }}"
+                                data-id="{{ item.data_id }}"
                                 data-name="{{ item.name }}"
                                 data-note="{{ item.note }}">
                                 Edit
                             </button>
-                            <form action="{{ url_for('delete_data', id=item.id) }}" method="post" style="display: inline;">
-                                <button type="submit" class="btn btn-primary" onclick="return confirm('Hapus data?')">hapus</button>
+                            <form action="{{ url_for('delete_data', data_id=item.data_id) }}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-primary" onclick="return confirm('Delete data?')">Delete</button>
                             </form>
+                            {% else %}
+                            <span class="badge badge-info">Public</span>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
@@ -125,16 +134,33 @@
         </div>
     </div>
     
-    <div id="verifyModal" class="modal-wrapper show">
-        <div class="modal-content verify-modal-content">
-            <div class="verify-body">
-                <div class="verify-title">Place holder</div>
-                <div class="verify-desc">
-                    placeholder
-                </div>
-                <div class="verify-actions">
-                    <button type="button" class="btn-verify-primary" onclick="submitOtp()">Oke</button>
-                </div>
+    <div id="deleteAllModal" class="modal-wrapper">
+        <div class="modal-content" style="max-width: 400px; height: auto;">
+            <div class="modal-header">
+                <h3>Warning</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete ALL your private files? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('deleteAllModal')">Cancel</button>
+                <form action="{{ url_for('delete_all_data') }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Continue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificationModal" class="modal-wrapper {% if request.args.get('notify_title') %}show{% endif %}">
+        <div class="modal-content" style="max-width: 400px; height: auto;">
+            <div class="modal-header">
+                <h3>{{ request.args.get('notify_title', 'Notification') }}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{{ request.args.get('notify_msg', '') }}</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closeModal('notificationModal')">OK</button>
             </div>
         </div>
     </div>
