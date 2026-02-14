@@ -9,6 +9,7 @@ import io
 import base64
 import pandas as pd
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,6 +19,7 @@ from flask import Flask, request, redirect, url_for, session, render_template, j
 from pathlib import Path
 from werkzeug.utils import secure_filename
 from email.message import EmailMessage
+
 
 class man_system:
     def __init__(self):
@@ -227,9 +229,7 @@ class webserver:
         kwargs['level'] = session.get('level', 0)
         kwargs['config'] = self.sys_man.load_config()
         kwargs['db_usage'] = self.sys_man.get_db_usage()
-        if not use_frame:
-            return render_template(template_name, **kwargs)
-        if request.args.get('content'):
+        if not use_frame or request.args.get('content') or request.headers.get('Sec-Fetch-Dest') == 'iframe':
             return render_template(template_name, **kwargs)
 
         target_url = f"{template_name}?content=1"
@@ -444,178 +444,9 @@ class webserver:
                     bg_image = f"res/login/{random.choice(images).name}"
             return self.render_page('index.html', use_frame=False, error=error, remaining=remaining, bg_image=bg_image, mode=mode, target_email=target_email)
 
-        @self.app.route('/home.html')
+        @self.app.route('/home')
         def home():
-            if 'username' not in session:
-                return redirect(url_for('index_route'))
-            return self.render_page('home.html', use_frame=True)
-
-        @self.app.route('/API/db/add_data', methods=['POST'])
-        def add_data():
-            if 'username' not in session:
-                return redirect(url_for('index_route'))
-            f = request.files.get('file')
-            note = request.form.get('note', '')
-            if f and f.filename:
-                if not f.filename.lower().endswith('.csv'):
-                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Invalid file type. Please upload only a .CSV file"))
-
-                user_path = self.sys_man.dir_db / session['username']
-                user_path.mkdir(parents=True, exist_ok=True)
-
-                current_usage = 0
-                for item in user_path.iterdir():
-                    if item.is_file() and item.name != "indexing.sysriot":
-                        current_usage += item.stat().st_size
-
-                f.seek(0, os.SEEK_END)
-                file_size = f.tell()
-                f.seek(0)
-
-                if current_usage + file_size > 10 * 1024 * 1024:
-                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Sorry, there is not enough storage to upload this file. Please clean up your storage and try again"))
-
-                filename = secure_filename(f.filename)
-                file_stem = Path(filename).stem
-                file_suffix = Path(filename).suffix
-
-                if len(file_stem) > 80:
-                    file_stem = file_stem[:80]
-
-                filename = f"{file_stem}{file_suffix}"
-                file_path = user_path / filename
-
-                counter = 1
-                while file_path.exists():
-                    filename = f"{file_stem}-{counter}{file_suffix}"
-                    file_path = user_path / filename
-                    counter += 1
-
-                f.save(file_path)
-
-                index_path = user_path / "indexing.sysriot"
-                index_data = self.sys_man.parse_sysriot(index_path)
-                file_id = secrets.token_hex(8)
-
-                index_data[file_id] = {
-                    "file": filename,
-                    "name": filename,
-                    "note": note,
-                    "size": file_path.stat().st_size,
-                    "uploaded_at": time.strftime("%Y-%m-%d %H:%M")
-                }
-                self.sys_man.save_sysriot(index_path, index_data)
-            return redirect(url_for('database', content=1))
-
-        @self.app.route('/API/db/edit_data/<data_id>', methods=['POST'])
-        def edit_data(data_id):
-            if 'username' not in session:
-                return redirect(url_for('index_route'))
-
-            user_path = self.sys_man.dir_db / session['username']
-            public_path = self.sys_man.dir_db / "public"
-            index_path = user_path / "indexing.sysriot"
-            public_index_path = public_path / "indexing.sysriot"
-
-            index_data = self.sys_man.parse_sysriot(index_path)
-            target_path = user_path
-            target_index_path = index_path
-
-            if data_id not in index_data:
-                user_level = session.get('level', 0)
-                if user_level == 2 or user_level == -1:
-                    index_data = self.sys_man.parse_sysriot(public_index_path)
-                    if data_id in index_data:
-                        target_path = public_path
-                        target_index_path = public_index_path
-                    else:
-                        return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Sorry, there is not enough storage to upload this file. Please clean up your storage and try again"))
-                else:
-                    return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry, there is a problem while editing your file. Please try again later"))
-
-            current_data = index_data[data_id]
-            new_name = request.form.get('name', '').strip()
-            new_note = request.form.get('note', '')
-
-            if new_name:
-                old_filename = current_data.get('file')
-                safe_new_name = secure_filename(new_name)
-
-                if len(safe_new_name) > 80:
-                    safe_new_name = safe_new_name[:80]
-
-                final_filename = f"{safe_new_name}.csv"
-
-                old_file_path = target_path / old_filename
-                new_file_path = target_path / final_filename
-
-                if old_file_path.exists():
-                    try:
-                        os.rename(old_file_path, new_file_path)
-                        current_data['file'] = final_filename
-                        current_data['name'] = final_filename
-                    except:
-                        return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry, there is a problem while renaming your file. Please try again later"))
-
-            current_data['note'] = new_note
-            index_data[data_id] = current_data
-            self.sys_man.save_sysriot(target_index_path, index_data)
-            return redirect(url_for('database', content=1))
-
-        @self.app.route('/API/db/delete_data/<data_id>', methods=['POST'])
-        def delete_data(data_id):
-            if 'username' not in session:
-                return redirect(url_for('index_route'))
-
-            user_path = self.sys_man.dir_db / session['username']
-            public_path = self.sys_man.dir_db / "public"
-            index_path = user_path / "indexing.sysriot"
-            public_index_path = public_path / "indexing.sysriot"
-
-            index_data = self.sys_man.parse_sysriot(index_path)
-            target_path = user_path
-            target_index_path = index_path
-
-            if data_id not in index_data:
-                user_level = session.get('level', 0)
-                if user_level == 2 or user_level == -1:
-                    index_data = self.sys_man.parse_sysriot(public_index_path)
-                    if data_id in index_data:
-                        target_path = public_path
-                        target_index_path = public_index_path
-                    else:
-                        return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry, there is a problem while trying to find the file"))
-                else:
-                    return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry, there is a problem while deleting your file. Please try again later"))
-
-            file_info = index_data.pop(data_id)
-            filename = file_info.get('file')
-            if filename:
-                file_path = target_path / filename
-                if file_path.exists():
-                    os.remove(file_path)
-
-            self.sys_man.save_sysriot(target_index_path, index_data)
-            return redirect(url_for('database', content=1))
-
-        @self.app.route('/API/db/delete_all_data', methods=['POST'])
-        def delete_all_data():
-            if 'username' not in session:
-                return redirect(url_for('index_route'))
-
-            user_path = self.sys_man.dir_db / session['username']
-            if user_path.exists():
-                index_path = user_path / "indexing.sysriot"
-
-                for item in user_path.glob("*.csv"):
-                    try:
-                        os.remove(item)
-                    except:
-                        pass
-
-                self.sys_man.save_sysriot(index_path, {})
-
-            return redirect(url_for('database', content=1))
+            return redirect(url_for('analysis'))
 
         @self.app.route('/database.html')
         def database():
@@ -681,7 +512,7 @@ class webserver:
                     datasets.append({
                         "data_id": fid,
                         "name": info.get('name', fname),
-                        "note": info.get('note', 'Public Resource'),
+                        "note": info.get('note', 'This file is provided by us and wont use your storage capacity'),
                         "type": Path(fname).suffix,
                         "size": format_size(public_files[fname].stat().st_size),
                         "uploaded_at": info.get('uploaded_at', ''),
@@ -714,52 +545,44 @@ class webserver:
             users = self.sys_man.load_users()
             target_user = request.args.get('edit_user', session['username'])
             user_level = session.get('level', 0)
-
             if user_level != -1:
                 target_level = users.get(target_user, {}).get('level', 0)
                 if user_level != 2:
                     target_user = session['username']
                 elif target_level == -1:
                     return redirect(url_for('admin_settings', content=1))
-
             if request.method == 'POST':
-                new_username = request.form.get('new_username', '').strip().lower()
+                if target_user not in users:
+                    return redirect(url_for('user_settings'))
+                new_username = request.form.get('new_username', '').strip()
                 new_email = request.form.get('email', '').strip().lower()
                 is_2fa = request.form.get('2fa') == 'on'
                 u_data = users[target_user]
+                old_theme = u_data.get('theme', 'default')
+                new_theme = request.form.get('theme')
                 u_data['password'] = request.form.get('password') or u_data['password']
-                u_data['theme'] = request.form.get('theme')
+                u_data['theme'] = new_theme
                 u_data['email'] = new_email or u_data['email']
                 u_data['2fa'] = is_2fa
                 if new_username and new_username != target_user:
                     if not (self.sys_man.dir_db / f"{new_username}.sysriot").exists():
                         os.remove(self.sys_man.dir_db / f"{target_user}.sysriot")
+                        old_user = target_user
                         target_user = new_username
-                        if session['username'] != 'admin':
-                            session['username'] = new_username
+                        if old_user in self.active_sessions:
+                            self.active_sessions[target_user] = self.active_sessions.pop(old_user)
+                        if session.get('username') == old_user:
+                            session['username'] = target_user
                 self.sys_man.save_sysriot(self.sys_man.dir_db / f"{target_user}.sysriot", {"info": u_data})
+                if session.get('username') == target_user and old_theme != new_theme:
+                    return f"<script>window.top.location.href = '{url_for('user_settings')}';</script>"
                 return redirect(url_for('user_settings', edit_user=target_user, content=1))
             themes = {f.stem.lower() for f in (Path(self.app.static_folder) / "themes").glob("*.css")}
             if 'default' in themes:
                 themes.remove('default')
             themes = sorted(list(themes))
             themes.insert(0, 'Default')
-
             return self.render_page('user_settings.html', use_frame=True, themes=themes, target_user=target_user, target_data=users.get(target_user, {}))
-
-        @self.app.route('/API/user/init_delete', methods=['POST'])
-        def api_init_delete():
-            if 'username' not in session:
-                return jsonify({"status": "error"}), 403
-            user = session['username']
-            users = self.sys_man.load_users()
-            if user not in users:
-                return jsonify({"status": "error"}), 400
-
-            otp_code = secrets.token_hex(3).upper()
-            session['delete_otp'] = {"code": otp_code, "time": time.time()}
-            threading.Thread(target=self.send_otp, args=(users[user]['email'], otp_code)).start()
-            return jsonify({"status": "success"})
 
         @self.app.route('/API/user/confirm_delete', methods=['POST'])
         def api_confirm_delete():
@@ -778,7 +601,66 @@ class webserver:
             self.sys_man.delete_user_data(user)
             self.sys_man.write_log("SYSTEM", "account_delete", f"User {user} deleted their account")
 
+            # FIX: Properly remove user from active sessions to kill access immediately
+            if user in self.active_sessions:
+                del self.active_sessions[user]
+
             session.clear()
+            return jsonify({"status": "success"})
+
+        @self.app.route('/admin_settings.html')
+        def admin_settings():
+            user_level = session.get('level', 0)
+            if user_level != -1 and user_level != 2:
+                return redirect(url_for('home'))
+
+            users = self.sys_man.load_users()
+            stats = {
+                "total_size": self.sys_man.get_total_usage_formatted(),
+                "system_config": "0 B",
+                "public": {"count": 0, "size": "0 B"},
+                "users": {}
+            }
+
+            sc_path = self.sys_man.system_conf_path
+            if sc_path.exists():
+                stats["system_config"] = f"{sc_path.stat().st_size / 1024:.2f} KB"
+
+            pb_path = self.sys_man.dir_db / "public"
+            if pb_path.exists():
+                p_fs = list(pb_path.glob("*.csv"))
+                p_sz = sum(f.stat().st_size for f in p_fs)
+                stats["public"] = {"count": len(p_fs), "size": f"{p_sz / 1024:.2f} KB"}
+
+            for u in users:
+                u_d = self.sys_man.dir_db / u
+                if u_d.exists():
+                    u_fs = [f for f in u_d.iterdir() if f.is_file() and f.name != "indexing.sysriot"]
+                    u_sz = sum(f.stat().st_size for f in u_fs)
+                    stats["users"][u] = {"count": len(u_fs), "size": f"{u_sz / 1024:.2f} KB"}
+
+            themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
+            logs = []
+            l_path = self.sys_man.system_dir / "logs.sysriot"
+            if l_path.exists():
+                with open(l_path, "r") as f:
+                    logs = f.readlines()[-100:]
+                logs.reverse()
+
+            return self.render_page('admin_settings.html', use_frame=True, users_list=users, stats=stats, themes=themes, logs=logs)
+
+        @self.app.route('/API/user/init_delete', methods=['POST'])
+        def api_init_delete():
+            if 'username' not in session:
+                return jsonify({"status": "error"}), 403
+            user = session['username']
+            users = self.sys_man.load_users()
+            if user not in users:
+                return jsonify({"status": "error"}), 400
+
+            otp_code = secrets.token_hex(3).upper()
+            session['delete_otp'] = {"code": otp_code, "time": time.time()}
+            threading.Thread(target=self.send_otp, args=(users[user]['email'], otp_code)).start()
             return jsonify({"status": "success"})
 
         @self.app.route('/API/admin/system_status', methods=['GET'])
@@ -1006,7 +888,7 @@ class webserver:
                 index_data[file_id] = {
                     "file": filename,
                     "name": filename,
-                    "note": "This File Is provided by Us and wont eat your storage",
+                    "note": "This file is provided by us and wont use your storage capacity",
                     "size": file_path.stat().st_size,
                     "uploaded_at": time.strftime("%Y-%m-%d %H:%M")
                 }
@@ -1014,47 +896,6 @@ class webserver:
                 self.sys_man.write_log(session['username'], "upload_public", f"Uploaded: {filename}")
                 return jsonify({"status": "success", "new_size": self.sys_man.get_total_usage_formatted()})
             return jsonify({"status": "error"}), 400
-
-        @self.app.route('/admin_settings.html')
-        def admin_settings():
-            user_level = session.get('level', 0)
-            if user_level != -1 and user_level != 2:
-                return redirect(url_for('home'))
-
-            users = self.sys_man.load_users()
-            stats = {
-                "total_size": self.sys_man.get_total_usage_formatted(),
-                "system_config": "0 B",
-                "public": {"count": 0, "size": "0 B"},
-                "users": {}
-            }
-
-            sc_path = self.sys_man.system_conf_path
-            if sc_path.exists():
-                stats["system_config"] = f"{sc_path.stat().st_size / 1024:.2f} KB"
-
-            pb_path = self.sys_man.dir_db / "public"
-            if pb_path.exists():
-                p_fs = list(pb_path.glob("*.csv"))
-                p_sz = sum(f.stat().st_size for f in p_fs)
-                stats["public"] = {"count": len(p_fs), "size": f"{p_sz / 1024:.2f} KB"}
-
-            for u in users:
-                u_d = self.sys_man.dir_db / u
-                if u_d.exists():
-                    u_fs = [f for f in u_d.iterdir() if f.is_file() and f.name != "indexing.sysriot"]
-                    u_sz = sum(f.stat().st_size for f in u_fs)
-                    stats["users"][u] = {"count": len(u_fs), "size": f"{u_sz / 1024:.2f} KB"}
-
-            themes = [f.stem for f in (Path(self.app.static_folder) / "themes").glob("*.css")]
-            logs = []
-            l_path = self.sys_man.system_dir / "logs.sysriot"
-            if l_path.exists():
-                with open(l_path, "r") as f:
-                    logs = f.readlines()[-100:]
-                logs.reverse()
-
-            return self.render_page('admin_settings.html', use_frame=True, users_list=users, stats=stats, themes=themes, logs=logs)
 
         @self.app.route('/API/analysis/get_sources', methods=['GET'])
         def api_get_sources():
@@ -1251,7 +1092,8 @@ class webserver:
                     elif atype == 'corr':
                         primary_name, df = dfs[0]
                         cols = [col_a, col_b]
-                        if param: cols.append(param)
+                        if param:
+                            cols.append(param)
                         valid_cols = [c for c in cols if c in df.columns]
 
                         if not valid_cols:
@@ -1324,6 +1166,173 @@ class webserver:
             except Exception as e:
                 plt.close('all')
                 return jsonify({"status": "error", "msg": str(e)})
+
+        @self.app.route('/API/db/add_data', methods=['POST'])
+        def add_data():
+            if 'username' not in session:
+                return redirect(url_for('index_route'))
+            f = request.files.get('file')
+            note = request.form.get('note', '')
+            if f and f.filename:
+                if not f.filename.lower().endswith('.csv'):
+                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Invalid file type. Please upload only a .CSV file"))
+
+                user_path = self.sys_man.dir_db / session['username']
+                user_path.mkdir(parents=True, exist_ok=True)
+
+                current_usage = 0
+                for item in user_path.iterdir():
+                    if item.is_file() and item.name != "indexing.sysriot":
+                        current_usage += item.stat().st_size
+
+                f.seek(0, os.SEEK_END)
+                file_size = f.tell()
+                f.seek(0)
+
+                if current_usage + file_size > 10 * 1024 * 1024:
+                    return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Sorry, there is not enough storage to upload this file. Please clean up your storage and try again"))
+
+                filename = secure_filename(f.filename)
+                file_stem = Path(filename).stem
+                file_suffix = Path(filename).suffix
+
+                if len(file_stem) > 80:
+                    file_stem = file_stem[:80]
+
+                filename = f"{file_stem}{file_suffix}"
+                file_path = user_path / filename
+
+                counter = 1
+                while file_path.exists():
+                    filename = f"{file_stem}-{counter}{file_suffix}"
+                    file_path = user_path / filename
+                    counter += 1
+
+                f.save(file_path)
+
+                index_path = user_path / "indexing.sysriot"
+                index_data = self.sys_man.parse_sysriot(index_path)
+                file_id = secrets.token_hex(8)
+
+                index_data[file_id] = {
+                    "file": filename,
+                    "name": filename,
+                    "note": note,
+                    "size": file_path.stat().st_size,
+                    "uploaded_at": time.strftime("%Y-%m-%d %H:%M")
+                }
+                self.sys_man.save_sysriot(index_path, index_data)
+            return redirect(url_for('database', content=1))
+
+        @self.app.route('/API/db/edit_data/<data_id>', methods=['POST'])
+        def edit_data(data_id):
+            if 'username' not in session:
+                return redirect(url_for('index_route'))
+
+            user_path = self.sys_man.dir_db / session['username']
+            public_path = self.sys_man.dir_db / "public"
+            index_path = user_path / "indexing.sysriot"
+            public_index_path = public_path / "indexing.sysriot"
+
+            index_data = self.sys_man.parse_sysriot(index_path)
+            target_path = user_path
+            target_index_path = index_path
+
+            if data_id not in index_data:
+                user_level = session.get('level', 0)
+                if user_level == 2 or user_level == -1:
+                    index_data = self.sys_man.parse_sysriot(public_index_path)
+                    if data_id in index_data:
+                        target_path = public_path
+                        target_index_path = public_index_path
+                    else:
+                        return redirect(url_for('database', content=1, notify_title="Upload Failed", notify_msg="Sorry, there is not enough storage to upload this file. Please clean up your storage and try again"))
+                else:
+                    return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry, there is a problem while editing your file. Please try again later"))
+
+            current_data = index_data[data_id]
+            new_name = request.form.get('name', '').strip()
+            new_note = request.form.get('note', '')
+
+            if new_name:
+                old_filename = current_data.get('file')
+                safe_new_name = secure_filename(new_name)
+
+                if len(safe_new_name) > 80:
+                    safe_new_name = safe_new_name[:80]
+
+                final_filename = f"{safe_new_name}.csv"
+
+                old_file_path = target_path / old_filename
+                new_file_path = target_path / final_filename
+
+                if old_file_path.exists():
+                    try:
+                        os.rename(old_file_path, new_file_path)
+                        current_data['file'] = final_filename
+                        current_data['name'] = final_filename
+                    except:
+                        return redirect(url_for('database', content=1, notify_title="Edit Failed", notify_msg="Sorry, there is a problem while renaming your file. Please try again later"))
+
+            current_data['note'] = new_note
+            index_data[data_id] = current_data
+            self.sys_man.save_sysriot(target_index_path, index_data)
+            return redirect(url_for('database', content=1))
+
+        @self.app.route('/API/db/delete_data/<data_id>', methods=['POST'])
+        def delete_data(data_id):
+            if 'username' not in session:
+                return redirect(url_for('index_route'))
+
+            user_path = self.sys_man.dir_db / session['username']
+            public_path = self.sys_man.dir_db / "public"
+            index_path = user_path / "indexing.sysriot"
+            public_index_path = public_path / "indexing.sysriot"
+
+            index_data = self.sys_man.parse_sysriot(index_path)
+            target_path = user_path
+            target_index_path = index_path
+
+            if data_id not in index_data:
+                user_level = session.get('level', 0)
+                if user_level == 2 or user_level == -1:
+                    index_data = self.sys_man.parse_sysriot(public_index_path)
+                    if data_id in index_data:
+                        target_path = public_path
+                        target_index_path = public_index_path
+                    else:
+                        return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry, there is a problem while trying to find the file"))
+                else:
+                    return redirect(url_for('database', content=1, notify_title="Delete Failed", notify_msg="Sorry, there is a problem while deleting your file. Please try again later"))
+
+            file_info = index_data.pop(data_id)
+            filename = file_info.get('file')
+            if filename:
+                file_path = target_path / filename
+                if file_path.exists():
+                    os.remove(file_path)
+
+            self.sys_man.save_sysriot(target_index_path, index_data)
+            return redirect(url_for('database', content=1))
+
+        @self.app.route('/API/db/delete_all_data', methods=['POST'])
+        def delete_all_data():
+            if 'username' not in session:
+                return redirect(url_for('index_route'))
+
+            user_path = self.sys_man.dir_db / session['username']
+            if user_path.exists():
+                index_path = user_path / "indexing.sysriot"
+
+                for item in user_path.glob("*.csv"):
+                    try:
+                        os.remove(item)
+                    except:
+                        pass
+
+                self.sys_man.save_sysriot(index_path, {})
+
+            return redirect(url_for('database', content=1))
 
         @self.app.route('/API/logout')
         def logout():

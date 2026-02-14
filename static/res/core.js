@@ -90,8 +90,9 @@ function loadTablePreview(sources) {
     }
     sources.forEach(src => {
         const tr = document.createElement('tr');
+        tr.className = 'data-row';
         const badge = src.origin === 'public' ? '<span class="badge badge-info badge-sm">Public</span>' : '';
-        tr.innerHTML = `<td>${src.name} ${badge}</td><td class="text-center"><button class="btn btn-primary-alt btn-sm badge-sm" onclick="openAssignModal('${src.id}', '${src.name}')">Assign</button></td>`;
+        tr.innerHTML = `<td><span class="file-name">${src.name}</span> ${badge}</td><td class="text-center"><button class="btn btn-primary-alt btn-sm badge-sm" onclick="openAssignModal('${src.id}', '${src.name}')">Assign</button></td>`;
         tbody.appendChild(tr);
     });
 }

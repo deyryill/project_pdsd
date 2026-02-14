@@ -10,7 +10,6 @@
     <div class="analysis-navbar">
         <div class="flex" style="gap: 10px;">
             <button class="btn btn-primary-alt btn-sm" id="applyAnalysisBtn">Apply Analysis</button>
-            <button class="btn btn-secondary btn-sm" id="saveAnalysisBtn">Save Config</button>
         </div>
     </div>
 
@@ -25,8 +24,8 @@
 
             <div class="card analysis-right analysis-relative" style="display: flex; flex-direction: column; overflow: hidden;">
                 <search style="flex-shrink: 0;">
-                    <form class="flex" style="margin-bottom: 15px;">
-                        <input type="text" name="cari" placeholder="find database" style="width: 100%;" class="input-sm">
+                    <form class="flex" style="margin-bottom: 15px;" onsubmit="event.preventDefault();">
+                        <input type="text" id="data-search" oninput="filterData()" placeholder="find database" style="width: 100%;" class="input-sm">
                     </form>
                 </search>
                 <div class="analysis-table-fill">
